@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Storage;
+using PlatformEducationWorkers.Storage.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddTransient<IUserResultService,UserResultService>();
 builder.Services.AddTransient<IEnterpriceService,EnterpriceService>();
 builder.Services.AddTransient<IRoleService,RoleService>();
 builder.Services.AddTransient<ICourcesService,CourceService>();
+builder.Services.AddTransient<IRepository,GenericRepository>();
 
 var app = builder.Build();
 

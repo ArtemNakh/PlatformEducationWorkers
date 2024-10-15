@@ -6,6 +6,13 @@ namespace PlatformEducationWorkers.Core.Services
 {
     public class AdministratorService : IAdministratorService
     {
+        private readonly IRepository _context;
+
+        public AdministratorService(IRepository context)
+        {
+            _context = context;
+        }
+
         public Task<Administrator> AddAdministrator(Administrator administrator)
         {
             throw new NotImplementedException();
