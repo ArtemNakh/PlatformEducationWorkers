@@ -19,7 +19,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<User> AddUser(User user);
 
         Task<User> SearchUser(string name, string surname,DateTime birthday);
-        Task<IEnumerable<User>> GetUsersByRole(int roleId);
+        Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId);
 
     }
 }

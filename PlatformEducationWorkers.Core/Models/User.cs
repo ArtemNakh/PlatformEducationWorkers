@@ -19,6 +19,14 @@ namespace PlatformEducationWorkers.Core.Models
 
         public Enterprice Enterprise { get; set; }
 
+        public JobTitle JobTitle { get; set; }
         public Role Role { get; set; }
+
+    }
+
+   public enum Role
+    {
+        Admin,
+        Workers
     }
 }

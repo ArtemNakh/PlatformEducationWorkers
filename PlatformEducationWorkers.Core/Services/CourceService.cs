@@ -6,29 +6,100 @@ namespace PlatformEducationWorkers.Core.Services
 {
     public class CourceService : ICourcesService
     {
+        private readonly IRepository _repository;
+
+        public CourceService(IRepository repository)
+        {
+            _repository = repository;
+        }
+
         public Task<Cources> AddCource(Cources cources)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (cources == null)
+                    throw new Exception("Cource is null");
+
+                return _repository.Add(cources);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception ($"Error adding cource,  error:{ex}");
+            }
         }
 
         public Task DeleteCource(int courceId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (courceId == null)
+                    throw new Exception("Cource is null");
+
+                return _repository.Delete<Cources>(courceId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Error delete cource,  error:{ex}");
+            }
         }
 
         public Task<IEnumerable<Cources>> GetAllCourcesEnterprice(int enterpriceId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (enterpriceId == null)
+                    throw new Exception("enterprice is null");
+
+                return _repository.GetQuery<Cources>(u=> u.Enterprise.Id==enterpriceId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Error get all cource enterprice by enterprice ,  error:{ex}");
+            }
         }
 
         public Task<IEnumerable<Cources>> GetAllCourcesUser(int userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (userId == null)
+                    throw new Exception("user is null");
+
+                User user=_repository.GetById<User>(userId).Result;
+
+                return _repository.GetQuery<Cources>(u => u.AccessRoles == user.JobTitle);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Error get all cource enterprice by user ,  error:{ex}");
+            }
         }
 
         public Task<Cources> GetCourcesById(int courceId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (courceId == null)
+                    throw new Exception("cource is null");
+
+                
+
+                return _repository.GetById<Cources>(courceId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Error get cource by id ,  error:{ex}");
+            }
         }
 
         public Task<Cources> GetCourcesBytitle(int titleCource)
@@ -36,9 +107,48 @@ namespace PlatformEducationWorkers.Core.Services
             throw new NotImplementedException();
         }
 
+        //public Task<Cources> GetCourcesBytitle(int titleCource,int enterpriceId)
+        //{
+        //    try
+        //    {
+        //        //додати валідацію
+        //        if (titleCource == null)
+        //            throw new Exception("title cource is null");
+
+
+
+        //        return _repository.GetById<Cources>(courceId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw new Exception($"Error get cource by id ,  error:{ex}");
+        //    }
+        //}
+
         public Task<Cources> UpdateCource(Cources cources)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //додати валідацію
+                if (cources == null)
+                    throw new Exception("cource is null");
+
+                Cources oldCource=_repository.GetById<Cources>(cources.Id).Result;
+
+                oldCource.TitleCource = cources.TitleCource;
+                oldCource.AccessRoles=cources.AccessRoles;
+                oldCource.Questions=cources.Questions;
+                oldCource.ContentCourse=cources.ContentCourse;
+                oldCource.Description=cources.Description;
+                
+                return _repository.Update(cources);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Error get cource by id ,  error:{ex}");
+            }
         }
     }
 }

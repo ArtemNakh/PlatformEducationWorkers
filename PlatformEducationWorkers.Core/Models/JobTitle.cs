@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PlatformEducationWorkers.Core.Models
 {
-    public class Role
+    public class JobTitle
     {
         public int Id { get; set; }
         public string  Name { get; set; }

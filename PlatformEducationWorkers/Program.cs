@@ -10,11 +10,11 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<PlatformEducationContex>(options => options.UseSqlServer("Local"));
 
-builder.Services.AddTransient<IAdministratorService,AdministratorService>();
+//builder.Services.AddTransient<IAdministratorService,AdministratorService>();
 builder.Services.AddTransient<IUserService,UserService>();
 builder.Services.AddTransient<IUserResultService,UserResultService>();
 builder.Services.AddTransient<IEnterpriceService,EnterpriceService>();
-builder.Services.AddTransient<IRoleService,RoleService>();
+builder.Services.AddTransient<IRoleService,JobTitleService>();
 builder.Services.AddTransient<ICourcesService,CourceService>();
 builder.Services.AddTransient<IRepository,GenericRepository>();
 

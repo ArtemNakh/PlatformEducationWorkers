@@ -9,11 +9,11 @@ namespace PlatformEducationWorkers.Core.Interfaces
 {
     public interface IRoleService
     {
-        Task<IEnumerable<Role>> GetAllRoles(int idEnterprice);
-        Task<Role> GetRole(int idRole);
+        Task<IEnumerable<JobTitle>> GetAllRoles(int idEnterprice);
+        Task<JobTitle> GetRole(int idRole);
         Task DeleteRole(int idRole);
-        Task<Role> AddingRole(Role role);
-        Task<Role> UpdateRole(Role role);
+        Task<JobTitle> AddingRole(JobTitle role);
+        Task<JobTitle> UpdateRole(JobTitle role);
 
     }
 }

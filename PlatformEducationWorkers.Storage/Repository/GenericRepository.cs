@@ -1,4 +1,5 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
+using System.Linq.Expressions;
 
 namespace PlatformEducationWorkers.Storage.Repository
 {
@@ -33,6 +34,11 @@ namespace PlatformEducationWorkers.Storage.Repository
         public Task<T> GetById<T>(int id) where T : class
         {
             return _context.Set<T>().FindAsync(id).AsTask();
+        }
+
+        public async Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class
+        {
+            return _context.Set<T>().Where(func);
         }
 
         public async Task<T> Update<T>(T entity) where T : class
