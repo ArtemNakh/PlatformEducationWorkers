@@ -88,13 +88,13 @@ namespace PlatformEducationWorkers.Core.Services
             throw new NotImplementedException();
         }
 
-        public Task<User> Login(string login, string password)
+        public async Task<User> Login(string login, string password)
         {
             try
             {
                 //додати валідацію
-               User user=  _repository.GetQuery<User>(r => r.Login == login && r.Password == password).Result.First();
-                return  Task.FromResult(user);
+                var user = await _repository.GetQuery<User>(u => u.Login == login && u.Password == password);
+                return user.FirstOrDefault();
             }
             catch (Exception ex)
             {

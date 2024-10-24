@@ -2,9 +2,11 @@
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
+    [Route("Admin")]
+    [Area("Administrator")]
     public class MainController : Controller
     {
-        [Route("Admin/Main")]
+        [Route("Main")]
         public IActionResult Index()
         {
             return View("~/Views/Administrator/Main/Index.cshtml");

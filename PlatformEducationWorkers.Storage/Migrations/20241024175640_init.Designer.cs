@@ -12,8 +12,8 @@ using PlatformEducationWorkers.Storage;
 namespace PlatformEducationWorkers.Storage.Migrations
 {
     [DbContext(typeof(PlatformEducationContex))]
-    [Migration("20241012141656_ChangeRole-addEnterprice")]
-    partial class ChangeRoleaddEnterprice
+    [Migration("20241024175640_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,47 +24,6 @@ namespace PlatformEducationWorkers.Storage.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Administrator", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Birthday")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnterpriceId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Login")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EnterpriceId");
-
-                    b.ToTable("Administrations");
-                });
 
             modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Cources", b =>
                 {
@@ -85,8 +44,8 @@ namespace PlatformEducationWorkers.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EnterpriseId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("EnterpriseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Questions")
                         .IsRequired()
@@ -103,10 +62,13 @@ namespace PlatformEducationWorkers.Storage.Migrations
                     b.ToTable("Cources");
                 });
 
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Enterprise", b =>
+            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Enterprice", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateCreate")
                         .HasColumnType("datetime2");
@@ -124,7 +86,7 @@ namespace PlatformEducationWorkers.Storage.Migrations
                     b.ToTable("Enterprises");
                 });
 
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Role", b =>
+            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.JobTitle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -135,9 +97,8 @@ namespace PlatformEducationWorkers.Storage.Migrations
                     b.Property<int?>("CourcesId")
                         .HasColumnType("int");
 
-                    b.Property<string>("EnterpriseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("EnterpriseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -149,7 +110,7 @@ namespace PlatformEducationWorkers.Storage.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("JobTitles");
                 });
 
             modelBuilder.Entity("PlatformEducationWorkers.Core.Models.User", b =>
@@ -170,9 +131,11 @@ namespace PlatformEducationWorkers.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EnterpriseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("EnterpriseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobTitleId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Login")
                         .IsRequired()
@@ -186,7 +149,7 @@ namespace PlatformEducationWorkers.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleId")
+                    b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.Property<string>("Surname")
@@ -197,7 +160,7 @@ namespace PlatformEducationWorkers.Storage.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("JobTitleId");
 
                     b.ToTable("Users");
                 });
@@ -234,31 +197,24 @@ namespace PlatformEducationWorkers.Storage.Migrations
                     b.ToTable("UserResults");
                 });
 
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Administrator", b =>
-                {
-                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprise", "Enterprice")
-                        .WithMany("Administrators")
-                        .HasForeignKey("EnterpriceId");
-
-                    b.Navigation("Enterprice");
-                });
-
             modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Cources", b =>
                 {
-                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprise", "Enterprise")
+                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprice", "Enterprise")
                         .WithMany("Cources")
-                        .HasForeignKey("EnterpriseId");
+                        .HasForeignKey("EnterpriseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Enterprise");
                 });
 
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Role", b =>
+            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.JobTitle", b =>
                 {
                     b.HasOne("PlatformEducationWorkers.Core.Models.Cources", null)
                         .WithMany("AccessRoles")
                         .HasForeignKey("CourcesId");
 
-                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprise", "Enterprise")
+                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprice", "Enterprise")
                         .WithMany()
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -269,21 +225,21 @@ namespace PlatformEducationWorkers.Storage.Migrations
 
             modelBuilder.Entity("PlatformEducationWorkers.Core.Models.User", b =>
                 {
-                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprise", "Enterprise")
+                    b.HasOne("PlatformEducationWorkers.Core.Models.Enterprice", "Enterprise")
                         .WithMany("Users")
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PlatformEducationWorkers.Core.Models.Role", "Role")
+                    b.HasOne("PlatformEducationWorkers.Core.Models.JobTitle", "JobTitle")
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("JobTitleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Enterprise");
 
-                    b.Navigation("Role");
+                    b.Navigation("JobTitle");
                 });
 
             modelBuilder.Entity("PlatformEducationWorkers.Core.Models.UserResults", b =>
@@ -310,10 +266,8 @@ namespace PlatformEducationWorkers.Storage.Migrations
                     b.Navigation("AccessRoles");
                 });
 
-            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Enterprise", b =>
+            modelBuilder.Entity("PlatformEducationWorkers.Core.Models.Enterprice", b =>
                 {
-                    b.Navigation("Administrators");
-
                     b.Navigation("Cources");
 
                     b.Navigation("Users");

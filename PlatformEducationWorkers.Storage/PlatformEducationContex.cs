@@ -19,7 +19,7 @@ namespace PlatformEducationWorkers.Storage
         public DbSet<Enterprice> Enterprises { get; set; }
         public DbSet<Cources> Cources { get; set; }
         public DbSet<UserResults> UserResults { get; set; }
-        public DbSet<JobTitle> Roles { get; set; }
+        public DbSet<JobTitle> JobTitles { get; set; }
        // public DbSet<Administrator> Administrations { get; set; }
     }
 }

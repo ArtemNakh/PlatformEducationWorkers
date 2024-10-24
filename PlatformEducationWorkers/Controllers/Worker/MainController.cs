@@ -2,15 +2,14 @@
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
-    //однаковий шлях
-   
+    [Route("Worker")]
+    [Area("Worker")]
     public class MainController : Controller
     {
-        [Route("/Main")]
+        [Route("Main")]
         public IActionResult Index()
         {
            return View("~/Views/Worker/Main/Index.cshtml");
-            //return View();
         }
     }
 }
