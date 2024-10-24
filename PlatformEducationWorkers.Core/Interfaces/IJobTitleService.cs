@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlatformEducationWorkers.Core.Interfaces
 {
-    public interface IRoleService
+    public interface IJobTitleService
     {
         Task<IEnumerable<JobTitle>> GetAllRoles(int idEnterprice);
         Task<JobTitle> GetRole(int idRole);

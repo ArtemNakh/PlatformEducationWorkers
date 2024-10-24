@@ -3,7 +3,7 @@ using PlatformEducationWorkers.Core.Models;
 
 namespace PlatformEducationWorkers.Core.Services
 {
-    public class JobTitleService : IRoleService
+    public class JobTitleService : IJobTitleService
     {
         private readonly IRepository _repository;
 

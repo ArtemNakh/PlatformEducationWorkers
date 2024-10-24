@@ -1,3 +1,43 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Курси";
+    var cources = ViewBag.Cources as IEnumerable<PlatformEducationWorkers.Core.Models.Cources>;
 }
+
+<h1>Курси</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва курсу</th>
+            <th>Опис</th>
+            <th>Дата створення</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (cources != null && cources.Any())
+        {
+            foreach (var cource in cources)
+            {
+                <tr>
+                    <td>@cource.TitleCource</td>
+                    <td>@cource.Description</td>
+                    <td>@cource.DateCreate.ToShortDateString()</td>
+                    <td>
+                        <a href="@Url.Action("Edit", "Cources", new { id = cource.Id })" class="btn btn-primary">Редагувати</a>
+                        <a href="@Url.Action("Delete", "Cources", new { id = cource.Id })" class="btn btn-danger">Видалити</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">Курси не знайдено.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Cources")" class="btn btn-success">Додати новий курс</a>

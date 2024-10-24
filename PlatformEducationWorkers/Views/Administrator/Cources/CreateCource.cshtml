@@ -1,3 +1,111 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Додати новий курс";
+
+    var jobTitles = ViewBag.JobTitles as IEnumerable<PlatformEducationWorkers.Core.Models.JobTitle>;
+}
+
+@model PlatformEducationWorkers.Core.Models.Cources
+
+
+<h1>@ViewData["Title"]</h1>
+
+<form id="courseForm" asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="TitleCource"></label>
+        <input asp-for="TitleCource" class="form-control" />
+        <span asp-validation-for="TitleCource" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ContentCourse"></label>
+        <textarea asp-for="ContentCourse" class="form-control" placeholder="Введіть текст для навчання"></textarea>
+        <span asp-validation-for="ContentCourse" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" id="questionsContainer">
+        <label>Питання</label>
+        <button type="button" class="btn btn-primary" id="add-question">Додати питання</button>
+    </div>
+
+    <!-- Hidden input for storing questions in JSON format -->
+    <input type="hidden" id="QuestionsJson" name="Questions" />
+
+    <button type="submit" class="btn btn-success">Створити курс</button>
+</form>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let questions = [];
+
+            $('#add-question').click(function () {
+                const questionBlock = `
+                            <div class="question-block">
+                                <input type="text" class="form-control question-text" placeholder="Введіть питання" />
+                                <div class="answers-container">
+                                    <div class="answer-block">
+                                        <input type="text" class="form-control answer-text" placeholder="Введіть відповідь" />
+                                        <label>
+                                            <input type="radio" name="correctAnswer" class="correct-answer" /> Правильна відповідь
+                                        </label>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary add-answer">Додати відповідь</button>
+                                </div>
+                                <button type="button" class="btn btn-danger remove-question">Видалити питання</button>
+                            </div>
+                        `;
+                $('#questionsContainer').append(questionBlock);
+            });
+
+            $(document).on('click', '.add-answer', function () {
+                const answersContainer = $(this).closest('.answers-container');
+                const answerInput = `
+                            <div class="answer-block">
+                                <input type="text" class="form-control answer-text" placeholder="Введіть відповідь" />
+                                <label>
+                                    <input type="radio" name="correctAnswer" class="correct-answer" /> Правильна відповідь
+                                </label>
+                            </div>`;
+                answersContainer.append(answerInput);
+            });
+
+            $(document).on('click', '.remove-question', function () {
+                $(this).closest('.question-block').remove();
+            });
+
+            $('#courseForm').submit(function (e) {
+                e.preventDefault();
+
+                questions = [];
+                $('.question-block').each(function () {
+                    const questionText = $(this).find('.question-text').val();
+                    const answers = [];
+                    let correctAnswer = "";
+
+                    $(this).find('.answer-block').each(function () {
+                        const answerText = $(this).find('.answer-text').val();
+                        answers.push(answerText);
+
+                        // Перевірка на правильну відповідь
+                        if ($(this).find('.correct-answer').is(':checked')) {
+                            correctAnswer = answerText; // Зберегти правильну відповідь
+                        }
+                    });
+
+                    questions.push({ Text: questionText, Answers: answers, CorrectAnswer: correctAnswer });
+                });
+
+                $('#QuestionsJson').val(JSON.stringify(questions));
+                this.submit();
+            });
+        });
+    </script>
 }

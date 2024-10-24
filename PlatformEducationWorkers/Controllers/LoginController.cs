@@ -31,6 +31,8 @@ namespace PlatformEducationWorkers.Controllers
                 // Якщо логін успішний, зберігаємо логін у сесію
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("UserRole", user.Role.ToString());
+                HttpContext.Session.SetString("EnterpriceId", user.Enterprise.Id.ToString());
+
 
                 string userRole = HttpContext.Session.GetString("UserRole");
 
