@@ -102,10 +102,33 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        public Task<IEnumerable<Cources>> GetCourcesByJobTitle(int jobTitleId, int enterpriceId)
+        {
+            try
+            {
+                if (jobTitleId == null)
+                    throw new Exception("jobTitleId is null");
+                if (enterpriceId == null)
+                    throw new Exception("enterpriceId is null");
+
+                JobTitle jobtitile= _repository.GetById<JobTitle>(jobTitleId).Result;
+
+                return _repository.GetQuery<Cources>(n=>n.AccessRoles.Contains(jobtitile) && n.Enterprise.Id==enterpriceId);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"error, get courceByJobTitle, {ex}");
+            }
+        }
+
         public Task<Cources> GetCourcesBytitle(int titleCource)
         {
             throw new NotImplementedException();
         }
+
+
 
         //public Task<Cources> GetCourcesBytitle(int titleCource,int enterpriceId)
         //{

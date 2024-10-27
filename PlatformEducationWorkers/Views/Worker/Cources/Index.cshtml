@@ -1,3 +1,30 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+    ViewBag.Title = "Непройдені Курси";
 }
+
+<h2>Непройдені Курси</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва Курсу</th>
+            <th>Опис</th>
+            <th>Максимальний Бал</th>
+            <th>Деталі</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in ViewBag.UncompletedCources)
+        {
+            <tr>
+                <td>@course.Title</td>
+                <td>@course.Description</td>
+                <td>@course.MaxScore</td>
+                <td>
+                    <a href="@Url.Action("Detail", "Cources", new { area = "Worker", id = course.Id })" class="btn btn-primary">Деталі</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,3 +1,37 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
 }
+@model IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>
+
+<h2>Пройдені курси - Статистика</h2>
+
+@if (Model==null || !Model.Any()) // Перевірка, чи модель порожня
+{
+    <p>Ви ще не пройшли жоден тест.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Назва курсу</th>
+                <th>Набраний бал</th>
+                <th>Максимальний бал</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td>@course.Cource.TitleCource</td>
+                    <td>@course.Rating</td>
+                    <td>@course.MaxRating</td>
+                    <td>
+                        <a asp-action="Detail" asp-route-id="@course.Cource.Id" class="btn btn-primary">Деталі</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

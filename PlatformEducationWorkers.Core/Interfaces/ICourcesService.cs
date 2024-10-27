@@ -11,6 +11,6 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<IEnumerable<Cources>> GetAllCourcesEnterprice(int enterpriceId);
         Task<IEnumerable<Cources>> GetAllCourcesUser(int userId);
         Task<Cources> GetCourcesById(int courceId);
-        Task<Cources> GetCourcesBytitle(int titleCource);
+        Task<IEnumerable<Cources>> GetCourcesByJobTitle(int jobTitleId,int enterpriceId);
     }
 }

@@ -1,0 +1,15 @@
+﻿@model PlatformEducationWorkers.Core.Models.CourseStatistic
+
+@{
+    Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+}
+
+<h2>Деталі курсу: @Model.CourseName</h2>
+
+<div>
+    <p><strong>Назва курсу:</strong> @Model.CourseName</p>
+    <p><strong>Набраний бал:</strong> @Model.Score</p>
+    <p><strong>Максимальний бал:</strong> @Model.MaxScore</p>
+</div>
+
+<a asp-action="StatisticCources" class="btn btn-secondary">Назад до списку курсів</a>
