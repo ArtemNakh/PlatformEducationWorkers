@@ -2,10 +2,10 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Workers";
 }
+@model IEnumerable<PlatformEducationWorkers.Core.Models.User>
 
 <h2>Список користувачів</h2>
 
-<!-- Кнопка для створення нового користувача -->
 <a href="@Url.Action("Create", "Workers", new { area = "Administrator" })" class="btn btn-primary">Додати нового користувача</a>
 
 <table class="table">
@@ -27,7 +27,7 @@
                 <td>@user.Email</td>
                 <td>@user.DateCreate.ToString("yyyy-MM-dd")</td>
                 <td>
-                    <!-- Додайте кнопки для редагування та видалення, якщо потрібно -->
+                    <a href="@Url.Action("Detail", "Workers", new { id = user.Id, area = "Administrator" })" class="btn btn-info">Деталі</a>
                     <a href="@Url.Action("Edit", "Workers", new { id = user.Id, area = "Administrator" })" class="btn btn-warning">Редагувати</a>
                     <a href="@Url.Action("Delete", "Workers", new { id = user.Id, area = "Administrator" })" class="btn btn-danger">Видалити</a>
                 </td>

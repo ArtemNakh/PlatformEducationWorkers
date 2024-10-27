@@ -24,7 +24,7 @@ builder.Services.AddSession(options =>
 });
 
 //builder.Services.AddTransient<IAdministratorService,AdministratorService>();
-builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddTransient<IUserService,UserService>();
 builder.Services.AddTransient<IUserResultService,UserResultService>();
 builder.Services.AddTransient<IEnterpriceService,EnterpriceService>();
 builder.Services.AddTransient<IJobTitleService,JobTitleService>();

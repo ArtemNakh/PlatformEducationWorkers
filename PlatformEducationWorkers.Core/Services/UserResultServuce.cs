@@ -54,10 +54,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<UserResults>> GetAllResultEnterrprice(int enterpriceId)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public Task<IEnumerable<UserResults>> GetAllUserResult(int userId)
         {

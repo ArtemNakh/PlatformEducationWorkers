@@ -13,12 +13,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     public class CourcesController : Controller
     {
         private readonly ICourcesService _courceService;
+        private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
 
-        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService)
+        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService)
         {
             _courceService = courceService;
             _jobTitleService = jobTitleService;
+            _userResultService = userResultService;
         }
 
         [Route("Cources")]
@@ -80,6 +82,36 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 var jobTitles = await _jobTitleService.GetRole(1);
             ViewBag.JobTitles = jobTitles;
             return View(cource);
+        }
+
+
+        [HttpGet]
+        [Route("Detail/{id}")]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var cource = await _courceService.GetCourcesById(id); // Метод для отримання курсу за ID
+            if (cource == null)
+            {
+                return NotFound(); // Якщо курс не знайдено
+            }
+
+            ViewBag.Cource = cource; // Зберігаємо курс у ViewBag
+            return View("~/Views/Administrator/Cources/DetailCource.cshtml");
+        }
+
+        [HttpGet]
+        [Route("HistoryPassage")]
+        public async Task<IActionResult> HistoryPassage(int id)
+        {
+            //todo
+            var historyPassages = await _userResultService.GetAllResultEnterprice(1/*(int)HttpContext.Session.GetInt32("EnterpriceId")*/); // Метод для отримання історії проходжень курсу за ID
+            if (historyPassages == null)
+            {
+                return NotFound(); // Якщо історія проходжень не знайдена
+            }
+
+            ViewBag.HistoryPassages = historyPassages; // Зберігаємо історію проходжень у ViewBag
+            return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
 
 

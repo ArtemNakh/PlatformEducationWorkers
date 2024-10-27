@@ -12,7 +12,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<UserResults> UpdateResult(UserResults userResults);
         Task DeleteResult(int resultId);
         Task<IEnumerable<UserResults>> GetAllUserResult(int userId);
-        Task<IEnumerable<UserResults>> GetAllResultEnterrprice(int enterpriceId);
+        Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId);
         Task<UserResults> SearchUserResult(int courceId);
 
     }

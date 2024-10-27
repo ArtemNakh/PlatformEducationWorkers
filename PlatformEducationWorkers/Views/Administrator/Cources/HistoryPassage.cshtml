@@ -1,0 +1,37 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    ViewData["Title"] = "Історія проходжень курсу";
+    var historyPassages = ViewBag.HistoryPassages as IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>;
+}
+
+<h2>Історія проходжень курсу</h2>
+
+@if (historyPassages != null && historyPassages.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Користувач</th>
+                <th>Дата проходження</th>
+                <th>Результат</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var passage in historyPassages)
+            {
+                <tr>
+                    <td>@passage.User.Name</td>
+                    <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
+                    <td>@passage.Rating</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Немає записів історії проходжень для цього курсу.</p>
+}
+
+<a asp-action="Index" asp-controller="Cources" asp-area="Administrator">Назад до списку курсів</a>

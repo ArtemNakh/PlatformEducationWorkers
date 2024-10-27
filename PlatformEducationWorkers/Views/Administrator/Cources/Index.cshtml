@@ -3,41 +3,31 @@
     ViewData["Title"] = "Курси";
     var cources = ViewBag.Cources as IEnumerable<PlatformEducationWorkers.Core.Models.Cources>;
 }
+@model IEnumerable<PlatformEducationWorkers.Core.Models.Cources>
 
-<h1>Курси</h1>
+<h2>Список курсів</h2>
 
 <table class="table">
     <thead>
         <tr>
             <th>Назва курсу</th>
             <th>Опис</th>
-            <th>Дата створення</th>
             <th>Дії</th>
         </tr>
     </thead>
     <tbody>
-        @if (cources != null && cources.Any())
-        {
-            foreach (var cource in cources)
-            {
-                <tr>
-                    <td>@cource.TitleCource</td>
-                    <td>@cource.Description</td>
-                    <td>@cource.DateCreate.ToShortDateString()</td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Cources", new { id = cource.Id })" class="btn btn-primary">Редагувати</a>
-                        <a href="@Url.Action("Delete", "Cources", new { id = cource.Id })" class="btn btn-danger">Видалити</a>
-                    </td>
-                </tr>
-            }
-        }
-        else
+        @foreach (var course in ViewBag.Cources)
         {
             <tr>
-                <td colspan="4" class="text-center">Курси не знайдено.</td>
+                <td>@course.Name</td>
+                <td>@course.Description</td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info">Деталі</a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
 
 <a href="@Url.Action("Create", "Cources")" class="btn btn-success">Додати новий курс</a>
