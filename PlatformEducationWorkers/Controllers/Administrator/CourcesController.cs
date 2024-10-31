@@ -27,8 +27,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> Index()
         {
             //todo enterprice
-            var cources = await _courceService.GetAllCourcesEnterprice(1); // Замініть 1 на реальний ID підприємства
-            ViewBag.Cources = cources; // Зберігаємо курси у ViewBag
+            var cources = await _courceService.GetAllCourcesEnterprice(1/*Convert.ToInt32("EnterpriceId")*/); 
+            ViewBag.Cources = cources; 
             return View("~/Views/Administrator/Cources/Index.cshtml");
         }
 
@@ -39,7 +39,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             //todo enterprice
             //var jobTitles = await _jobTitleService.GetRole(Convert.ToInt32("EnterpriceId")); // Змініть на реальний метод отримання JobTitles
-            var jobTitles = await _jobTitleService.GetRole(1); // Змініть на реальний метод отримання JobTitles
+            var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/); // Змініть на реальний метод отримання JobTitles
             ViewBag.JobTitles = jobTitles; // Зберігаємо список JobTitles у ViewBag
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
@@ -62,8 +62,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 cource.Questions = JsonConvert.SerializeObject(questionsList);
 
+
                 // Додайте доступні ролі до курсу
                 List<JobTitle> accessRoleToTest = new List<JobTitle>();
+
                 // Зберігаємо вибрані JobTitle
                 foreach (var roleId in Request.Form["AccessRoles"])
                 {
@@ -78,8 +80,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             // Якщо модель не валідна, відправляємо список JobTitles повторно
               //todo enterprice
-               // var jobTitles = await _jobTitleService.GetRole(Convert.ToInt32("EnterpriceId"));
-                var jobTitles = await _jobTitleService.GetRole(1);
+                var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/);
             ViewBag.JobTitles = jobTitles;
             return View(cource);
         }
@@ -89,13 +90,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("Detail/{id}")]
         public async Task<IActionResult> Detail(int id)
         {
-            var cource = await _courceService.GetCourcesById(id); // Метод для отримання курсу за ID
+            var cource = await _courceService.GetCourcesById(id); 
             if (cource == null)
             {
-                return NotFound(); // Якщо курс не знайдено
+                return NotFound();
             }
 
-            ViewBag.Cource = cource; // Зберігаємо курс у ViewBag
+            ViewBag.Cource = cource; 
             return View("~/Views/Administrator/Cources/DetailCource.cshtml");
         }
 
@@ -104,10 +105,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> HistoryPassage(int id)
         {
             //todo
-            var historyPassages = await _userResultService.GetAllResultEnterprice(1/*(int)HttpContext.Session.GetInt32("EnterpriceId")*/); // Метод для отримання історії проходжень курсу за ID
+            var historyPassages = await _userResultService.GetAllResultEnterprice(1/*(int)HttpContext.Session.GetInt32("EnterpriceId")*/); 
             if (historyPassages == null)
             {
-                return NotFound(); // Якщо історія проходжень не знайдена
+                return NotFound(); 
             }
 
             ViewBag.HistoryPassages = historyPassages; // Зберігаємо історію проходжень у ViewBag

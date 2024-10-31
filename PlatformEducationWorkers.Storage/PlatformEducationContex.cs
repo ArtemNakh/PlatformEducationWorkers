@@ -20,6 +20,5 @@ namespace PlatformEducationWorkers.Storage
         public DbSet<Cources> Cources { get; set; }
         public DbSet<UserResults> UserResults { get; set; }
         public DbSet<JobTitle> JobTitles { get; set; }
-       // public DbSet<Administrator> Administrations { get; set; }
     }
 }

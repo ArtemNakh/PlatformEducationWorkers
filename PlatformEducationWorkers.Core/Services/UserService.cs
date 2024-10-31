@@ -21,9 +21,16 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-                //додати перевірку на існування усіх полів
-                _repository.Add(user);
-                return Task.FromResult(user);
+                if (user == null)
+                    throw new Exception($"Error adding user,user is null");
+
+                if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname==user.Surname && e.Birthday==user.Birthday).Result.Count() > 0)
+                    throw new Exception($"Error adding user, those man already exist");
+              
+                if(_repository.GetQuery<User>(e=>e.Login == user.Login && e.Password==user.Password).Result.Count() > 0)
+                    throw new Exception($"Error adding user,Please choose correct password or login");
+
+                return _repository.Add(user);
             }
             catch (Exception ex)
             {
@@ -83,11 +90,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<User>> GetUsersByRole(int roleId)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         public async Task<User> Login(string login, string password)
         {
             try
@@ -157,134 +160,3 @@ namespace PlatformEducationWorkers.Core.Services
 }
 
 
-/*
- * using PlatformEducationWorkers.Core.Interfaces;
-using PlatformEducationWorkers.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace PlatformEducationWorkers.Core.Services
-{
-    public class UserService : IUserService
-    {
-        private readonly IRepository _repository;
-
-        public UserService(IRepository repository)
-        {
-            _repository = repository;
-        }
-
-        public async Task<User> AddUser(User user)
-        {
-            // Валідація наявності підприємства
-            if (user.Enterprise == null)
-            {
-                throw new ArgumentException("Enterprise is required.");
-            }
-
-            // Валідація ролі користувача
-            if (user.Role == null)
-            {
-                throw new ArgumentException("Role is required.");
-            }
-
-            return await _repository.Add(user);
-        }
-
-        public async Task DeleteUser(int userId)
-        {
-            var user = await _repository.GetById<User>(userId);
-
-            if (user == null)
-            {
-                throw new ArgumentException("User not found.");
-            }
-
-            await _repository.Delete<User>(userId);
-        }
-
-        public async Task<IEnumerable<User>> GetAllUsersEnterprice(int enterpriceId)
-        {
-            return await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId);
-        }
-
-        public async Task<User> GetUser(int userId)
-        {
-            var user = await _repository.GetById<User>(userId);
-
-            if (user == null)
-            {
-                throw new ArgumentException("User not found.");
-            }
-
-            return user;
-        }
-
-        public async Task<IEnumerable<User>> GetUsersByRole(int roleId)
-        {
-            return await _repository.GetQuery<User>(u => u.Role.Id == roleId);
-        }
-
-        public async Task<User> Login(string login, string password)
-        {
-            var user = await _repository.GetQuery<User>(u => u.Login == login && u.Password == password).FirstOrDefaultAsync();
-
-            if (user == null)
-            {
-                throw new ArgumentException("Invalid login or password.");
-            }
-
-            return user;
-        }
-
-        public async Task<User> Registration(User user)
-        {
-            // Перевірка, чи користувач з таким логіном вже існує
-            var existingUser = await _repository.GetQuery<User>(u => u.Login == user.Login).FirstOrDefaultAsync();
-
-            if (existingUser != null)
-            {
-                throw new ArgumentException("User with this login already exists.");
-            }
-
-            return await _repository.Add(user);
-        }
-
-        public async Task<User> SearchUser(string name, string surname, DateTime birthday)
-        {
-            var user = await _repository.GetQuery<User>(u => u.Name == name && u.Surname == surname && u.Birthday == birthday).FirstOrDefaultAsync();
-
-            if (user == null)
-            {
-                throw new ArgumentException("User not found.");
-            }
-
-            return user;
-        }
-
-        public async Task<User> UpdateUser(User user)
-        {
-            var existingUser = await _repository.GetById<User>(user.Id);
-
-            if (existingUser == null)
-            {
-                throw new ArgumentException("User not found.");
-            }
-
-            // Оновлення інформації
-            existingUser.Name = user.Name;
-            existingUser.Surname = user.Surname;
-            existingUser.Email = user.Email;
-            existingUser.Password = user.Password;
-            existingUser.Login = user.Login;
-            existingUser.Enterprise = user.Enterprise;
-            existingUser.Role = user.Role;
-
-            return await _repository.Update(existingUser);
-        }
-    }
-}
-
- * */

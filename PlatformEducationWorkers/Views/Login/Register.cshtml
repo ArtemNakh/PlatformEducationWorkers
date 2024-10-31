@@ -1,8 +1,11 @@
-﻿@model RegisterCompanyViewModel
+﻿@model PlatformEducationWorkers.Models.RegisterCompanyViewModel
+
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
 }
+
+<h2>Реєстрація компанії</h2>
 <form asp-action="Register" method="post">
     <div class="form-group">
         <label asp-for="Title"></label>
@@ -48,3 +51,5 @@
 
     <button type="submit" class="btn btn-primary">Зареєструватися</button>
 </form>
+
+

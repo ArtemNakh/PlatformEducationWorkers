@@ -49,4 +49,8 @@
     <None Include="Views\Worker\Cources\DetailCource.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+  </ItemGroup>
+
 </Project>

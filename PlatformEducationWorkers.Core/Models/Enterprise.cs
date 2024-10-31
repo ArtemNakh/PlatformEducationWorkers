@@ -15,7 +15,6 @@ namespace PlatformEducationWorkers.Core.Models
 
         public virtual IEnumerable<User> Users { get; set; }
         public virtual IEnumerable<Cources> Cources { get; set; }
-       // public virtual IEnumerable<Administrator> Administrators { get; set; }
 
     }
 }

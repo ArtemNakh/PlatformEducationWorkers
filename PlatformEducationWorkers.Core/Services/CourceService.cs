@@ -128,27 +128,7 @@ namespace PlatformEducationWorkers.Core.Services
             throw new NotImplementedException();
         }
 
-
-
-        //public Task<Cources> GetCourcesBytitle(int titleCource,int enterpriceId)
-        //{
-        //    try
-        //    {
-        //        //додати валідацію
-        //        if (titleCource == null)
-        //            throw new Exception("title cource is null");
-
-
-
-        //        return _repository.GetById<Cources>(courceId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw new Exception($"Error get cource by id ,  error:{ex}");
-        //    }
-        //}
-
+              
         public Task<Cources> UpdateCource(Cources cources)
         {
             try

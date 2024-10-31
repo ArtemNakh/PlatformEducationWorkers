@@ -7,7 +7,6 @@ namespace PlatformEducationWorkers.Core.Services
     public class EnterpriceService : IEnterpriceService
     {
         private readonly IRepository _repository;
-
         public EnterpriceService(IRepository repository)
         {
             _repository = repository;
@@ -17,11 +16,14 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+
                 if(enterprice == null)
                     throw new Exception($"Error adding Enterprice,enterprice is null");
-                //додати валідацію
+                
                 if (_repository.GetQuery<Enterprice>(e => e.Title == enterprice.Title).Result.Count() > 0)
                     throw new Exception($"Error adding Enterprice, Choose other name");
+                if (_repository.GetQuery<Enterprice>(e => e.Email == enterprice.Email).Result.Count() > 0)
+                    throw new Exception($"Error adding Enterprice, Choose other Email");
 
                 return _repository.Add(enterprice);
 

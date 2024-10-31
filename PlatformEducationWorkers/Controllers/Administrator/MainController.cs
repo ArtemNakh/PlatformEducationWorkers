@@ -10,7 +10,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public IActionResult Index()
         {
             return View("~/Views/Administrator/Main/Index.cshtml");
-            //return View();
         }
     }
 }

@@ -21,9 +21,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [Route("Cources")]
         public async Task<IActionResult> Index()
         {
-            int jobTitleId = Convert.ToInt32(HttpContext.Session.GetInt32("JobTitleId")); // Отримання JobTitle з сесії
-            int userId = Convert.ToInt32(HttpContext.Session.GetInt32("UserId")); // Отримання UserId з сесії
-            int enterpriceId = Convert.ToInt32(HttpContext.Session.GetInt32("EnterpriceId")); // Отримання UserId з сесії
+            int jobTitleId = Convert.ToInt32(HttpContext.Session.GetInt32("JobTitleId")); 
+            int userId = Convert.ToInt32(HttpContext.Session.GetInt32("UserId")); 
+            int enterpriceId = Convert.ToInt32(HttpContext.Session.GetInt32("EnterpriceId")); 
 
             // Отримання курсів для поточного JobTitle
             var allCources = await _courcesService.GetCourcesByJobTitle(jobTitleId,enterpriceId);
@@ -34,7 +34,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             var uncompletedCources = allCources.Where(course =>
                 !userResults.Any(result => result.Cource.Id == course.Id)).ToList();
 
-            // Збереження в ViewBag
             ViewBag.UncompletedCources = uncompletedCources;
 
             return View("~/Views/Worker/Cources/Index.cshtml");
@@ -46,19 +45,16 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             // Отримуємо список курсів і їхню статистику для відображення
             // todo: отримати UserId з сесії
-            int userId = Convert.ToInt32(1/*HttpContext.Session.GetInt32("UserId")*/); // отримання UserId з сесії
+            int userId = Convert.ToInt32(1/*HttpContext.Session.GetInt32("UserId")*/); 
 
-            // Виклик сервісу для отримання статистики курсів
             var coursesStatistics = await _courcesService.GetAllCourcesUser(userId);
 
-            // Передача отриманих даних в ViewBag
             ViewBag.CoursesStatistics = coursesStatistics;
 
             return View("~/Views/Worker/Cources/Statistics.cshtml");
         }
 
 
-        // Цей метод буде доступний за маршрутом Worker/Cources/StatisticCources
         [Route("PassageCource")]
         public IActionResult PassageCource()
         {

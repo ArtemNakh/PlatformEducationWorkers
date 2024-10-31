@@ -26,13 +26,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var enterpriceId = HttpContext.Session.GetInt32("EnterpriceId");
             if (enterpriceId == null)
             {
-                // Можна повернути пусту сторінку або обробити якось інакше
-                ViewBag.Users = new List<User>(); // Повертаємо пустий список, якщо EnterpriceId не існує
+                ViewBag.Users = new List<User>();
                 return View("~/Views/Administrator/Workers/Index.cshtml");
             }
             //todo тимчаслвл
-            var users = await _userService.GetAllUsersEnterprice(Convert.ToInt32(HttpContext.Session.GetInt32("EnterpriceId"))); // Припускаємо, що цей метод повертає список користувачів
-            ViewBag.Users = users; // Зберігаємо список користувачів у ViewBag
+            var users = await _userService.GetAllUsersEnterprice(Convert.ToInt32(HttpContext.Session.GetInt32("EnterpriceId"))); 
+            ViewBag.Users = users; 
             return View("~/Views/Administrator/Workers/Index.cshtml");
         }
 
@@ -40,7 +39,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public IActionResult Create()
         {
             ViewBag.JobTitles = new List<JobTitle>(); //= jobTitleService.GetAllRoles(Convert.ToInt32( HttpContext.Session.GetString("EnterpriceId")));
-            ViewBag.Roles = new List<string> { "Admin", "User" }; // ролі
+            ViewBag.Roles = new List<string> { "Admin", "User" }; 
             return View("~/Views/Administrator/Workers/CreateUser.cshtml");
         }
 
@@ -49,9 +48,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             if (ModelState.IsValid)
             {
-                user.DateCreate = DateTime.Now; // задаємо дату створення
+                user.DateCreate = DateTime.Now; 
                 await _userService.AddUser(user);
-                return RedirectToAction("Index"); // перенаправлення після успішного створення
+                return RedirectToAction("Index"); 
             }
             ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriceId")));
             ViewBag.Roles = new List<string> { "Admin", "User" };
@@ -62,13 +61,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("Detail/{id}")]
         public async Task<IActionResult> Detail(int id)
         {
-            var user = await _userService.GetUser(id); // Метод для отримання користувача за ID
+            var user = await _userService.GetUser(id); 
             if (user == null)
             {
-                return NotFound(); // Якщо користувач не знайдений
+                return NotFound(); 
             }
 
-            ViewBag.User = user; // Зберігаємо користувача у ViewBag
+            ViewBag.User = user; 
             return View("~/Views/Administrator/Workers/DetailWorkers.cshtml");
         }
 

@@ -12,11 +12,13 @@ namespace PlatformEducationWorkers.Controllers
     {
         private readonly IUserService _userService;
         private readonly IEnterpriceService _enterpriceService;
+        private readonly IJobTitleService _jobTitleService;
 
-        public LoginController(IUserService userService, IEnterpriceService enterpriceService)
+        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService)
         {
             _userService = userService;
             _enterpriceService = enterpriceService;
+            _jobTitleService = jobTitleService;
         }
 
         [HttpGet]
@@ -27,9 +29,9 @@ namespace PlatformEducationWorkers.Controllers
         }
 
         [HttpPost]
+        [Route("Login")]
         public async Task<IActionResult> Login(string login, string password)
         {
-            // Аутентифікація користувача через IUserService
             var user = await _userService.Login(login, password);
             if (user != null)
             {
@@ -57,7 +59,7 @@ namespace PlatformEducationWorkers.Controllers
             }
             else
             {
-                // Якщо логін неуспішний, повертаємо повідомлення про помилку
+
                 ViewData["Error"] = "Invalid login or password";
                 return View();
             }
@@ -70,6 +72,7 @@ namespace PlatformEducationWorkers.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
         [Route("Register")]
         public IActionResult Register()
         {
@@ -77,41 +80,57 @@ namespace PlatformEducationWorkers.Controllers
         }
 
         [HttpPost]
+        [Route("Register")]
         public async Task<IActionResult> Register(RegisterCompanyViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var enterprice = new Enterprice
-                {
-                    Title = model.Title,
-                    Email = model.Email,
-                    DateCreate = DateTime.Now
-                };
-
-                // Додаємо нову фірму
-                var newEnterprice = await _enterpriceService.AddingEnterprice(enterprice);
-
-                // Створюємо власника
-                var user = new User
-                {
-                    Name = model.OwnerName,
-                    Surname = model.OwnerSurname,
-                    Birthday = model.Birthday,
-                    Email = model.Email,
-                    Password = model.Password,
-                    Login = model.Login,
-                    DateCreate = DateTime.Now,
-                    Enterprise = newEnterprice // Прив’язуємо до фірми
-                };
-
-                // Додаємо користувача
-              await  _userService.AddUser(user);
-               
-                return RedirectToAction("Index", "Home"); // Перенаправлення на домашню сторінку
+                // Повернення на сторінку реєстрації з помилками валідації
+                return View(model);
             }
 
-            return View(model); // Якщо валідація не пройшла, повертаємо модель з помилками
-        }
 
+            var enterprice = new Enterprice
+            {
+                Title = model.Title,
+                Email = model.Email,
+                DateCreate = DateTime.Now
+            };
+
+
+            var newEnterprice = await _enterpriceService.AddingEnterprice(enterprice);
+            
+            var jobTitle = new JobTitle
+            {
+                Name = "Власник",
+                Enterprise = newEnterprice
+            };
+
+            var newJobTitle = await _jobTitleService.AddingRole(jobTitle);
+
+
+            var user = new User
+            {
+                Name = model.OwnerName,
+                Surname = model.OwnerSurname,
+                Birthday = model.Birthday,
+                Email = model.Email,
+                Password = model.Password,
+                Login = model.Login,
+                DateCreate = DateTime.Now,
+                Enterprise = newEnterprice,
+                Role = Role.Admin,
+                JobTitle= newJobTitle
+            };
+
+
+            await _userService.AddUser(user);
+
+            return RedirectToAction("Login", "Login");
+
+
+
+
+        }
     }
 }
