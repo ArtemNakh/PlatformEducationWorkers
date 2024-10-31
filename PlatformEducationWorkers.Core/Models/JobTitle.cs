@@ -11,7 +11,7 @@ namespace PlatformEducationWorkers.Core.Models
         public int Id { get; set; }
         public string  Name { get; set; }
 
-        public Enterprice Enterprise { get; set; }
+        public virtual Enterprice Enterprise { get; set; }
 
 
 

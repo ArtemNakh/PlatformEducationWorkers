@@ -1,9 +1,22 @@
-﻿@model PlatformEducationWorkers.Models.RegisterCompanyViewModel
+﻿@model PlatformEducationWorkers.Request.RegisterCompanyRequest
 
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
 }
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
 
 <h2>Реєстрація компанії</h2>
 <form asp-action="Register" method="post">

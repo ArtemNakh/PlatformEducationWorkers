@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<PlatformEducationContex>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Local")));
+    options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("Local")));
 
 
 // Додавання сесії та отримання тайм-ауту з конфігураційного файлу

@@ -17,9 +17,9 @@ namespace PlatformEducationWorkers.Core.Models
         public string Password { get; set; }
         public string  Login { get; set; }
 
-        public Enterprice Enterprise { get; set; }
+        public virtual Enterprice Enterprise { get; set; }
 
-        public JobTitle JobTitle { get; set; }
+        public virtual JobTitle JobTitle { get; set; }
         public Role Role { get; set; }
 
     }

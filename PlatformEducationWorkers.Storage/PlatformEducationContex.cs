@@ -14,7 +14,7 @@ namespace PlatformEducationWorkers.Storage
         {
 
         }
-
+        
         public DbSet<User> Users { get; set; }
         public DbSet<Enterprice> Enterprises { get; set; }
         public DbSet<Cources> Cources { get; set; }

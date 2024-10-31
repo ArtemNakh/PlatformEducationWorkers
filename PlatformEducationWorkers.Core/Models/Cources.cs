@@ -10,7 +10,7 @@ namespace PlatformEducationWorkers.Core.Models
     {
         public int Id { get; set; }
 
-        public Enterprice Enterprise { get; set; }
+        public virtual Enterprice Enterprise { get; set; }
         public string TitleCource { get; set; }
         public string Description { get; set; }
         public DateTime DateCreate { get; set; }
