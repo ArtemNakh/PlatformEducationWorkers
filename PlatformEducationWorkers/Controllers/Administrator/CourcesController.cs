@@ -38,9 +38,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> Create()
         {
             //todo enterprice
-            //var jobTitles = await _jobTitleService.GetRole(Convert.ToInt32("EnterpriceId")); // Змініть на реальний метод отримання JobTitles
-            var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/); // Змініть на реальний метод отримання JobTitles
-            ViewBag.JobTitles = jobTitles; // Зберігаємо список JobTitles у ViewBag
+            var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/);
+            ViewBag.JobTitles = jobTitles;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
 
@@ -78,7 +77,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return RedirectToAction("Index");
             }
 
-            // Якщо модель не валідна, відправляємо список JobTitles повторно
+
               //todo enterprice
                 var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/);
             ViewBag.JobTitles = jobTitles;
@@ -111,7 +110,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound(); 
             }
 
-            ViewBag.HistoryPassages = historyPassages; // Зберігаємо історію проходжень у ViewBag
+            ViewBag.HistoryPassages = historyPassages; 
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
 

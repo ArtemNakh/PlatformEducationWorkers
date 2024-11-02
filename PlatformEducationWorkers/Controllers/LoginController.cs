@@ -31,7 +31,7 @@ namespace PlatformEducationWorkers.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login( LoginRequest request/*string login, string password*/)
+        public async Task<IActionResult> Login( LoginRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -41,7 +41,6 @@ namespace PlatformEducationWorkers.Controllers
             var user = await _userService.Login(request.Login, request.Password);
             if (user != null)
             {
-                // Якщо логін успішний, зберігаємо логін у сесію
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("UserRole", user.Role.ToString());
                 HttpContext.Session.SetString("EnterpriceId", user.Enterprise.Id.ToString());
@@ -51,21 +50,21 @@ namespace PlatformEducationWorkers.Controllers
 
                 if (userRole == "Admin")
                 {
-                    return View("~/Views/Administrator/Main/Index.cshtml");// return RedirectToAction("Index", "Main","Admin");
+                    return View("~/Views/Administrator/Main/Index.cshtml");
                 }
                 else if (userRole == "Worker")
                 {
-                    return View("~/Views/Worker/Main/Index.cshtml");  // return RedirectToAction("Index", "Main","Worker");
+                    return View("~/Views/Worker/Main/Index.cshtml");
                 }
                 else
                 {
-                    TempData["Error"] = "Invalid login or password"; // Використовуємо TempData для передачі помилки
+                    TempData["Error"] = "Invalid login or password";
                     return RedirectToAction("Login", "Login");
                 }
             }
             else
             {
-                TempData["Error"] = "Invalid login or password"; // Використовуємо TempData для передачі помилки
+                TempData["Error"] = "Invalid login or password"; 
                 return RedirectToAction("Login", "Login");
             }
         }
@@ -86,7 +85,7 @@ namespace PlatformEducationWorkers.Controllers
 
         [HttpPost]
         [Route("Register")]
-        public async Task<IActionResult> Register( RegisterCompanyRequest model/*RegisterCompanyViewModel model*/)
+        public async Task<IActionResult> Register( RegisterCompanyRequest model)
         {
             if (!ModelState.IsValid)
             {
