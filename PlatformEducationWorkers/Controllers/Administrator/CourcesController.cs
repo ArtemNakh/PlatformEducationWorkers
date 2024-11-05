@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Models;
@@ -24,6 +25,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [Route("Cources")]
+        [UserExists]
         public async Task<IActionResult> Index()
         {
             //todo enterprice
@@ -35,7 +37,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         [HttpGet]
         [Route("Create")]
-        public async Task<IActionResult> Create()
+        [UserExists]
+        public async Task<IActionResult> CreateCource()
         {
             //todo enterprice
             var jobTitles = await _jobTitleService.GetRole(1/*Convert.ToInt32("EnterpriceId")*/);
@@ -46,6 +49,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         
         [HttpPost]
         [Route("Create")]
+        [UserExists]
         public async Task<IActionResult> Create(Cources cource)
         {
             if (ModelState.IsValid)
@@ -87,6 +91,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         [HttpGet]
         [Route("Detail/{id}")]
+        [UserExists]
         public async Task<IActionResult> Detail(int id)
         {
             var cource = await _courceService.GetCourcesById(id); 
@@ -101,6 +106,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         [HttpGet]
         [Route("HistoryPassage")]
+        [UserExists]
         public async Task<IActionResult> HistoryPassage(int id)
         {
             //todo

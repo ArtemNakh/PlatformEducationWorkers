@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Request;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
@@ -20,6 +22,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [Route("Workers")]
+        [UserExists]
         public async Task<IActionResult> Index()
         {
             //todo тимчасово
@@ -36,29 +39,53 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
 
-        public IActionResult Create()
+
+        [HttpGet]
+        [Route("CreateWorker")]
+        [UserExists]
+        public IActionResult CreateWorker()
         {
-            ViewBag.JobTitles = new List<JobTitle>(); //= jobTitleService.GetAllRoles(Convert.ToInt32( HttpContext.Session.GetString("EnterpriceId")));
-            ViewBag.Roles = new List<string> { "Admin", "User" }; 
-            return View("~/Views/Administrator/Workers/CreateUser.cshtml");
+            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriceId"))).Result;
+            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();  
+
+            return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
+       
 
         [HttpPost]
-        public async Task<IActionResult> Create(User user)
+        [UserExists]
+        [Route("CreateWorker")]
+        public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
             if (ModelState.IsValid)
             {
-                user.DateCreate = DateTime.Now; 
+                JobTitle jobTitle = _jobTitleService.GetRole(request.JobTitleId).Result;
+                var user = new User
+                {
+                    Name = request.Name,
+                    Surname = request.Surname,
+                    Birthday = request.Birthday,
+                    Email = request.Email,
+                    Password = request.Password,
+                    Login = request.Login,
+                    JobTitle = jobTitle,
+                    Role = request.Role, 
+                    DateCreate = DateTime.Now
+                };
+
                 await _userService.AddUser(user);
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
-            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriceId")));
-            ViewBag.Roles = new List<string> { "Admin", "User" };
-            return View(user);
+
+            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriceId"))).Result;
+            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
+
+            return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
         [HttpGet]
         [Route("Detail/{id}")]
+        [UserExists]
         public async Task<IActionResult> Detail(int id)
         {
             var user = await _userService.GetUser(id); 

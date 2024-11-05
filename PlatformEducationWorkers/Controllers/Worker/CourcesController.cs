@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Services;
 
@@ -19,6 +20,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
         // Метод для показу всіх непройдених курсів
         [Route("Cources")]
+        [UserExists]
         public async Task<IActionResult> Index()
         {
             int jobTitleId = Convert.ToInt32(HttpContext.Session.GetInt32("JobTitleId")); 
@@ -41,6 +43,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
         [Route("Statistics")]
+        [UserExists]
         public async Task<IActionResult> StatisticCources()
         {
             // Отримуємо список курсів і їхню статистику для відображення
@@ -56,6 +59,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
         [Route("PassageCource")]
+        [UserExists]
         public IActionResult PassageCource()
         {
             return View("~/Views/Worker/Cources/PassageCource.cshtml");
@@ -63,6 +67,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
         [Route("Detail/{id}")]
+        [UserExists]
         public async Task<IActionResult> Detail(int id)
         {
             var courseDetail = await _courcesService.GetCourcesById(id);
