@@ -26,13 +26,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriceId"))).Result;
+                ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
                 ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
                 return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
             }
 
-            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId");
+            var enterpriseId =Convert.ToInt32( HttpContext.Session.GetString("EnterpriseId"));
 
             if (enterpriseId == null)
             {
@@ -40,7 +40,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return RedirectToAction("Login", "Login");
             }
 
-            var enterprise = await _enterpriseService.GetEnterprice(enterpriseId.Value);
+            var enterprise = await _enterpriseService.GetEnterprice(enterpriseId);
             if (enterprise == null)
             {
                 //переадресація на сторінку логін
@@ -55,7 +55,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
-            return Ok(new { id = jobTitle.Id, name = jobTitle.Name });
+            return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
         [UserExists]

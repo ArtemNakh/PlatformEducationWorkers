@@ -43,7 +43,7 @@ namespace PlatformEducationWorkers.Controllers
             {
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("UserRole", user.Role.ToString());
-                HttpContext.Session.SetString("EnterpriceId", user.Enterprise.Id.ToString());
+                HttpContext.Session.SetString("EnterpriseId", user.Enterprise.Id.ToString());
 
 
                 string userRole = HttpContext.Session.GetString("UserRole");

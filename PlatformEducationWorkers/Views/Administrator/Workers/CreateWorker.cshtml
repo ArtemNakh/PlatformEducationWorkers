@@ -1,5 +1,5 @@
 ﻿@using PlatformEducationWorkers.Core.Models
-@model PlatformEducationWorkers.Core.Models.User
+@model PlatformEducationWorkers.Request.CreateUserRequest
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -58,18 +58,10 @@
 
     <div class="form-group">
         <label for="jobTitleSelect">Job Title</label>
-        <select id="jobTitleSelect" class="form-control" asp-for="JobTitle.Id" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
-            <option value="">-- Виберіть Job Title --</option>
+        <select id="jobTitleSelect" class="form-control" asp-for="JobTitleId" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
+            <option value="">-- Select Job Title --</option>
         </select>
-        <span asp-validation-for="JobTitle.Id" class="text-danger"></span>
-    </div>
-
-    <!-- Додавання нової посади -->
-    <div class="form-group">
-        <label for="newJobTitle">Add New Job Title</label>
-        <input type="text" id="newJobTitle" class="form-control" placeholder="Enter Job Title Name" />
-        <button type="button" class="btn btn-secondary mt-2" onclick="createJobTitle()">Add Job Title</button>
-        <span id="jobTitleError" class="text-danger"></span>
+        <span asp-validation-for="JobTitleId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -82,6 +74,8 @@
 
     <button type="submit" class="btn btn-primary">Create User</button>
 </form>
+
+
 
 @section Scripts {
     <script>
@@ -104,7 +98,6 @@
             if (response.ok) {
                 const data = await response.json();
                 alert(`New Job Title Created: ${data.name}`);
-                // Optionally, refresh the job titles dropdown or take other actions
                 location.reload(); // Reload the page to refresh the job titles list
             } else {
                 const error = await response.json();

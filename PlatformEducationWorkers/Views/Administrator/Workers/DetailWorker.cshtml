@@ -1,25 +1,23 @@
-﻿@{
+﻿@model PlatformEducationWorkers.Core.Models.User
+
+@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = "Деталі користувача";
-    var user = ViewBag.User as PlatformEducationWorkers.Core.Models.User;
+    ViewData["Title"] = "User Details";
 }
 
-<h2>Деталі користувача</h2>
+<h2>User Details</h2>
 
-@if (user != null)
-{
-    <div>
-        <p><strong>ID:</strong> @user.Id</p>
-        <p><strong>Ім'я:</strong> @user.Name</p>
-        <p><strong>Електронна пошта:</strong> @user.Email</p>
-        <p><strong>Дата створення:</strong> @user.DateCreate.ToString("yyyy-MM-dd")</p>
-        <p><strong>Роль:</strong> @user.Role</p>
-        <p><strong>Посада:</strong> @user.JobTitle?.Name</p>
-    </div>
-}
-else
-{
-    <p>Користувач не знайдений.</p>
-}
+<div>
+    <h3>@Model.Name @Model.Surname</h3>
+    <p><strong>Birthday:</strong> @Model.Birthday.ToShortDateString()</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Role:</strong> @Model.Role</p>
+    <p><strong>Job Title:</strong> @Model.JobTitle.Name</p>
+    <p><strong>Enterprise:</strong> @Model.Enterprise.Title</p>
+    <p><strong>Created On:</strong> @Model.DateCreate.ToShortDateString()</p>
+</div>
 
-<a asp-action="Index" asp-controller="Workers" asp-area="Administrator">Назад до списку користувачів</a>
+<div>
+    <a href="@Url.Action("EditWorker", new { id = Model.Id })" class="btn btn-primary">Edit</a>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a>
+</div>
