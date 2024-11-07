@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Request;
 using System.Collections.Generic;
@@ -17,21 +18,24 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly ICourcesService _courceService;
         private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
+        private readonly IEnterpriceService _enterpriceService;
 
-        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService)
+        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriceService enterpriceService)
         {
             _courceService = courceService;
             _jobTitleService = jobTitleService;
             _userResultService = userResultService;
+            _enterpriceService = enterpriceService;
         }
 
+        [HttpGet]
         [Route("Cources")]
         [UserExists]
         public async Task<IActionResult> Index()
         {
             //todo enterprice
-            var cources = await _courceService.GetAllCourcesEnterprice(Convert.ToInt32("EnterpriseId"));
-            ViewBag.Cources = cources;
+            var cources = await _courceService.GetAllCourcesEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Index.cshtml");
         }
 
@@ -41,9 +45,15 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateCource()
         {
-            //todo enterprice
-            var jobTitles = await _jobTitleService.GetRole(Convert.ToInt32("EnterpriseId"));
-            ViewBag.JobTitles = jobTitles;
+            var jobTitles = await _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            if (jobTitles == null || !jobTitles.Any())
+            {
+                ViewBag.JobTitles = new List<JobTitle>();  // Якщо ролі відсутні, передаємо порожній список
+            }
+            else
+            {
+                ViewBag.JobTitles = jobTitles.ToList();  // Передача списку ролей в ViewBag
+            }
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
 
@@ -57,7 +67,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
+            Enterprice enterprice = _enterpriceService.GetEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
 
+            string questions = JsonConvert.SerializeObject(request.Questions);
+            string context = JsonConvert.SerializeObject(request.ContentCourse);
             var jobTitles = new List<JobTitle>();
 
             foreach (var jobTitleId in request.AccessRoleIds)
@@ -73,10 +86,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 TitleCource = request.TitleCource,
                 Description = request.Description,
-                ContentCourse = request.ContentCourse,
-                Questions = request.Questions,
+                ContentCourse = context,
+                Questions = questions,
                 DateCreate = DateTime.UtcNow,
-                Enterprise = new Enterprice { Id = request.EnterpriseId },
+                Enterprise = enterprice,
                 AccessRoles = jobTitles
             };
 
@@ -97,6 +110,23 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
+            // Десеріалізація JSON у відповідні об'єкти
+            List<QuestionRequest> questions = null;
+            string contentCourse = null;
+
+            if (!string.IsNullOrEmpty(cource.Questions))
+            {
+                questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(cource.Questions);
+            }
+
+            if (!string.IsNullOrEmpty(cource.ContentCourse))
+            {
+                contentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse);
+            }
+
+            // Передача розпарсених даних окремо у ViewBag
+            ViewBag.Questions = questions;
+            ViewBag.ContentCourse = contentCourse;
             ViewBag.Cource = cource;
             return View("~/Views/Administrator/Cources/DetailCource.cshtml");
         }

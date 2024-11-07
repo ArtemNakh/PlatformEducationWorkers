@@ -1,111 +1,100 @@
-﻿@{
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = "Додати новий курс";
+﻿@using PlatformEducationWorkers.Core.Models
+@model PlatformEducationWorkers.Request.CreateCourceRequest
 
-    var jobTitles = ViewBag.JobTitles as IEnumerable<PlatformEducationWorkers.Core.Models.JobTitle>;
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Create Course";
 }
 
-@model PlatformEducationWorkers.Core.Models.Cources
+<h2>Create Course</h2>
 
+<form asp-action="CreateCource" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div> <!-- Вивести всі помилки -->
 
-<h1>@ViewData["Title"]</h1>
-
-<form id="courseForm" asp-action="CreateCource" method="post">
     <div class="form-group">
-        <label asp-for="TitleCource"></label>
+        <label asp-for="TitleCource">Title of Course</label>
         <input asp-for="TitleCource" class="form-control" />
         <span asp-validation-for="TitleCource" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Description"></label>
+        <label asp-for="Description">Description</label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="ContentCourse"></label>
-        <textarea asp-for="ContentCourse" class="form-control" placeholder="Введіть текст для навчання"></textarea>
+        <label asp-for="ContentCourse">Content (JSON format)</label>
+        <textarea asp-for="ContentCourse" class="form-control"></textarea>
         <span asp-validation-for="ContentCourse" class="text-danger"></span>
     </div>
 
-    <div class="form-group" id="questionsContainer">
-        <label>Питання</label>
-        <button type="button" class="btn btn-primary" id="add-question">Додати питання</button>
+    <!-- Додавання питань та відповідей -->
+    <div id="questions-container">
+        <h3>Questions</h3>
+        <button type="button" onclick="addQuestion()">Add Question</button>
     </div>
 
-    <!-- Hidden input for storing questions in JSON format -->
-    <input type="hidden" id="QuestionsJson" name="Questions" />
+    <div class="form-group">
+        <label>Access Roles</label>
+        <div>
+            @foreach (var jobTitle in (ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>) ?? new List<PlatformEducationWorkers.Core.Models.JobTitle>())
+            {
+                <div class="form-check">
+                    <input type="checkbox" name="AccessRoleIds[]" value="@jobTitle.Id" class="form-check-input" />
+                    <label class="form-check-label">@jobTitle.Name</label>
+                </div>
+            }
+        </div>
+    </div>
 
-    <button type="submit" class="btn btn-success">Створити курс</button>
+
+    <button type="submit" class="btn btn-primary">Create Course</button>
 </form>
+<script>
+    let questionIndex = 0;
 
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            let questions = [];
+    function addQuestion() {
+        const container = document.getElementById('questions-container');
+        const questionDiv = document.createElement('div');
+        questionDiv.className = "question";
+        questionDiv.innerHTML = `
+                    <h4>Question ${questionIndex + 1}</h4>
+                    <input type="text" name="Questions[${questionIndex}].Text" placeholder="Enter question" class="form-control" />
 
-            $('#add-question').click(function () {
-                const questionBlock = `
-                            <div class="question-block">
-                                <input type="text" class="form-control question-text" placeholder="Введіть питання" />
-                                <div class="answers-container">
-                                    <div class="answer-block">
-                                        <input type="text" class="form-control answer-text" placeholder="Введіть відповідь" />
-                                        <label>
-                                            <input type="radio" name="correctAnswer" class="correct-answer" /> Правильна відповідь
-                                        </label>
-                                    </div>
-                                    <button type="button" class="btn btn-secondary add-answer">Додати відповідь</button>
-                                </div>
-                                <button type="button" class="btn btn-danger remove-question">Видалити питання</button>
-                            </div>
-                        `;
-                $('#questionsContainer').append(questionBlock);
-            });
+                    <div class="answers-container">
+                        <h5>Answers</h5>
+                        <button type="button" onclick="addAnswer(${questionIndex})">Add Answer</button>
+                        <div id="answers-${questionIndex}">
+                            <!-- Answers will be added here -->
+                        </div>
+                    </div>
+                `;
+        container.appendChild(questionDiv);
+        questionIndex++;
+    }
 
-            $(document).on('click', '.add-answer', function () {
-                const answersContainer = $(this).closest('.answers-container');
-                const answerInput = `
-                            <div class="answer-block">
-                                <input type="text" class="form-control answer-text" placeholder="Введіть відповідь" />
-                                <label>
-                                    <input type="radio" name="correctAnswer" class="correct-answer" /> Правильна відповідь
-                                </label>
-                            </div>`;
-                answersContainer.append(answerInput);
-            });
+    function addAnswer(questionIndex) {
+        const answerContainer = document.getElementById(`answers-${questionIndex}`);
+        const answerIndex = answerContainer.childElementCount;
 
-            $(document).on('click', '.remove-question', function () {
-                $(this).closest('.question-block').remove();
-            });
+        const answerDiv = document.createElement('div');
+        answerDiv.className = "answer";
+        answerDiv.innerHTML = `
+                    <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" placeholder="Enter answer" class="form-control" />
+                    <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" /> Correct
+                `;
+        answerContainer.appendChild(answerDiv);
+    }
 
-            $('#courseForm').submit(function (e) {
-                e.preventDefault();
-
-                questions = [];
-                $('.question-block').each(function () {
-                    const questionText = $(this).find('.question-text').val();
-                    const answers = [];
-                    let correctAnswer = "";
-
-                    $(this).find('.answer-block').each(function () {
-                        const answerText = $(this).find('.answer-text').val();
-                        answers.push(answerText);
-
-                        // Перевірка на правильну відповідь
-                        if ($(this).find('.correct-answer').is(':checked')) {
-                            correctAnswer = answerText; // Зберегти правильну відповідь
-                        }
-                    });
-
-                    questions.push({ Text: questionText, Answers: answers, CorrectAnswer: correctAnswer });
-                });
-
-                $('#QuestionsJson').val(JSON.stringify(questions));
-                this.submit();
-            });
+    // Add custom logic to handle checkbox state before form submission
+    document.querySelector('form').onsubmit = function () {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="IsCorrect"]');
+        checkboxes.forEach(function (checkbox) {
+            // Ensure unchecked checkboxes send 'false' value
+            if (!checkbox.checked) {
+                checkbox.value = "false";
+            }
         });
-    </script>
-}
+    };
+</script>

@@ -1,29 +1,39 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Деталі курсу";
-    var cource = ViewBag.Cource as PlatformEducationWorkers.Core.Models.Cources;
 }
 
-<h2>Деталі курсу</h2>
+<h2>@ViewBag.Cource.TitleCource</h2>
 
-@if (cource != null)
+<p>@ViewBag.Cource.Description</p>
+
+<h3>Вміст курсу:</h3>
+<p>@ViewBag.ContentCourse</p>
+
+<h3>Питання та відповіді:</h3>
+@if (ViewBag.Questions != null )
 {
-    <div>
-        <h4>@cource.TitleCource</h4>
-        <p>@cource.Description</p>
-        <p><strong>Питання:</strong> @Html.Raw(cource.Questions)</p>
-        <p><strong>Доступні ролі:</strong></p>
-        <ul>
-            @foreach (var role in cource.AccessRoles)
-            {
-                <li>@role.Name</li>
-            }
-        </ul>
-    </div>
+    <ul>
+        @foreach (var question in ViewBag.Questions)
+        {
+            <li>
+                <strong>@question.Text</strong>
+                <ul>
+                    @foreach (var answer in question.Answers)
+                    {
+                        <li>
+                            @answer.Text @if (answer.IsCorrect)
+                            {
+                                <span>(Правильна)</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
 }
 else
 {
-    <p>Курс не знайдено.</p>
+    <p>Питання не знайдено.</p>
 }
-
-<a asp-action="Index" asp-controller="Cources" asp-area="Administrator">Назад до списку</a>

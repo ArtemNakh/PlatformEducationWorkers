@@ -1,33 +1,37 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Курси";
-    var cources = ViewBag.Cources as IEnumerable<PlatformEducationWorkers.Core.Models.Cources>;
 }
-@model IEnumerable<PlatformEducationWorkers.Core.Models.Cources>
 
 <h2>Список курсів</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Назва курсу</th>
-            <th>Опис</th>
-            <th>Дії</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in ViewBag.Cources)
-        {
+@if (ViewBag.Cources != null )
+{
+    <table class="table">
+        <thead>
             <tr>
-                <td>@course.Name</td>
-                <td>@course.Description</td>
-                <td>
-                    <a asp-action="Detail" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info">Деталі</a>
-                </td>
+                <th>Назва курсу</th>
+                <th>Опис</th>
+                <th>Дії</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var course in ViewBag.Cources)
+            {
+                <tr>
+                    <td>@course.TitleCource</td>
+                    <td>@course.Description</td>
+                    <td>
+                        <a asp-action="Detail" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info">Деталі</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Курси не знайдено.</p>
+}
 
-
-<a href="@Url.Action("Create", "Cources")" class="btn btn-success">Додати новий курс</a>
+<a href="@Url.Action("CreateCource", "Cources", new { area = "Administrator" })" class="btn btn-primary">Додати новий курс</a>
