@@ -48,11 +48,11 @@ namespace PlatformEducationWorkers.Controllers
 
                 string userRole = HttpContext.Session.GetString("UserRole");
 
-                if (userRole == "Admin")
+                if (userRole == Role.Admin.ToString())
                 {
                     return View("~/Views/Administrator/Main/Index.cshtml");
                 }
-                else if (userRole == "Worker")
+                else if (userRole == Role.Workers.ToString())
                 {
                     return View("~/Views/Worker/Main/Index.cshtml");
                 }

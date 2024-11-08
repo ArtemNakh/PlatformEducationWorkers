@@ -55,6 +55,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
+            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
+
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 

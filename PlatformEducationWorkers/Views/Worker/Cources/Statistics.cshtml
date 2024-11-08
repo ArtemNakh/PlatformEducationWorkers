@@ -1,11 +1,12 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Core.Models
+@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+    var coursesStatistics = ViewBag.CoursesStatistics as IEnumerable<UserResults>;
 }
-@model IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>
 
 <h2>Пройдені курси - Статистика</h2>
 
-@if (Model==null || !Model.Any()) // Перевірка, чи модель порожня
+@if (coursesStatistics == null || !coursesStatistics.Any()) // Перевірка, чи модель порожня
 {
     <p>Ви ще не пройшли жоден тест.</p>
 }
@@ -21,14 +22,14 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var course in Model)
+            @foreach (var course in coursesStatistics)
             {
                 <tr>
                     <td>@course.Cource.TitleCource</td>
                     <td>@course.Rating</td>
                     <td>@course.MaxRating</td>
                     <td>
-                        <a asp-action="Detail" asp-route-id="@course.Cource.Id" class="btn btn-primary">Деталі</a>
+                        <a asp-action="DetailCource" asp-route-id="@course.Cource.Id" class="btn btn-primary">Деталі</a>
                     </td>
                 </tr>
             }

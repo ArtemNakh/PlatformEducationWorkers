@@ -1,3 +1,41 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Models
+@using PlatformEducationWorkers.Core.Models
+
+@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+    ViewBag.Title = "Take Course";
+    var questions = ViewBag.Questions as List<QuestionRequest>;
+    var cource = ViewBag.Course as Cources;
 }
+
+ 
+<h2>@cource.TitleCource</h2>
+<p>@cource.Description</p>
+
+<form asp-action="SaveResultCource" method="post">
+    <input type="hidden" name="CourseId" value="@cource.Id" />
+
+    @for (int i = 0; i < questions.Count; i++)
+    {
+        <div>
+            <h4>@questions[i].Text</h4>
+            <input type="hidden" name="Questions[@i].Text" value="@questions[i].Text" />
+
+            @for (int j = 0; j < questions[i].Answers.Count; j++)
+            {
+                 <div>
+                    <label>
+                        <input type="radio" name="Questions[@i].SelectedAnswer" value="@questions[i].Answers[j].Text" />
+                         @questions[i].Answers[j].Text 
+                    </label>
+                </div> 
+            }
+
+            <input type="hidden" name="Questions[@i].CorrectAnswer" value="@questions[i].Answers.FirstOrDefault(a => a.IsCorrect)?.Text" />
+          
+        </div> 
+    } 
+
+    <button type="submit">Submit</button>
+</form>
+ 

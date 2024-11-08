@@ -1,4 +1,5 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Core.Models
+@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Непройдені Курси";
 }
@@ -10,20 +11,26 @@
         <tr>
             <th>Назва Курсу</th>
             <th>Опис</th>
-            <th>Максимальний Бал</th>
             <th>Деталі</th>
+            <th>Проходження</th> <!-- Додано новий стовпець для кнопки -->
         </tr>
     </thead>
     <tbody>
-        @foreach (var course in ViewBag.UncompletedCources)
+        @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Cources>)
         {
             <tr>
-                <td>@course.Title</td>
+                <td>@course.TitleCource</td>
                 <td>@course.Description</td>
-                <td>@course.MaxScore</td>
                 <td>
-                    <a href="@Url.Action("Detail", "Cources", new { area = "Worker", id = course.Id })" class="btn btn-primary">Деталі</a>
+                    <a href="@Url.Action("DetailCource", "Cources", new { area = "Worker", id = course.Id })" class="btn btn-primary">Деталі</a>
                 </td>
+
+                <td>
+                    <a href="@Url.Action("PassageCource", "Cources", new {area = "Worker", courseId = course.Id })" class=" btn btn-success">Пройти курс</a>
+
+                </td>
+
+                
             </tr>
         }
     </tbody>

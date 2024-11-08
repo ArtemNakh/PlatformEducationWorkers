@@ -102,7 +102,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("Detail/{id}")]
         [UserExists]
-        public async Task<IActionResult> Detail(int id)
+        public async Task<IActionResult> DetailCource(int id)
         {
             var cource = await _courceService.GetCourcesById(id);
             if (cource == null)

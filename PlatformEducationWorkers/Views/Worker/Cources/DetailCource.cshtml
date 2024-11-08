@@ -1,15 +1,48 @@
-﻿@model PlatformEducationWorkers.Core.Models.CourseStatistic
+﻿@using PlatformEducationWorkers.Models
+@using PlatformEducationWorkers.Core.Models
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+    ViewBag.Title = "Деталі Курсу";
+
+    var course = ViewBag.Course as Cources;
+    var content = ViewBag.Content as List<string>;
+    var questions = ViewBag.Questions as List<QuestionRequest>;
 }
 
-<h2>Деталі курсу: @Model.CourseName</h2>
+<h2>@course.TitleCource</h2>
 
-<div>
-    <p><strong>Назва курсу:</strong> @Model.CourseName</p>
-    <p><strong>Набраний бал:</strong> @Model.Score</p>
-    <p><strong>Максимальний бал:</strong> @Model.MaxScore</p>
+<div class="course-details">
+    <p><strong>Опис:</strong> @course.Description</p>
+    <p><strong>Дата створення:</strong> @course.DateCreate.ToString("dd.MM.yyyy")</p>
+
+    <h3>Вміст курсу</h3>
+    <ul>
+        @foreach (var item in content)
+        {
+            <li>@item</li>
+        }
+    </ul>
+
+    <h3>Доступні ролі</h3>
+    <ul>
+        @foreach (var role in course.AccessRoles)
+        {
+            <li>@role.Name</li>
+        }
+    </ul>
+
+    <h3>Питання</h3>
+    @foreach (var question in questions)
+    {
+        <p><strong>Питання:</strong> @question.Text</p>
+        <ul>
+            @foreach (var answer in question.Answers)
+            {
+                <li>@answer.Text @(answer.IsCorrect ? "(Вірна відповідь)" : "")</li>
+            }
+        </ul>
+    }
 </div>
 
-<a asp-action="StatisticCources" class="btn btn-secondary">Назад до списку курсів</a>
+<a href="@Url.Action("Index", "Cources", new { area = "Worker" })" class="btn btn-secondary">Назад до курсів</a>

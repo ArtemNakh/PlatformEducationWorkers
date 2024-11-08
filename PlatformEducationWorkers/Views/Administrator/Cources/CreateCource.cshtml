@@ -59,17 +59,17 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = "question";
         questionDiv.innerHTML = `
-                    <h4>Question ${questionIndex + 1}</h4>
-                    <input type="text" name="Questions[${questionIndex}].Text" placeholder="Enter question" class="form-control" />
+                        <h4>Question ${questionIndex + 1}</h4>
+                        <input type="text" name="Questions[${questionIndex}].Text" placeholder="Enter question" class="form-control" />
 
-                    <div class="answers-container">
-                        <h5>Answers</h5>
-                        <button type="button" onclick="addAnswer(${questionIndex})">Add Answer</button>
-                        <div id="answers-${questionIndex}">
-                            <!-- Answers will be added here -->
+                        <div class="answers-container">
+                            <h5>Answers</h5>
+                            <button type="button" onclick="addAnswer(${questionIndex})">Add Answer</button>
+                            <div id="answers-${questionIndex}">
+                                <!-- Answers will be added here -->
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
         container.appendChild(questionDiv);
         questionIndex++;
     }
@@ -81,9 +81,9 @@
         const answerDiv = document.createElement('div');
         answerDiv.className = "answer";
         answerDiv.innerHTML = `
-                    <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" placeholder="Enter answer" class="form-control" />
-                    <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" /> Correct
-                `;
+                        <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" placeholder="Enter answer" class="form-control" />
+                        <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" /> Correct
+                    `;
         answerContainer.appendChild(answerDiv);
     }
 

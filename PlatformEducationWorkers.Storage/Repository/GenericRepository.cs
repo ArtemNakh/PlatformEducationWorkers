@@ -1,4 +1,5 @@
-﻿using PlatformEducationWorkers.Core.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using PlatformEducationWorkers.Core.Interfaces;
 using System.Linq.Expressions;
 
 namespace PlatformEducationWorkers.Storage.Repository
@@ -46,6 +47,19 @@ namespace PlatformEducationWorkers.Storage.Repository
             var newEntity = _context.Update(entity);
             await _context.SaveChangesAsync();
             return newEntity.Entity;
+        }
+
+        // Асинхронний метод для отримання сутності за id
+        public async Task<T> GetByIdAsync<T>(int id) where T : class
+        {
+            return await _context.Set<T>().FindAsync(id);
+        }
+
+        // Асинхронний метод для виконання запиту з фільтром
+        public async Task<IEnumerable<T>> GetQueryAsync<T>(Expression<Func<T, bool>> func) where T : class
+        {
+            var query = _context.Set<T>().Where(func); // Створюємо запит
+            return await query.ToListAsync(); // Виконуємо асинхронний запит
         }
     }
 }

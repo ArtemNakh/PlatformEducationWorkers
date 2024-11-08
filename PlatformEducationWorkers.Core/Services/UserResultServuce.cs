@@ -56,13 +56,15 @@ namespace PlatformEducationWorkers.Core.Services
 
        
 
-        public Task<IEnumerable<UserResults>> GetAllUserResult(int userId)
+        public async Task<IEnumerable<UserResults>> GetAllUserResult(int userId)
         {
             try
             {
                 if (userId == null)
                     throw new Exception("$Error  get  user  all results,userId is null");
-                return _repository.GetQuery<UserResults>(u => u.User.Id == userId);
+                // Виконання запиту для отримання результатів користувача
+                var results = await _repository.GetQueryAsync<UserResults>(u => u.User.Id == userId);
+                return results;
             }
             catch (Exception)
             {

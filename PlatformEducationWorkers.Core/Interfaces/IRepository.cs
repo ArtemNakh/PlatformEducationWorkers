@@ -14,7 +14,8 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task Delete<T>(int id) where T : class;
         Task<T> GetById<T>(int id) where T : class;
         IQueryable<T> GetAll<T>() where T : class;
-
         Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class;
+        Task<T> GetByIdAsync<T>(int id) where T : class;
+        Task<IEnumerable<T>> GetQueryAsync<T>(Expression<Func<T, bool>> func) where T : class;
     }
 }
