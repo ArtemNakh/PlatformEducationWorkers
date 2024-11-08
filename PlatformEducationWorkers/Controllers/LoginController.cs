@@ -103,12 +103,12 @@ namespace PlatformEducationWorkers.Controllers
                 };
 
 
-                var newEnterprice = await _enterpriceService.AddingEnterprice(enterprice);
+                enterprice = await _enterpriceService.AddingEnterprice(enterprice);
 
                 var jobTitle = new JobTitle
                 {
                     Name = "Власник",
-                    Enterprise = newEnterprice
+                    Enterprise = enterprice
                 };
 
                 var newJobTitle = await _jobTitleService.AddingRole(jobTitle);
@@ -123,13 +123,17 @@ namespace PlatformEducationWorkers.Controllers
                     Password = model.Password,
                     Login = model.Login,
                     DateCreate = DateTime.Now,
-                    Enterprise = newEnterprice,
+                    Enterprise = enterprice,
                     Role = Role.Admin,
                     JobTitle = newJobTitle
                 };
 
 
-                await _userService.AddUser(user);
+                user= await _userService.AddUser(user);
+                enterprice = await _enterpriceService.GetEnterpriceByUser(user.Id);
+
+                enterprice.Owner = user;
+                await _enterpriceService.UpdateEnterprice(enterprice);
 
                 return RedirectToAction("Login", "Login");
 

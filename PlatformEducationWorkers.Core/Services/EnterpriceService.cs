@@ -17,9 +17,9 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
 
-                if(enterprice == null)
+                if (enterprice == null)
                     throw new Exception($"Error adding Enterprice,enterprice is null");
-                
+
                 if (_repository.GetQuery<Enterprice>(e => e.Title == enterprice.Title).Result.Count() > 0)
                     throw new Exception($"Error adding Enterprice, Choose other name");
                 if (_repository.GetQuery<Enterprice>(e => e.Email == enterprice.Email).Result.Count() > 0)
@@ -35,17 +35,47 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task DeleteingEnterprice(int enterpriceId)
+        public async Task DeleteingEnterprice(int enterpriceId)
         {
             try
             {
-                //додати валідацію
-                return _repository.Delete<Enterprice>(enterpriceId);
+                // Отримуємо фірму, яку потрібно видалити
+                var enterprice = await _repository.GetById<Enterprice>(enterpriceId);
+                if (enterprice == null)
+                    throw new Exception($"Enterprice with id {enterpriceId} not found");
+               
+
+                var courses = (await _repository.GetQuery<Cources>(c => c.Enterprise.Id == enterpriceId)).ToList();
+                foreach (var course in courses)
+                {
+                    await _repository.Delete<Cources>(course.Id);
+                }
+
+                var users = (await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId)).ToList();
+                foreach (var user in users)
+                {
+                    if (enterprice.Owner!=null  &&user.Id == enterprice.Owner.Id  )
+                    {
+                        enterprice.Owner = null;
+                        await _repository.Update(enterprice);
+                    }
+                    await _repository.Delete<User>(user.Id);
+                }
+
+               
+                var jobTitles = (await _repository.GetQuery<JobTitle>(j => j.Enterprise.Id == enterpriceId)).ToList();
+                foreach (var job in jobTitles)
+                {
+                    await _repository.Delete<JobTitle>(job.Id);
+                }
+
+
+                // Видалення фірми
+                await _repository.Delete<Enterprice>(enterpriceId); 
             }
             catch (Exception ex)
             {
-
-                throw new Exception($"Error deleting Enterprice, error:{ex}");
+                throw new Exception($"Error deleting Enterprice and its related entities: {ex.Message}");
             }
         }
 
@@ -84,7 +114,7 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 User user = _repository.GetById<User>(userId).Result;
                 //додати валідацію
-                return Task.FromResult( _repository.GetQuery<Enterprice>(u => u.Id== user.Enterprise.Id).Result.FirstOrDefault());
+                return Task.FromResult(_repository.GetQuery<Enterprice>(u => u.Id == user.Enterprise.Id).Result.FirstOrDefault());
             }
             catch (Exception ex)
             {
@@ -102,7 +132,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 oldEnterprice.Title = enterprice.Title;
                 oldEnterprice.Email = enterprice.Email;
-                
+
                 return _repository.Update(oldEnterprice);
             }
             catch (Exception ex)
@@ -112,11 +142,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        //todo
-        public Task<Enterprice> UpdateingEnterprice(Enterprice enterprice)
-        {
-            
-            throw new NotImplementedException();
-        }
+        
+        
     }
 }

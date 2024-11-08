@@ -14,7 +14,21 @@ namespace PlatformEducationWorkers.Storage
         {
 
         }
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Enterprice>()
+                .HasOne(e => e.Owner)
+                .WithMany() // Вказує, що один користувач може бути власником кількох підприємств
+                .HasForeignKey("OwnerId") // Додано вказівку зовнішнього ключа без властивості в моделі
+                .OnDelete(DeleteBehavior.Restrict); // Або інший DeleteBehavior за необхідності
+        }
+
+
+
+
         public DbSet<User> Users { get; set; }
         public DbSet<Enterprice> Enterprises { get; set; }
         public DbSet<Cources> Cources { get; set; }

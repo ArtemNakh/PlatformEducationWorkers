@@ -13,8 +13,10 @@
         <thead>
             <tr>
                 <th>Користувач</th>
+                <th>Курс</th>
                 <th>Дата проходження</th>
                 <th>Результат</th>
+                <th>Макс результат</th>
             </tr>
         </thead>
         <tbody>
@@ -22,8 +24,10 @@
             {
                 <tr>
                     <td>@passage.User.Name</td>
+                    <td>@passage.Cource.TitleCource</td>
                     <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
                     <td>@passage.Rating</td>
+                    <td>@passage.MaxRating</td>
                 </tr>
             }
         </tbody>

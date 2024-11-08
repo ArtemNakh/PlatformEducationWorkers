@@ -48,19 +48,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public IActionResult CreateWorker()
         {
             ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
-            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();  
+            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
-       
+
 
         [HttpPost]
         [UserExists]
         [Route("CreateWorker")]
         public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
-           
-           
+
+
             if (ModelState.IsValid)
             {
                 JobTitle jobTitle = await _jobTitleService.GetRole(request.JobTitleId);
@@ -74,9 +74,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     Password = request.Password,
                     Login = request.Login,
                     JobTitle = jobTitle,
-                    Role = request.Role, 
+                    Role = request.Role,
                     DateCreate = DateTime.Now,
-                    Enterprise= enterprice
+                    Enterprise = enterprice
 
                 };
 
@@ -90,7 +90,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
-       
+
         [HttpGet]
         [Route("DetailWorker/{id}")]
         [UserExists]
@@ -190,20 +190,21 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DeleteWorker/{id}")]
         public async Task<IActionResult> DeleteWorker(int id)
         {
-            if (id==null)
+            if (id == null)
             {
                 return NotFound();
             }
-            //додати перевірку на видалення власника компанії
-
-
-            User user= await _userService.GetUser(id);
-            
+            User user = await _userService.GetUser(id);
+            int enterpriceId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+            Enterprice enterprice = await _enterpriceService.GetEnterprice(enterpriceId);
             if (user == null)
             {
                 return NotFound();
             }
-           
+            if (user.Id == enterprice.Owner.Id)
+            {
+                return BadRequest("Delete worker impossible because he owner");
+            }
 
             _userService.DeleteUser(id);
             return RedirectToAction("Index");

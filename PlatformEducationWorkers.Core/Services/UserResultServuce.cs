@@ -40,13 +40,13 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId)
+        public async Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId)
         {
             try
             {
                 if (enterpriceId == null)
                     throw new Exception("$Error  get all user results by entyerprice,enterpriceId is null");
-                return _repository.GetQuery<UserResults>(u => u.Cource.Enterprise.Id == enterpriceId);
+                return await _repository.GetQueryAsync<UserResults>(u => u.Cource.Enterprise.Id == enterpriceId);
             }
             catch (Exception)
             {
