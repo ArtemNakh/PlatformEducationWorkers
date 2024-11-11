@@ -5,3 +5,4 @@
 <form asp-action="DeleteEnterprice" asp-controller="Main" asp-area="Administrator" method="post">
     <button type="submit" class="btn btn-secondary" onclick="return confirm('Are you sure you want to delete this enterprise?');">Видалення фірми</button>
 </form>
+<a href="@Url.Action("Index", "JobTitles")" class="btn btn-secondary">Back to Job Titles</a>

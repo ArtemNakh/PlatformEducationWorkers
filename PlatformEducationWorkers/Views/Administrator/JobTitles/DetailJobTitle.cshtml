@@ -1,0 +1,14 @@
+﻿@model PlatformEducationWorkers.Core.Models.JobTitle
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "";
+}
+<h2>Job Title Details</h2>
+<div>
+    <strong>Name:</strong> @Model.Name
+</div>
+<div>
+    <strong>Enterprise:</strong> @Model.Enterprise.Title
+</div>
+
+<a href="@Url.Action("Index", "JobTitles")" class="btn btn-secondary">Back to Job Titles</a>

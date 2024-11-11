@@ -1,0 +1,32 @@
+﻿@model IEnumerable<PlatformEducationWorkers.Core.Models.JobTitle>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "";
+}
+
+<h2>Job Titles</h2>
+<a href="@Url.Action("AddJobTitle", "JobTitles")" class="btn btn-primary">Add New Job Title</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var jobTitle in Model)
+        {
+            <tr>
+                <td>@jobTitle.Name</td>
+                <td>
+                    <a href="@Url.Action("DetailJobTitle", "JobTitles", new { id = jobTitle.Id })" class="btn btn-info">Details</a>
+                    <a href="@Url.Action("EditJobTitle", "JobTitles", new { id = jobTitle.Id })" class="btn btn-warning">Edit</a>
+                    <form action="@Url.Action("DeleteJobTitle", "JobTitles", new { id = jobTitle.Id })" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
