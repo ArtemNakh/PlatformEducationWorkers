@@ -14,7 +14,7 @@ namespace PlatformEducationWorkers.Core.Models
         public string TitleCource { get; set; }
         public string Description { get; set; }
         public DateTime DateCreate { get; set; }
-        public virtual IEnumerable<JobTitle> AccessRoles { get; set; }
+        public virtual ICollection<JobTitle> AccessRoles { get; set; }
         public string Questions { get; set; }//питання,варіанти відповіді, вірні відповіді записуються у json
         public string ContentCourse { get; set; }//вміст курсу записується у json
     }

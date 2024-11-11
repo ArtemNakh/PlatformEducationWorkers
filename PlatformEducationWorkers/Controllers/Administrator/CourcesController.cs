@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Request;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
@@ -148,17 +146,18 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [HttpPost]
+        [Route("DeleteCource")]
         [UserExists]
         public async Task<IActionResult> DeleteCource(int id)
         {
 
-            var cource =await _courceService.GetCourcesById(id);
+            var cource = await _courceService.GetCourcesById(id);
             if (cource == null)
             {
                 return NotFound();
             }
 
-            
+
             var courcePassages = await _userResultService.SearchUserResult(cource.Id);
             if (courcePassages != null)
             {
@@ -175,9 +174,58 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
+        [HttpGet]
+        [Route("EditCource")]
+        [UserExists]
+        public async Task<IActionResult> EditCource(int id)
+        {
+            var cource = await _courceService.GetCourcesById(id);
+            if (cource == null)
+            {
+                return NotFound();
+            }
 
+            var request = new EditCourceRequest
+            {
+                Id = cource.Id,
+                TitleCource = cource.TitleCource,
+                Description = cource.Description,
+                ContentCourse = cource.ContentCourse,
+                Questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(cource.Questions)
+            };
 
+            ViewBag.Cource = request;
 
+            return View("~/Views/Administrator/Cources/EditCource.cshtml",request);
+
+        }
+
+        [HttpPost]
+        [Route("EditCource")]
+        [UserExists]
+        public async Task<IActionResult> EditCource(EditCourceRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            Cources cource =await _courceService.GetCourcesById(request.Id);
+            if (cource == null)
+            {
+                return NotFound();
+            }
+
+            // Оновлюємо дані курсу
+            cource.TitleCource = request.TitleCource;
+            cource.Description = request.Description;
+            cource.ContentCourse = request.ContentCourse;
+            cource.Questions = JsonConvert.SerializeObject(request.Questions);
+
+            await _courceService.UpdateCource(cource);
+
+            return RedirectToAction("Detail",cource.Id);
+        }
 
     }
 }

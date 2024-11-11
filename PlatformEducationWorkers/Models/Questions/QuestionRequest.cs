@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Models
+﻿namespace PlatformEducationWorkers.Models.Questions
 {
     public class QuestionRequest
     {

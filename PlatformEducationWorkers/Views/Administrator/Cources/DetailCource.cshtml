@@ -38,8 +38,7 @@ else
     <p>Питання не знайдено.</p>
 }
 
-<!-- Кнопка редагування -->
-<form asp-action="EditCource" asp-controller="Cources" method="post">
+<form asp-action="EditCource" asp-controller="Cources" method="get">
     <input type="hidden" name="Id" value="@ViewBag.Cource.Id" />
     <button type="submit" class="btn btn-primary">Редагувати</button>
 </form>

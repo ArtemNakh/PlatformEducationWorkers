@@ -1,0 +1,55 @@
+﻿@model PlatformEducationWorkers.Request.EditCourceRequest
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Редагувати курс";
+}
+
+<h2>Редагувати курс</h2>
+
+<form asp-action="EditCource" asp-controller="Cources" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="TitleCource">Назва курсу</label>
+        <input asp-for="TitleCource" class="form-control" />
+        <span asp-validation-for="TitleCource" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description">Опис</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ContentCourse">Вміст курсу (JSON)</label>
+        <textarea asp-for="ContentCourse" class="form-control"></textarea>
+        <span asp-validation-for="ContentCourse" class="text-danger"></span>
+    </div>
+
+    <h3>Питання та відповіді</h3>
+    <div id="questions-container">
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            <div class="form-group">
+                <label>Питання</label>
+                <input asp-for="Questions[i].Text" class="form-control" />
+
+                <h4>Відповіді</h4>
+                @for (int j = 0; j < Model.Questions[i].Answers.Count; j++)
+                {
+                    <div class="form-group">
+                        <input asp-for="Questions[i].Answers[j].Text" class="form-control" />
+                        <label>
+                            <input asp-for="Questions[i].Answers[j].IsCorrect" type="checkbox" />
+                            Правильна відповідь
+                        </label>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+</form>

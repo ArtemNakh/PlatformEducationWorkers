@@ -12,8 +12,8 @@ namespace PlatformEducationWorkers.Core.Models
         public string Title { get; set; }
         public DateTime DateCreate { get; set; }
         public string Email { get; set; }
-        public virtual IEnumerable<User> Users { get; set; }
-        public virtual IEnumerable<Cources> Cources { get; set; }
+        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<Cources> Cources { get; set; }
         public virtual User? Owner { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Request.PassageCource;
 
 namespace PlatformEducationWorkers.Controllers.Worker

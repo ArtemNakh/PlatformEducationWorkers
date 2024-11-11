@@ -1,4 +1,4 @@
-﻿using PlatformEducationWorkers.Models;
+﻿using PlatformEducationWorkers.Models.Questions;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlatformEducationWorkers.Request
