@@ -5,7 +5,7 @@
 
 <h2>Список курсів</h2>
 
-@if (ViewBag.Cources != null )
+@if (ViewBag.Cources != null)
 {
     <table class="table">
         <thead>
@@ -23,6 +23,9 @@
                     <td>@course.Description</td>
                     <td>
                         <a asp-action="DetailCource" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info">Деталі</a>
+                        <form asp-action="DeleteCource" asp-route-id="@course.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Ви дійсно бажаєте видалити цей курс?');">Видалити</button>
+                        </form>
                     </td>
                 </tr>
             }

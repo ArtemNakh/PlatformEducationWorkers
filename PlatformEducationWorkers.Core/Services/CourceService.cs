@@ -89,7 +89,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<Cources> GetCourcesById(int courceId)
+        public async Task<Cources> GetCourcesById(int courceId)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
 
-                return _repository.GetById<Cources>(courceId);
+                return await _repository.GetByIdAsync<Cources>(courceId);
             }
             catch (Exception ex)
             {

@@ -32,9 +32,9 @@ namespace PlatformEducationWorkers.Storage.Repository
             return _context.Set<T>();
         }
 
-        public Task<T> GetById<T>(int id) where T : class
+        public async Task<T> GetById<T>(int id) where T : class
         {
-            return _context.Set<T>().FindAsync(id).AsTask();
+            return await _context.Set<T>().FindAsync(id);
         }
 
         public async Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class

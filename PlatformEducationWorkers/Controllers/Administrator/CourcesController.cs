@@ -147,6 +147,36 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
 
+        [HttpPost]
+        [UserExists]
+        public async Task<IActionResult> DeleteCource(int id)
+        {
+
+            var cource =await _courceService.GetCourcesById(id);
+            if (cource == null)
+            {
+                return NotFound();
+            }
+
+            
+            var courcePassages = await _userResultService.SearchUserResult(cource.Id);
+            if (courcePassages != null)
+            {
+                await _userResultService.DeleteResult(courcePassages.Id);
+            }
+            await _courceService.DeleteCource(cource.Id);
+            return RedirectToAction("Index");
+
+        }
+
+
+
+
+
+
+
+
+
 
 
     }

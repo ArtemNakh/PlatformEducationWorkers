@@ -26,13 +26,14 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task DeleteResult(int resultId)
+        public async Task DeleteResult(int resultId)
         {
             try
             {
                 if (resultId == null)
                     throw new Exception("$Error delete results,resultId is null");
-                return _repository.Delete<UserResults>(resultId);
+
+                await _repository.Delete<UserResults>(resultId);
             }
             catch (Exception)
             {
@@ -72,13 +73,13 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<UserResults> SearchUserResult(int courceId)
+        public async Task<UserResults> SearchUserResult(int courceId)
         {
             try
             {
                 if (courceId == null)
                     throw new Exception("$Error  get user  results,courceId is null");
-                return Task.FromResult(_repository.GetQuery<UserResults>(u => u.Cource.Id == courceId).Result.FirstOrDefault());
+                return (await _repository.GetQueryAsync<UserResults>(u => u.Cource.Id == courceId)).FirstOrDefault();
             }
             catch (Exception)
             {
