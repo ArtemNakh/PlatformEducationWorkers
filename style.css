@@ -1,0 +1,54 @@
+/* wwwroot/css/style.css */
+
+/* Стилі для картки профілю */
+.profile-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Заголовки та текст */
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Кнопки та інтерфейси */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Картки курсів */
+.list-group-item {
+    background-color: #f8f9fa;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.list-group-item:hover {
+    background-color: #e2e6ea;
+    cursor: pointer;
+}
+
+.list-group-item h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.list-group-item p {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.list-group-item small {
+    font-size: 0.875rem;
+    color: #868e96;
+}

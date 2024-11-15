@@ -14,6 +14,7 @@ namespace PlatformEducationWorkers.Core.Models
         public virtual Enterprice Enterprise { get; set; }
 
 
+        public virtual ICollection<Cources> Courses { get; set; }
 
 
 

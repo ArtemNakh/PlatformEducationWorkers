@@ -33,6 +33,7 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+
                 return _repository.Delete<JobTitle>(idJobTitle);
             }
             catch (Exception ex)
