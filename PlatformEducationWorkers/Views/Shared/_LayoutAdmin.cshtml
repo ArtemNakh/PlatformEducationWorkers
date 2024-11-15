@@ -19,7 +19,6 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                       
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Administrator" asp-controller="Main" asp-action="Index">Main</a>
                         </li>
@@ -31,6 +30,12 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Administrator" asp-controller="Cources" asp-action="HistoryPassage">Passage</a>
+                        </li>
+                        <li>
+                            <a asp-controller="Login" asp-action="Logout" class="btn btn-link text-danger">Вихід</a>
+                        </li>
+                        <li>
+                            <a asp-controller="Account" asp-action="Credentials" class="btn btn-primary">Переглянути обліковий запис</a>
                         </li>
                     </ul>
                 </div>

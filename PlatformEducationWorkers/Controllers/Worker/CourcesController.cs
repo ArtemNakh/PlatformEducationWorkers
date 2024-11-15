@@ -59,7 +59,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             return View("~/Views/Worker/Cources/Statistics.cshtml");
         }
 
-
+        //
         [HttpGet]
         [Route("DetailCource")]
         [UserExists]

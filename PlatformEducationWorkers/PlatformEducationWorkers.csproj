@@ -36,6 +36,8 @@
 
   <ItemGroup>
     <Folder Include="DTOs\" />
+    <Folder Include="Request\Login_RegisterRequest\" />
+    <Folder Include="Request\UserRequest\" />
   </ItemGroup>
 
 </Project>

@@ -31,10 +31,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Worker" asp-controller="Cources" asp-action="StatisticCources">Statistic Courses</a>
                         </li>
-                        @*< li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Worker" asp-controller="Cources" asp-action="PassageCource">Passage Courses</a>
-                        </li> *@
-
+                        <li>
+                            <a asp-controller="Login" asp-action="Logout" class="btn btn-link text-danger">Вихід</a>
+                        </li>
+                        <li>
+                            <a asp-controller="Account" asp-action="Credentials" class="btn btn-primary">Переглянути обліковий запис</a>
+                        </li>
                     </ul>
                 </div>
             </div>
