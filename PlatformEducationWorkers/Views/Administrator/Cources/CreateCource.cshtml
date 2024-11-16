@@ -48,6 +48,15 @@
         </div>
     </div>
 
+     <div class="form-group">
+        <label asp-for="ShowCorrectAnswers">Show correct answers</label>
+        <select asp-for="ShowCorrectAnswers" class="form-control">
+            <option value="true">True</option>
+            <option value="false">False</option>
+        </select>
+        <span asp-validation-for="ShowCorrectAnswers" class="text-danger"></span>
+    </div>
+   
 
     <button type="submit" class="btn btn-primary">Create Course</button>
 </form>

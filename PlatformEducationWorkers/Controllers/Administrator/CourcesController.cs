@@ -43,14 +43,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateCource()
         {
-            var jobTitles = await _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            var jobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
             if (jobTitles == null || !jobTitles.Any())
             {
-                ViewBag.JobTitles = new List<JobTitle>();  // Якщо ролі відсутні, передаємо порожній список
+                ViewBag.JobTitles = new List<JobTitle>();  
             }
             else
             {
-                ViewBag.JobTitles = jobTitles.ToList();  // Передача списку ролей в ViewBag
+                ViewBag.JobTitles = jobTitles.ToList();  
             }
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
@@ -73,7 +73,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             foreach (var jobTitleId in request.AccessRoleIds)
             {
-                var jobTitle = await _jobTitleService.GetRole(jobTitleId);
+                var jobTitle = await _jobTitleService.GetJobTitle(jobTitleId);
                 if (jobTitle != null)
                 {
                     jobTitles.Add(jobTitle);
@@ -88,7 +88,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Questions = questions,
                 DateCreate = DateTime.UtcNow,
                 Enterprise = enterprice,
-                AccessRoles = jobTitles
+                AccessRoles = jobTitles,
+                ShowCorrectAnswers = request.ShowCorrectAnswers,
             };
 
             await _courceService.AddCource(newCource);

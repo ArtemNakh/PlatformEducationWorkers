@@ -32,14 +32,21 @@
         }
     </ul>
 
-    <h3>Питання</h3>
+   <h3>Питання</h3>
     @foreach (var question in questions)
     {
         <p><strong>Питання:</strong> @question.Text</p>
+        
         <ul>
             @foreach (var answer in question.Answers)
             {
-                <li>@answer.Text @(answer.IsCorrect ? "(Вірна відповідь)" : "")</li>
+                <li>
+                    @answer.Text 
+                    @if (course.ShowCorrectAnswers && answer.IsCorrect)
+                    {
+                        <span style="color: green;">(Вірна відповідь)</span>
+                    }
+                </li>
             }
         </ul>
     }

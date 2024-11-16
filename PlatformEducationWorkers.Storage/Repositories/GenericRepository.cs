@@ -24,7 +24,8 @@ namespace PlatformEducationWorkers.Storage.Repositories
         {
             var entity = await GetById<T>(id);
             _context.Remove(entity);
-            await _context.SaveChangesAsync();
+           await _context.SaveChangesAsync();
+           
         }
 
         public IQueryable<T> GetAll<T>() where T : class

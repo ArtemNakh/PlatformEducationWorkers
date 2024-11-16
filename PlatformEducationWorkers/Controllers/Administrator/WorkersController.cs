@@ -47,7 +47,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public IActionResult CreateWorker()
         {
-            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -63,7 +63,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             if (ModelState.IsValid)
             {
-                JobTitle jobTitle = await _jobTitleService.GetRole(request.JobTitleId);
+                JobTitle jobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
                 Enterprice enterprice = await _enterpriceService.GetEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
                 var user = new User
                 {
@@ -84,7 +84,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return RedirectToAction("Index");
             }
 
-            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -102,8 +102,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
-            // You can populate job titles if needed
-            ViewBag.JobTitles = await _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
 
             return View("~/Views/Administrator/Workers/DetailWorker.cshtml", user);
         }
@@ -120,7 +119,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             // Populate job titles and roles for dropdowns
-            ViewBag.JobTitles = await _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             // Map the user data to the UpdateUserRequest model to populate the form
@@ -158,7 +157,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 user.Role = request.Role;
 
                 // Update the user's job title
-                user.JobTitle = await _jobTitleService.GetRole(request.JobTitleId);
+                user.JobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
 
                 // If the password is provided, update it
                 if (!string.IsNullOrEmpty(request.Password))
@@ -180,7 +179,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             // If the model is invalid, reload the form with validation messages
-            ViewBag.JobTitles = await _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
             return View("~/Views/Administrator/Workers/EditWorker.cshtml", request);
         }

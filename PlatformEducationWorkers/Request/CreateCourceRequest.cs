@@ -21,6 +21,11 @@ namespace PlatformEducationWorkers.Request
 
         [Required(ErrorMessage = "At least one access role must be selected.")]
         public List<int> AccessRoleIds { get; set; } // List of JobTitle IDs for access roles
+
+        [Required(ErrorMessage = "ShowQuestions must be true or false.")]
+        public bool ShowCorrectAnswers { get; set; }
+
+
     }
 
 }

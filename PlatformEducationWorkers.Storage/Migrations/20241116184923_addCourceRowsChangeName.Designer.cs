@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlatformEducationWorkers.Storage;
 
@@ -11,9 +12,11 @@ using PlatformEducationWorkers.Storage;
 namespace PlatformEducationWorkers.Storage.Migrations
 {
     [DbContext(typeof(PlatformEducationContex))]
-    partial class PlatformEducationContexModelSnapshot : ModelSnapshot
+    [Migration("20241116184923_addCourceRowsChangeName")]
+    partial class addCourceRowsChangeName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,6 +70,9 @@ namespace PlatformEducationWorkers.Storage.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("ShowCorrectAnswers")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowUserAnswers")
                         .HasColumnType("bit");
 
                     b.Property<string>("TitleCource")

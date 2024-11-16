@@ -27,7 +27,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+                ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
                 ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
                 return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -56,7 +56,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
-            ViewBag.JobTitles = _jobTitleService.GetAllRoles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -73,7 +73,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return RedirectToAction("Login", "Login");
             }
 
-            var jobTitles = await _jobTitleService.GetAllRoles(enterpriseId);
+            var jobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
             ViewBag.JobTitles = jobTitles;
 
             return View("~/Views/Administrator/JobTitles/Index.cshtml", jobTitles);
@@ -83,7 +83,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DetailJobTitle")]
         public async Task<IActionResult> DetailJobTitle(int id)
         {
-            var jobTitle = await _jobTitleService.GetRole(id);
+            var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
             {
                 return RedirectToAction("Index");
@@ -96,7 +96,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         public async Task<IActionResult> EditJobTitle(int id)
         {
-            var jobTitle = await _jobTitleService.GetRole(id);
+            var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
             {
                 return RedirectToAction("Index");
@@ -127,7 +127,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Name = request.Name
             };
 
-            await _jobTitleService.UpdateRole(jobTitle);
+            await _jobTitleService.UpdateJobTitle(jobTitle);
             return RedirectToAction("Index");
         }
 
@@ -174,7 +174,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteJobTitle(int id)
         {
-            await _jobTitleService.DeleteRole(id);
+            await _jobTitleService.DeleteJobTitle(id);
             return RedirectToAction("Index");
         }
     }
