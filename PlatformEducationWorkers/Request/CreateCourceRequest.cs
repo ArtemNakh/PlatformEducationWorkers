@@ -17,7 +17,7 @@ namespace PlatformEducationWorkers.Request
         public string ContentCourse { get; set; } // JSON format for course content
 
         [Required(ErrorMessage = "At least one question is required.")]
-        public List<QuestionRequest> Questions { get; set; } = new List<QuestionRequest>();
+        public List<QuestionContextRequest> Questions { get; set; } = new List<QuestionContextRequest>();
 
         [Required(ErrorMessage = "At least one access role must be selected.")]
         public List<int> AccessRoleIds { get; set; } // List of JobTitle IDs for access roles

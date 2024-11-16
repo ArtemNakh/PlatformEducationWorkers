@@ -9,6 +9,6 @@ namespace PlatformEducationWorkers.Request
         public string TitleCource { get; set; }
         public string Description { get; set; }
         public string ContentCourse { get; set; } // JSON рядок із вмістом курсу
-        public List<QuestionRequest> Questions { get; set; } = new List<QuestionRequest>();
+        public List<QuestionContextRequest> Questions { get; set; } = new List<QuestionContextRequest>();
     }
 }

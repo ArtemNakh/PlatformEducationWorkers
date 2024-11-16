@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using System.Linq.Expressions;
 
-namespace PlatformEducationWorkers.Storage.Repository
+namespace PlatformEducationWorkers.Storage.Repositories
 {
     public class GenericRepository:IRepository
     {

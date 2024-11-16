@@ -1,4 +1,5 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using System;
 using System.Collections.Generic;

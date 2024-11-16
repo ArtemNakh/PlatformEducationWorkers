@@ -17,12 +17,14 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IUserService _userService;
         private readonly IEnterpriceService _enterpriceService;
         private readonly IJobTitleService _jobTitleService;
+        private readonly ICreateEnterpriseService _createEnterpriseService;
 
-        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService)
+        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService)
         {
             _userService = userService;
             _enterpriceService = enterpriceService;
             _jobTitleService = jobTitleService;
+            _createEnterpriseService = createEnterpriseService;
         }
 
         [HttpGet]
@@ -97,46 +99,29 @@ namespace PlatformEducationWorkers.Controllers
 
             try
             {
-
-                var enterprice = new Enterprice
+                var enterprise = new Enterprice
                 {
                     Title = model.Title,
+                    DateCreate = DateTime.UtcNow,
                     Email = model.Email,
-                    DateCreate = DateTime.Now
+                    Users = new List<User>(),
+                    Cources = new List<Cources>()
                 };
 
-
-                enterprice = await _enterpriceService.AddingEnterprice(enterprice);
-
-                var jobTitle = new JobTitle
+                var owner = new User
                 {
-                    Name = "Власник",
-                    Enterprise = enterprice
-                };
-
-                var newJobTitle = await _jobTitleService.AddingRole(jobTitle);
-
-
-                var user = new User
-                {
-                    Name = model.OwnerName,
-                    Surname = model.OwnerSurname,
-                    Birthday = model.Birthday,
+                    Name =model.OwnerName,
+                    Surname =model.OwnerSurname,
+                    Birthday =model.Birthday,
+                    DateCreate = DateTime.UtcNow,
                     Email = model.Email,
-                    Password = model.Password,
+                    Password =model.Password,
                     Login = model.Login,
-                    DateCreate = DateTime.Now,
-                    Enterprise = enterprice,
-                    Role = Role.Admin,
-                    JobTitle = newJobTitle
+                    Role = Role.Admin
                 };
 
+                await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
 
-                user= await _userService.AddUser(user);
-                enterprice = await _enterpriceService.GetEnterpriceByUser(user.Id);
-
-                enterprice.Owner = user;
-                await _enterpriceService.UpdateEnterprice(enterprice);
 
                 return RedirectToAction("Login", "Login");
 

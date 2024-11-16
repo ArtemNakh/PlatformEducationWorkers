@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Storage;
-using PlatformEducationWorkers.Storage.Repository;
+using PlatformEducationWorkers.Storage.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddTransient<IEnterpriceService,EnterpriceService>();
 builder.Services.AddTransient<IJobTitleService,JobTitleService>();
 builder.Services.AddTransient<ICourcesService,CourceService>();
 builder.Services.AddScoped<IRepository,GenericRepository>();
+builder.Services.AddScoped<IEnterpriseRepository,EnterpriseRepository>();
+builder.Services.AddTransient<ICreateEnterpriseService, CreateEnterpriseService>();
 
 
 builder.Services.AddControllersWithViews();

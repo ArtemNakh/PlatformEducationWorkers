@@ -87,12 +87,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
 
             // Десеріалізуємо Questions у список об'єктів QuestionRequest
-            List<QuestionRequest> questions = new List<QuestionRequest>();
+            List<QuestionContextRequest> questions = new List<QuestionContextRequest>();
             if (!string.IsNullOrEmpty(courseDetail.Questions))
             {
                 try
                 {
-                    questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(courseDetail.Questions);
+                    questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(courseDetail.Questions);
                 }
                 catch (JsonException)
                 {
@@ -123,12 +123,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
 
             // Десеріалізуємо питання курсу
-            List<QuestionRequest> questions = new List<QuestionRequest>();
+            List<QuestionContextRequest> questions = new List<QuestionContextRequest>();
             if (!string.IsNullOrEmpty(course.Questions))
             {
                 try
                 {
-                    questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(course.Questions);
+                    questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(course.Questions);
                 }
                 catch (JsonException)
                 {

@@ -109,12 +109,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             // Десеріалізація JSON у відповідні об'єкти
-            List<QuestionRequest> questions = null;
+            List<QuestionContextRequest> questions = null;
             string contentCourse = null;
 
             if (!string.IsNullOrEmpty(cource.Questions))
             {
-                questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(cource.Questions);
+                questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions);
             }
 
             if (!string.IsNullOrEmpty(cource.ContentCourse))
@@ -191,7 +191,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 TitleCource = cource.TitleCource,
                 Description = cource.Description,
                 ContentCourse = cource.ContentCourse,
-                Questions = JsonConvert.DeserializeObject<List<QuestionRequest>>(cource.Questions)
+                Questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions)
             };
 
             ViewBag.Cource = request;
