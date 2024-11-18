@@ -4,78 +4,92 @@
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-<h2>Add New Job Title</h2>
 
-<form asp-action="CreateJobTitle" method="post">
+<div class="container mt-5">
+    <!-- Job Title Form -->
+    <div class="card shadow-lg mb-5">
+        <div class="card-header bg-primary text-white">
+            <h3>Add New Job Title</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateJobTitle" method="post">
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="form-label">Job Title Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter Job Title Name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
 
-    <div class="form-group">
-        <label asp-for="Name">Job Title Name</label>
-        <input asp-for="Name" class="form-control" placeholder="Enter Job Title Name" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Add Job Title</button>
-</form>
-
-<h2>Add New Workers</h2>
-<form asp-action="CreateWorker" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+                <button type="submit" class="btn btn-primary btn-lg">Add Job Title</button>
+            </form>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Surname"></label>
-        <input asp-for="Surname" class="form-control" />
-        <span asp-validation-for="Surname" class="text-danger"></span>
+    <!-- Worker Form -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <h3>Add New Worker</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateWorker" method="post">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="form-label">Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter Name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Surname" class="form-label">Surname</label>
+                    <input asp-for="Surname" class="form-control" placeholder="Enter Surname" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Birthday" class="form-label">Birthday</label>
+                    <input asp-for="Birthday" class="form-control" type="date" />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Enter Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Login" class="form-label">Login</label>
+                    <input asp-for="Login" class="form-control" placeholder="Enter Login" />
+                    <span asp-validation-for="Login" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="jobTitleSelect" class="form-label">Job Title</label>
+                    <select id="jobTitleSelect" class="form-control" asp-for="JobTitleId" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
+                        <option value="">-- Select Job Title --</option>
+                    </select>
+                    <span asp-validation-for="JobTitleId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Role</label>
+                    <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles))">
+                        <option value="">-- Select Role --</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg">Create User</button>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Birthday"></label>
-        <input asp-for="Birthday" class="form-control" type="date" />
-        <span asp-validation-for="Birthday" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" type="email" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Login"></label>
-        <input asp-for="Login" class="form-control" />
-        <span asp-validation-for="Login" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label for="jobTitleSelect">Job Title</label>
-        <select id="jobTitleSelect" class="form-control" asp-for="JobTitleId" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
-            <option value="">-- Select Job Title --</option>
-        </select>
-        <span asp-validation-for="JobTitleId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Role</label>
-        <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles))">
-            <option value="">-- Select Role --</option>
-        </select>
-        <span asp-validation-for="Role" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create User</button>
-</form>
-
-
+</div>
 
 @section Scripts {
     <script>

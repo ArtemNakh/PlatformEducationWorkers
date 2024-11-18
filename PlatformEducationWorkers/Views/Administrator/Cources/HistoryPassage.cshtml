@@ -5,37 +5,50 @@
     var historyPassages = ViewBag.HistoryPassages as IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>;
 }
 
-<h2>Історія проходжень курсу</h2>
-
-@if (historyPassages != null && historyPassages.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Користувач</th>
-                <th>Курс</th>
-                <th>Дата проходження</th>
-                <th>Результат</th>
-                <th>Макс результат</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var passage in historyPassages)
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Історія проходжень курсу</h2>
+        </div>
+        <div class="card-body">
+            @if (historyPassages != null && historyPassages.Any())
             {
-                <tr>
-                    <td>@passage.User.Name</td>
-                    <td>@passage.Cource.TitleCource</td>
-                    <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
-                    <td>@passage.Rating</td>
-                    <td>@passage.MaxRating</td>
-                </tr>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered text-center align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Користувач</th>
+                                <th>Курс</th>
+                                <th>Дата проходження</th>
+                                <th>Результат</th>
+                                <th>Макс результат</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var passage in historyPassages)
+                            {
+                                <tr>
+                                    <td>@passage.User.Name</td>
+                                    <td>@passage.Cource.TitleCource</td>
+                                    <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
+                                    <td>@passage.Rating</td>
+                                    <td>@passage.MaxRating</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Немає записів історії проходжень для цього курсу.</p>
-}
+            else
+            {
+                <p class="text-center text-muted">Немає записів історії проходжень для цього курсу.</p>
+            }
 
-<a asp-action="Index" asp-controller="Cources" asp-area="Administrator">Назад до списку курсів</a>
+            <div class="text-center mt-4">
+                <a asp-action="Index" asp-controller="Cources" asp-area="Administrator" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад до списку курсів
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

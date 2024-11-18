@@ -6,79 +6,91 @@
     ViewBag.Title = "Create Course";
 }
 
-<h2>Create Course</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Create Course</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateCource" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger"></div> <!-- Вивести всі помилки -->
 
-<form asp-action="CreateCource" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div> <!-- Вивести всі помилки -->
-
-    <div class="form-group">
-        <label asp-for="TitleCource">Title of Course</label>
-        <input asp-for="TitleCource" class="form-control" />
-        <span asp-validation-for="TitleCource" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Description">Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ContentCourse">Content (JSON format)</label>
-        <textarea asp-for="ContentCourse" class="form-control"></textarea>
-        <span asp-validation-for="ContentCourse" class="text-danger"></span>
-    </div>
-
-    <!-- Додавання питань та відповідей -->
-    <div id="questions-container">
-        <h3>Questions</h3>
-        <button type="button" onclick="addQuestion()">Add Question</button>
-    </div>
-
-    <div class="form-group">
-        <label>Access Roles</label>
-        <div>
-            @foreach (var jobTitle in (ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>) ?? new List<PlatformEducationWorkers.Core.Models.JobTitle>())
-            {
-                <div class="form-check">
-                    <input type="checkbox" name="AccessRoleIds[]" value="@jobTitle.Id" class="form-check-input" />
-                    <label class="form-check-label">@jobTitle.Name</label>
+                <div class="mb-3">
+                    <label asp-for="TitleCource" class="form-label"><strong>Title of Course</strong></label>
+                    <input asp-for="TitleCource" class="form-control border-primary" placeholder="Enter course title" />
+                    <span asp-validation-for="TitleCource" class="text-danger"></span>
                 </div>
-            }
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"><strong>Description</strong></label>
+                    <textarea asp-for="Description" class="form-control border-primary" rows="3" placeholder="Enter course description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContentCourse" class="form-label"><strong>Content (JSON format)</strong></label>
+                    <textarea asp-for="ContentCourse" class="form-control border-primary" rows="5" placeholder="Enter course content in JSON format"></textarea>
+                    <span asp-validation-for="ContentCourse" class="text-danger"></span>
+                </div>
+
+                <div id="questions-container" class="mb-4">
+                    <h3 class="text-primary">Questions</h3>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addQuestion()">
+                        <i class="bi bi-plus-circle"></i> Add Question
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Access Roles</strong></label>
+                    <div class="border p-3 rounded">
+                        @foreach (var jobTitle in (ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>) ?? new List<PlatformEducationWorkers.Core.Models.JobTitle>())
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" name="AccessRoleIds[]" value="@jobTitle.Id" class="form-check-input" />
+                                <label class="form-check-label">@jobTitle.Name</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ShowCorrectAnswers" class="form-label"><strong>Show correct answers</strong></label>
+                    <select asp-for="ShowCorrectAnswers" class="form-select border-primary">
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                    <span asp-validation-for="ShowCorrectAnswers" class="text-danger"></span>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-save"></i> Create Course
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-     <div class="form-group">
-        <label asp-for="ShowCorrectAnswers">Show correct answers</label>
-        <select asp-for="ShowCorrectAnswers" class="form-control">
-            <option value="true">True</option>
-            <option value="false">False</option>
-        </select>
-        <span asp-validation-for="ShowCorrectAnswers" class="text-danger"></span>
-    </div>
-   
-
-    <button type="submit" class="btn btn-primary">Create Course</button>
-</form>
 <script>
     let questionIndex = 0;
 
     function addQuestion() {
         const container = document.getElementById('questions-container');
         const questionDiv = document.createElement('div');
-        questionDiv.className = "question";
+        questionDiv.className = "border p-3 rounded mt-3";
         questionDiv.innerHTML = `
-                        <h4>Question ${questionIndex + 1}</h4>
-                        <input type="text" name="Questions[${questionIndex}].Text" placeholder="Enter question" class="form-control" />
+                <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
+                <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
 
-                        <div class="answers-container">
-                            <h5>Answers</h5>
-                            <button type="button" onclick="addAnswer(${questionIndex})">Add Answer</button>
-                            <div id="answers-${questionIndex}">
-                                <!-- Answers will be added here -->
-                            </div>
-                        </div>
-                    `;
+                <div class="answers-container">
+                    <h5>Answers</h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
+                        <i class="bi bi-plus-circle"></i> Add Answer
+                    </button>
+                    <div id="answers-${questionIndex}" class="mt-2"></div>
+                </div>
+            `;
         container.appendChild(questionDiv);
         questionIndex++;
     }
@@ -88,19 +100,18 @@
         const answerIndex = answerContainer.childElementCount;
 
         const answerDiv = document.createElement('div');
-        answerDiv.className = "answer";
+        answerDiv.className = "d-flex align-items-center gap-2 mt-2";
         answerDiv.innerHTML = `
-                        <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" placeholder="Enter answer" class="form-control" />
-                        <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" /> Correct
-                    `;
+                <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-75" placeholder="Enter answer" />
+                <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" class="form-check-input" />
+                <label>Correct</label>
+            `;
         answerContainer.appendChild(answerDiv);
     }
 
-    // Add custom logic to handle checkbox state before form submission
     document.querySelector('form').onsubmit = function () {
         const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="IsCorrect"]');
         checkboxes.forEach(function (checkbox) {
-            // Ensure unchecked checkboxes send 'false' value
             if (!checkbox.checked) {
                 checkbox.value = "false";
             }

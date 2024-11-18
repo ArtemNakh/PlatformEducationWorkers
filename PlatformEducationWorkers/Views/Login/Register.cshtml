@@ -5,64 +5,71 @@
     Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
 }
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        <ul>
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4" style="max-width: 600px; width: 100%;">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Реєстрація компанії</h2>
+        </div>
+        <div class="card-body">
+            
+            @if (!ViewData.ModelState.IsValid)
             {
-                <li>@error.ErrorMessage</li>
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
             }
-        </ul>
+
+            <form asp-action="Register" method="post">
+                <div class="form-group mb-3">
+                    <label asp-for="Title" class="form-label">Назва компанії</label>
+                    <input asp-for="Title" class="form-control" placeholder="Введіть назву компанії" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Введіть email" required />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="OwnerName" class="form-label">Ім'я власника</label>
+                    <input asp-for="OwnerName" class="form-control" placeholder="Введіть ім'я власника" required />
+                    <span asp-validation-for="OwnerName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="OwnerSurname" class="form-label">Прізвище власника</label>
+                    <input asp-for="OwnerSurname" class="form-control" placeholder="Введіть прізвище власника" required />
+                    <span asp-validation-for="OwnerSurname" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Birthday" class="form-label">Дата народження власника</label>
+                    <input asp-for="Birthday" class="form-control" type="date" required />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Login" class="form-label">Логін</label>
+                    <input asp-for="Login" class="form-control" placeholder="Введіть логін" required />
+                    <span asp-validation-for="Login" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password" class="form-label">Пароль</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Введіть пароль" required />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Зареєструватися</button>
+            </form>
+        </div>
     </div>
-}
-
-
-<h2>Реєстрація компанії</h2>
-<form asp-action="Register" method="post">
-    <div class="form-group">
-        <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" type="email" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="OwnerName"></label>
-        <input asp-for="OwnerName" class="form-control" />
-        <span asp-validation-for="OwnerName" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="OwnerSurname"></label>
-        <input asp-for="OwnerSurname" class="form-control" />
-        <span asp-validation-for="OwnerSurname" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Birthday"></label>
-        <input asp-for="Birthday" class="form-control" type="date" />
-        <span asp-validation-for="Birthday" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Login"></label>
-        <input asp-for="Login" class="form-control" />
-        <span asp-validation-for="Login" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Зареєструватися</button>
-</form>
-
+</div>
 

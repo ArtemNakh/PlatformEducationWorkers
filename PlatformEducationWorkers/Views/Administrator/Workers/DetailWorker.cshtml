@@ -5,19 +5,42 @@
     ViewData["Title"] = "User Details";
 }
 
-<h2>User Details</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3>User Details</h3>
+        </div>
+        <div class="card-body">
+            <h4 class="mb-3">@Model.Name @Model.Surname</h4>
 
-<div>
-    <h3>@Model.Name @Model.Surname</h3>
-    <p><strong>Birthday:</strong> @Model.Birthday.ToShortDateString()</p>
-    <p><strong>Email:</strong> @Model.Email</p>
-    <p><strong>Role:</strong> @Model.Role</p>
-    <p><strong>Job Title:</strong> @Model.JobTitle.Name</p>
-    <p><strong>Enterprise:</strong> @Model.Enterprise.Title</p>
-    <p><strong>Created On:</strong> @Model.DateCreate.ToShortDateString()</p>
-</div>
+            <div class="mb-3">
+                <p><strong>Birthday:</strong> @Model.Birthday.ToShortDateString()</p>
+            </div>
 
-<div>
-    <a href="@Url.Action("EditWorker", new { id = Model.Id })" class="btn btn-primary">Edit</a>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a>
+            <div class="mb-3">
+                <p><strong>Email:</strong> @Model.Email</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Role:</strong> @Model.Role</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Job Title:</strong> @Model.JobTitle.Name</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Enterprise:</strong> @Model.Enterprise.Title</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Created On:</strong> @Model.DateCreate.ToShortDateString()</p>
+            </div>
+
+            <div class="d-flex justify-content-start">
+                <a href="@Url.Action("EditWorker", new { id = Model.Id })" class="btn btn-primary btn-lg me-3">Edit</a>
+                <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">Back to List</a>
+            </div>
+        </div>
+    </div>
 </div>

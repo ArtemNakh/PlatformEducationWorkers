@@ -3,43 +3,76 @@
     ViewData["Title"] = "Деталі курсу";
 }
 
-<h2>@ViewBag.Cource.TitleCource</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>@ViewBag.Cource.TitleCource</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="text-secondary">Опис:</h4>
+            <p class="text-muted">@ViewBag.Cource.Description</p>
 
-<p>@ViewBag.Cource.Description</p>
+            <h4 class="text-secondary">Вміст курсу:</h4>
+            <p class="bg-light p-3 rounded">@ViewBag.ContentCourse</p>
 
-<h3>Вміст курсу:</h3>
-<p>@ViewBag.ContentCourse</p>
+            <h4 class="text-secondary">Показ правильних відповідей:</h4>
+            <p class="text-muted">
+                @if (ViewBag.Cource.ShowCorrectAnswers)
+                {
+                    <span class="badge bg-success">Так</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Ні</span>
+                }
+            </p>
 
-<h3>Показ правільної відповіді: @ViewBag.Cource.ShowCorrectAnswers</h3>
-<h3>Питання та відповіді:</h3>
-@if (ViewBag.Questions != null )
-{
-    <ul>
-        @foreach (var question in ViewBag.Questions)
-        {
-            <li>
-                <strong>@question.Text</strong>
-                <ul>
-                    @foreach (var answer in question.Answers)
+            <h4 class="text-secondary">Питання та відповіді:</h4>
+            @if (ViewBag.Questions != null)
+            {
+                <div class="accordion" id="questionsAccordion">
+                    @for (int i = 0; i < ViewBag.Questions.Count; i++)
                     {
-                        <li>
-                            @answer.Text @if (answer.IsCorrect)
-                            {
-                                <span>(Правильна)</span>
-                            }
-                        </li>
+                        var question = ViewBag.Questions[i];
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading-@i">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@i" aria-expanded="false" aria-controls="collapse-@i">
+                                    Питання @i+1: @question.Text
+                                </button>
+                            </h2>
+                            <div id="collapse-@i" class="accordion-collapse collapse" aria-labelledby="heading-@i" data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        @foreach (var answer in question.Answers)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                @answer.Text
+                                                @if (answer.IsCorrect)
+                                                {
+                                                    <span class="badge bg-success">Правильна</span>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     }
-                </ul>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>Питання не знайдено.</p>
-}
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Питання не знайдено.</p>
+            }
 
-<form asp-action="EditCource" asp-controller="Cources" method="get">
-    <input type="hidden" name="Id" value="@ViewBag.Cource.Id" />
-    <button type="submit" class="btn btn-primary">Редагувати</button>
-</form>
+            <div class="text-center mt-4">
+                <form asp-action="EditCource" asp-controller="Cources" method="get">
+                    <input type="hidden" name="Id" value="@ViewBag.Cource.Id" />
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-pencil"></i> Редагувати
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
