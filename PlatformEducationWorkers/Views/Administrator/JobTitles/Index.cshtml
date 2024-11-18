@@ -22,11 +22,67 @@
                 <td>
                     <a href="@Url.Action("DetailJobTitle", "JobTitles", new { id = jobTitle.Id })" class="btn btn-info">Details</a>
                     <a href="@Url.Action("EditJobTitle", "JobTitles", new { id = jobTitle.Id })" class="btn btn-warning">Edit</a>
-                    <form action="@Url.Action("DeleteJobTitle", "JobTitles", new { id = jobTitle.Id })" method="post" style="display:inline;">
+                 @*    <form action="@Url.Action("DeleteJobTitle", "JobTitles", new { id = jobTitle.Id })" method="post" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+                    </form> *@
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal"
+                            data-jobtitle-id="@jobTitle.Id"
+                            data-jobtitle-name="@jobTitle.Name">
+                        Delete
+                    </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the job title "<span id="jobTitleName"></span>"?
+                <br />
+                <strong>Note:</strong> All users associated with this job title will also be deleted.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteJobTitleForm" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Attach event listener to all delete buttons
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+            const deleteForm = document.getElementById('deleteJobTitleForm');
+            const jobTitleNameSpan = document.getElementById('jobTitleName');
+
+            confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget; // Button that triggered the modal
+                const jobTitleId = button.getAttribute('data-jobtitle-id');
+                const jobTitleName = button.getAttribute('data-jobtitle-name');
+
+                // Update modal content
+                jobTitleNameSpan.textContent = jobTitleName;
+
+                // Update form action
+                deleteForm.action = `@Url.Action("DeleteJobTitle", "JobTitles")?id=${jobTitleId}`;
+            });
+        });
+    </script>
+}

@@ -11,11 +11,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IEnterpriceService _enterpriceService;
         private readonly IUserService _userService;
+        private readonly ILogger<MainController> _logger;
 
-        public MainController(IEnterpriceService enterpriceService, IUserService userService)
+        public MainController(IEnterpriceService enterpriceService, IUserService userService, ILogger<MainController> logger)
         {
             _enterpriceService = enterpriceService;
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -25,38 +27,52 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             try
             {
+                _logger.LogInformation("DeleteEnterprice action started.");
+
                 int enterpriceId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
-                if (enterpriceId == 0)
-                {
-                    return NotFound();
-                }
+               
+
                 int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
-                if (enterpriceId == 0)
-                {
-                    return NotFound();
-                }
-                Enterprice enterprice=await _enterpriceService.GetEnterprice(enterpriceId);
+
+                _logger.LogInformation($"Fetching enterprise with ID: {enterpriceId}");
+                Enterprice enterprice =await _enterpriceService.GetEnterprice(enterpriceId);
+
+                _logger.LogInformation($"Fetching user with ID: {userId}");
                 User user = await _userService.GetUser(userId);
 
                 if (enterprice == null)
-                    throw new Exception($"enterprice with id {enterpriceId} not found");
+                {
+                    string errorMessage = $"Enterprise with ID {enterpriceId} not found.";
+                    _logger.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+
+                }
 
                 if (user == null)
-                    throw new Exception($"user with id {enterpriceId} not found");
+                {
+                    string errorMessage = $"User with ID {userId} not found.";
+                    _logger.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
+
 
                 if (enterprice.Owner != null && enterprice.Owner.Id == user.Id)
                 {
-                    throw new Exception($"user with id {enterpriceId} can not delete enterprice because he dosn`t owner");
+                    string errorMessage = $"User with ID {userId} cannot delete enterprise because they are not the owner.";
+                    _logger.LogError(errorMessage);
+                    throw new Exception(errorMessage);
                 }
 
-                // Викликаємо сервіс для видалення фірми та її залежних об'єктів
+                _logger.LogInformation($"Deleting enterprise with ID: {enterpriceId}");
                 await _enterpriceService.DeleteingEnterprice(enterpriceId);
 
-                // Перенаправляємо на сторінку зі списком фірм або іншою сторінкою
+                _logger.LogInformation("Enterprise deleted successfully. Redirecting to Index.");
                 return RedirectToAction("Index", "Main");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while deleting enterprise.");
+
                 // Обробка помилки і повернення на попередню сторінку з повідомленням
                 TempData["ErrorMessage"] = $"Error deleting Enterprice: {ex.Message}";
                 return RedirectToAction("Index", "Main");
@@ -67,6 +83,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public IActionResult Index()
         {
+            _logger.LogInformation("Accessed Main Index page.");
+
             return View("~/Views/Administrator/Main/Index.cshtml");
         }
     }

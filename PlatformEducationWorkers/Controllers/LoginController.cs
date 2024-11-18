@@ -18,19 +18,21 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IEnterpriceService _enterpriceService;
         private readonly IJobTitleService _jobTitleService;
         private readonly ICreateEnterpriseService _createEnterpriseService;
-
-        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService)
+        private readonly ILogger<LoginController> _logger;
+        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILogger<LoginController> logger)
         {
             _userService = userService;
             _enterpriceService = enterpriceService;
             _jobTitleService = jobTitleService;
             _createEnterpriseService = createEnterpriseService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Route("Login")]
         public IActionResult Index()
         {
+            _logger.LogInformation("Displaying login page.");
             return View();
         }
 
@@ -40,36 +42,50 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid login request: {Login}", request.Login);
                 return BadRequest(ModelState);
             }
 
-            var user = await _userService.Login(request.Login, request.Password);
-            if (user != null)
+            try
             {
-                HttpContext.Session.SetString("UserId", user.Id.ToString());
-                HttpContext.Session.SetString("UserRole", user.Role.ToString());
-                HttpContext.Session.SetString("EnterpriseId", user.Enterprise.Id.ToString());
+                _logger.LogInformation("Attempting to login user: {Login}", request.Login);
 
-
-                string userRole = HttpContext.Session.GetString("UserRole");
-
-                if (userRole == Role.Admin.ToString())
+                var user = await _userService.Login(request.Login, request.Password);
+                if (user != null)
                 {
-                    return View("~/Views/Administrator/Main/Index.cshtml");
-                }
-                else if (userRole == Role.Workers.ToString())
-                {
-                    return View("~/Views/Worker/Main/Index.cshtml");
+                    HttpContext.Session.SetString("UserId", user.Id.ToString());
+                    HttpContext.Session.SetString("UserRole", user.Role.ToString());
+                    HttpContext.Session.SetString("EnterpriseId", user.Enterprise.Id.ToString());
+
+                    string userRole = HttpContext.Session.GetString("UserRole");
+                    _logger.LogInformation("User {Login} logged in with role: {UserRole}", request.Login, userRole);
+
+                    if (userRole == Role.Admin.ToString())
+                    {
+                        return View("~/Views/Administrator/Main/Index.cshtml");
+                    }
+                    else if (userRole == Role.Workers.ToString())
+                    {
+                        return View("~/Views/Worker/Main/Index.cshtml");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Invalid role for user: {Login}", request.Login);
+                        TempData["Error"] = "Invalid login or password";
+                        return RedirectToAction("Login", "Login");
+                    }
                 }
                 else
                 {
+                    _logger.LogWarning("Invalid login attempt for user: {Login}", request.Login);
                     TempData["Error"] = "Invalid login or password";
                     return RedirectToAction("Login", "Login");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Error"] = "Invalid login or password"; 
+                _logger.LogError(ex, "Error occurred during login attempt for user: {Login}", request.Login);
+                TempData["Error"] = "An error occurred while logging in.";
                 return RedirectToAction("Login", "Login");
             }
         }
@@ -77,6 +93,7 @@ namespace PlatformEducationWorkers.Controllers
         [HttpGet]
         public IActionResult Logout()
         {
+            _logger.LogInformation("User logging out.");
             HttpContext.Session.Clear();
             return RedirectToAction("Index");
         }
@@ -85,6 +102,7 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Register")]
         public IActionResult Register()
         {
+            _logger.LogInformation("Rendering registration page.");
             return View();
         }
 
@@ -94,11 +112,14 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid registration form submission for enterprise: {EnterpriseTitle}", model.Title);
                 return View(model);
             }
 
             try
             {
+                _logger.LogInformation("Registering new enterprise: {EnterpriseTitle} with owner: {OwnerName}", model.Title, model.OwnerName);
+
                 var enterprise = new Enterprice
                 {
                     Title = model.Title,
@@ -110,32 +131,31 @@ namespace PlatformEducationWorkers.Controllers
 
                 var owner = new User
                 {
-                    Name =model.OwnerName,
-                    Surname =model.OwnerSurname,
-                    Birthday =model.Birthday,
+                    Name = model.OwnerName,
+                    Surname = model.OwnerSurname,
+                    Birthday = model.Birthday,
                     DateCreate = DateTime.UtcNow,
                     Email = model.Email,
-                    Password =model.Password,
+                    Password = model.Password,
                     Login = model.Login,
                     Role = Role.Admin
                 };
 
                 await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
 
-
+                _logger.LogInformation("Enterprise {EnterpriseTitle} successfully registered.", model.Title);
                 return RedirectToAction("Login", "Login");
-
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message); 
-                return View(model); 
+                _logger.LogError(ex, "Error occurred while registering new enterprise: {EnterpriseTitle}", model.Title);
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
             }
-
         }
 
 
-       
+
 
     }
 }

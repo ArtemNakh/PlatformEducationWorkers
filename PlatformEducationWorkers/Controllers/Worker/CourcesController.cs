@@ -16,13 +16,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
         public readonly ICourcesService _courcesService;
         public readonly IUserResultService _userResultService;
         public readonly IUserService _userService;
+        private readonly ILogger<CourcesController> _logger;
 
-
-        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService)
+        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService, ILogger<CourcesController> logger)
         {
             _courcesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
+            _logger = logger;
         }
 
         // Метод для показу всіх непройдених курсів
@@ -31,15 +32,23 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> Index()
         {
-             //todo validation
-            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); 
-            int enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+            try
+            {
+                _logger.LogInformation("Завантаження непройдених курсів.");
 
-            var uncompletedCourses = await _courcesService.GetUncompletedCourcesForUser(userId, enterpriseId);
+                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                int enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
 
-            ViewBag.UncompletedCources = uncompletedCourses;
+                var uncompletedCourses = await _courcesService.GetUncompletedCourcesForUser(userId, enterpriseId);
 
-            return View("~/Views/Worker/Cources/Index.cshtml");
+                ViewBag.UncompletedCources = uncompletedCourses;
+                return View("~/Views/Worker/Cources/Index.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка під час завантаження непройдених курсів.");
+                return StatusCode(500, "Сталася помилка.");
+            }
         }
 
 
@@ -48,15 +57,22 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> StatisticCources()
         {
-            // Отримуємо список курсів і їхню статистику для відображення
-           
-            int userId = Convert.ToInt32(Convert.ToInt32( HttpContext.Session.GetString("UserId")));
+            try
+            {
+                _logger.LogInformation("Завантаження статистики курсів.");
 
-            var coursesStatistics = await _userResultService.GetAllUserResult(userId);
+                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
-            ViewBag.CoursesStatistics = coursesStatistics;
+                var coursesStatistics = await _userResultService.GetAllUserResult(userId);
 
-            return View("~/Views/Worker/Cources/Statistics.cshtml");
+                ViewBag.CoursesStatistics = coursesStatistics;
+                return View("~/Views/Worker/Cources/Statistics.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка під час завантаження статистики курсів.");
+                return StatusCode(500, "Сталася помилка.");
+            }
         }
 
         //
@@ -65,48 +81,57 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> DetailCource(int id)
         {
-            var courseDetail = await _courcesService.GetCourcesById(id);
-            if (courseDetail == null)
+            try
             {
-                return NotFound();
+                _logger.LogInformation("Завантаження деталей курсу з ID {CourseId}.", id);
+
+                var courseDetail = await _courcesService.GetCourcesById(id);
+                if (courseDetail == null)
+                {
+                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", id);
+                    return NotFound();
+                }
+
+                // Обробка вмісту курсу
+                List<string> content = new();
+                List<QuestionContextRequest> questions = new();
+
+                if (!string.IsNullOrEmpty(courseDetail.ContentCourse))
+                {
+                    try
+                    {
+                        content = JsonConvert.DeserializeObject<List<string>>(courseDetail.ContentCourse);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Помилка десеріалізації ContentCourse для курсу {CourseId}.", id);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(courseDetail.Questions))
+                {
+                    try
+                    {
+                        questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(courseDetail.Questions);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Помилка десеріалізації Questions для курсу {CourseId}.", id);
+                    }
+                }
+
+                ViewBag.Course = courseDetail;
+                ViewBag.Content = content;
+                ViewBag.Questions = questions;
+
+                return View("~/Views/Worker/Cources/DetailCource.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка під час завантаження деталей курсу з ID {CourseId}.", id);
+                return StatusCode(500, "Сталася помилка.");
             }
 
-            // Десеріалізуємо ContentCourse у список рядків
-            List<string> content = new List<string>();
-            if (!string.IsNullOrEmpty(courseDetail.ContentCourse))
-            {
-                try
-                {
-                    content = JsonConvert.DeserializeObject<List<string>>(courseDetail.ContentCourse);
-                }
-                catch (JsonException)
-                {
-                    // Обробка помилки десеріалізації
-                    // Можна додати логування або інші дії
-                }
-            }
-
-            // Десеріалізуємо Questions у список об'єктів QuestionRequest
-            List<QuestionContextRequest> questions = new List<QuestionContextRequest>();
-            if (!string.IsNullOrEmpty(courseDetail.Questions))
-            {
-                try
-                {
-                    questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(courseDetail.Questions);
-                }
-                catch (JsonException)
-                {
-                    // Обробка помилки десеріалізації
-                    // Можна додати логування або інші дії
-                }
-            }
-
-            // Передаємо дані в ViewBag
-            ViewBag.Course = courseDetail;
-            ViewBag.Content = content;
-            ViewBag.Questions = questions;
-            return View("~/Views/Worker/Cources/DetailCource.cshtml");
-        
         }
 
 
@@ -116,30 +141,40 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> PassageCource(int courseId)
         {
-            var course = await _courcesService.GetCourcesById(courseId);
-            if (course == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation("Початок проходження курсу з ID {CourseId}.", courseId);
 
-            // Десеріалізуємо питання курсу
-            List<QuestionContextRequest> questions = new List<QuestionContextRequest>();
-            if (!string.IsNullOrEmpty(course.Questions))
+                var course = await _courcesService.GetCourcesById(courseId);
+                if (course == null)
+                {
+                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", courseId);
+                    return NotFound();
+                }
+
+                List<QuestionContextRequest> questions = new();
+                if (!string.IsNullOrEmpty(course.Questions))
+                {
+                    try
+                    {
+                        questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(course.Questions);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Помилка десеріалізації питань для курсу {CourseId}.", courseId);
+                    }
+                }
+
+                ViewBag.Course = course;
+                ViewBag.Questions = questions;
+
+                return View("~/Views/Worker/Cources/PassageCource.cshtml");
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(course.Questions);
-                }
-                catch (JsonException)
-                {
-                    // Обробка помилки десеріалізації
-                }
+                _logger.LogError(ex, "Помилка під час проходження курсу з ID {CourseId}.", courseId);
+                return StatusCode(500, "Сталася помилка.");
             }
-
-            ViewBag.Course = course;
-            ViewBag.Questions = questions;
-
-            return View("~/Views/Worker/Cources/PassageCource.cshtml");
         }
 
         [HttpPost]
@@ -147,39 +182,50 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> SaveResultCource(UserResultRequest userResultRequest)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("Модель UserResultRequest недійсна: {ModelState}", ModelState);
+                    return BadRequest(ModelState);
+                }
+
+                var course = await _courcesService.GetCourcesById(userResultRequest.CourseId);
+                if (course == null)
+                {
+                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", userResultRequest.CourseId);
+                    return NotFound();
+                }
+
+                int maxRating = userResultRequest.Questions.Count;
+                int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
+
+                User user = await _userService.GetUser(Convert.ToInt32(HttpContext.Session.GetString("UserId")));
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з ID {UserId} не знайдено.", HttpContext.Session.GetString("UserId"));
+                    return RedirectToAction("Login", "Login");
+                }
+
+                var userResult = new UserResults
+                {
+                    User = user,
+                    Cource = course,
+                    DateCompilation = DateTime.Now,
+                    Rating = userRating,
+                    MaxRating = maxRating
+                };
+
+                await _userResultService.AddResult(userResult);
+
+                _logger.LogInformation("Результат курсу з ID {CourseId} успішно збережено.", userResultRequest.CourseId);
+                return RedirectToAction("Index");
             }
-
-            var course = await _courcesService.GetCourcesById(userResultRequest.CourseId);
-            if (course == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Помилка під час збереження результату курсу з ID {CourseId}.", userResultRequest.CourseId);
+                return StatusCode(500, "Сталася помилка.");
             }
-
-            // Розраховуємо максимальний рейтинг та рейтинг користувача
-            int maxRating = userResultRequest.Questions.Count;
-            int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
-
-            User user=await _userService.GetUser(Convert.ToInt32(HttpContext.Session.GetString("UserId")));
-            if(user==null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
-
-            var userResult = new UserResults
-            {
-                User = user,
-                Cource = course,
-                DateCompilation = DateTime.Now,
-                Rating = userRating,
-                MaxRating = maxRating
-            };
-
-            await _userResultService.AddResult(userResult);
-
-            return RedirectToAction("Index");
         }
     }
 }
