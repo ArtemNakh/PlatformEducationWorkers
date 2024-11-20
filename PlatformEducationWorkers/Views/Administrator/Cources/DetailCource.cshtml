@@ -27,6 +27,18 @@
                 }
             </p>
 
+            <h4 class="text-secondary">Показ обраних відповідей:</h4>
+            <p class="text-muted">
+                @if (ViewBag.Cource.ShowSelectedAnswers)
+                {
+                    <span class="badge bg-success">Так</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Ні</span>
+                }
+            </p>
+
             <h4 class="text-secondary">Питання та відповіді:</h4>
             @if (ViewBag.Questions != null)
             {

@@ -197,8 +197,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return NotFound();
                 }
 
+                //int maxRating = userResultRequest.Questions.Count;
+                //int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
                 int maxRating = userResultRequest.Questions.Count;
-                int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
+                int userRating = userResultRequest.Questions.Select(n => n.IsSelected == true && n.IsCorrect == true).Count();
+
+
+
+
 
                 User user = await _userService.GetUser(Convert.ToInt32(HttpContext.Session.GetString("UserId")));
                 if (user == null)
@@ -206,14 +212,18 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     _logger.LogWarning("Користувача з ID {UserId} не знайдено.", HttpContext.Session.GetString("UserId"));
                     return RedirectToAction("Login", "Login");
                 }
+                string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
 
+                
                 var userResult = new UserResults
                 {
                     User = user,
                     Cource = course,
                     DateCompilation = DateTime.Now,
                     Rating = userRating,
-                    MaxRating = maxRating
+                    MaxRating = maxRating,
+                    answerJson= userAnswersJson,
+
                 };
 
                 await _userResultService.AddResult(userResult);

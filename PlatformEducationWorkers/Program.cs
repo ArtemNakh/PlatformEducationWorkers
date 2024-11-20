@@ -5,7 +5,6 @@ using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Storage;
 using PlatformEducationWorkers.Storage.Repositories;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();

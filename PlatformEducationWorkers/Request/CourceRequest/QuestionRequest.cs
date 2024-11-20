@@ -39,8 +39,8 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         {
             [Required(ErrorMessage = "Answer text is required.")]
             public string Text { get; set; }
-
-            public bool IsCorrect { get; set; }
+            [Required(ErrorMessage = "need be false or true")]
+            public bool IsCorrect { get; set; } = false;
         }
     }
 }

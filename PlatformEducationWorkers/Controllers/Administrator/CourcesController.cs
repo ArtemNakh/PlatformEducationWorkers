@@ -70,7 +70,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 _logger.LogWarning("Create Cource failed due to invalid model state");
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
-
+            
             _logger.LogInformation("Creating new Cource: {TitleCource}", request.TitleCource);
 
             Enterprice enterprice = _enterpriceService.GetEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
@@ -98,6 +98,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Enterprise = enterprice,
                 AccessRoles = jobTitles,
                 ShowCorrectAnswers = request.ShowCorrectAnswers,
+                ShowSelectedAnswers=request.ShowUserAnwers,
             };
 
             await _courceService.AddCource(newCource);

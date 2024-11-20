@@ -14,9 +14,7 @@ namespace PlatformEducationWorkers.Core.Models
         public DateTime DateCompilation { get; set; }
         public int Rating { get; set; }
         public int MaxRating { get; set; }
-
-
-
+        public string answerJson { get; set; }
 
     }
 }

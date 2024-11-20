@@ -1,6 +1,6 @@
 ﻿
 @using PlatformEducationWorkers.Core.Models;
-  @using PlatformEducationWorkers.Models.Questions
+@using PlatformEducationWorkers.Models.Questions
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
@@ -13,6 +13,8 @@
 <h2>@cource.TitleCource</h2>
 <p>@cource.Description</p>
 
+
+ 
 <form asp-action="SaveResultCource" method="post">
     <input type="hidden" name="CourseId" value="@cource.Id" />
 
@@ -39,4 +41,4 @@
 
     <button type="submit">Submit</button>
 </form>
- 
+  

@@ -20,5 +20,6 @@ namespace PlatformEducationWorkers.Core.Models
         public string ContentCourse { get; set; }//вміст курсу записується у json
 
         public bool ShowCorrectAnswers { get; set; }
+        public bool ShowSelectedAnswers { get; set; }
     }
 }

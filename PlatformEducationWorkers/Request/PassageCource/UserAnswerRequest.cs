@@ -2,9 +2,8 @@
 {
     public class UserAnswerRequest
     {
-        public string Text { get; set; }          // Питання
-        public string SelectedAnswer { get; set; } // Відповідь користувача
-        public string CorrectAnswer { get; set; }  // Правильна відповідь
-        public bool IsCorrect => SelectedAnswer == CorrectAnswer;
+        public string Text { get; set; } // Текст відповіді
+        public bool IsCorrect { get; set; } // Чи правильна ця відповідь
+        public bool IsSelected { get; set; } // Чи вибрав користувач цю відповідь
     }
 }
