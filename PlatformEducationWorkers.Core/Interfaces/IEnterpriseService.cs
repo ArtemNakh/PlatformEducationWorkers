@@ -7,7 +7,7 @@ using PlatformEducationWorkers.Core.Models;
 
 namespace PlatformEducationWorkers.Core.Interfaces
 {
-    public interface IEnterpriceService
+    public interface IEnterpriseService
     {
         Task<Enterprice> AddingEnterprice(Enterprice enterprice);
         Task<Enterprice> UpdateEnterprice(Enterprice enterprice);

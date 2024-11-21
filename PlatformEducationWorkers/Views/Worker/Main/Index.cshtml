@@ -1,3 +1,28 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Core.Models
+@{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+}
+
+@if (ViewData["UnfinishedCourses"] != null)
+{
+    var unfinishedCourses = ViewData["UnfinishedCourses"] as IEnumerable<Cources>;
+
+    <div>
+        <h3>Unfinished Courses:</h3>
+        <ul>
+            @foreach (var course in unfinishedCourses)
+            {
+                <li>
+                    <strong>@course.TitleCource</strong><br>
+                    @course.Description <br>
+                    <small>Created on: @course.DateCreate.ToString("dd/MM/yyyy")</small>
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <p>No unfinished courses.</p>
+    <p>Looks like you’ve mastered everything! 🎓 Now go and teach someone else!</p>
 }

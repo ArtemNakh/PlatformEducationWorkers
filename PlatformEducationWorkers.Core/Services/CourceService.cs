@@ -207,6 +207,20 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        public async Task<IEnumerable<Cources>> GetNewCourses(int enterpriseId)
+        {
+            try
+            {
+                var cources = await _repository.GetQueryAsync<Cources>(
+                    c => c.Enterprise.Id == enterpriseId);
+                return cources.OrderByDescending(course => course.DateCreate).Take(5);
+               
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving new courses: {ex.Message}", ex);
+            }
+        }
 
     }
 }

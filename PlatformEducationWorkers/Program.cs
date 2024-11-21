@@ -26,7 +26,7 @@ builder.Services.AddSession(options =>
 //builder.Services.AddTransient<IAdministratorService,AdministratorService>();
 builder.Services.AddTransient<IUserService,UserService>();
 builder.Services.AddTransient<IUserResultService,UserResultService>();
-builder.Services.AddTransient<IEnterpriceService,EnterpriceService>();
+builder.Services.AddTransient<IEnterpriseService,EnterpriceService>();
 builder.Services.AddTransient<IJobTitleService,JobTitleService>();
 builder.Services.AddTransient<ICourcesService,CourceService>();
 builder.Services.AddScoped<IRepository,GenericRepository>();

@@ -16,10 +16,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly ICourcesService _courceService;
         private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
-        private readonly IEnterpriceService _enterpriceService;
+        private readonly IEnterpriseService _enterpriceService;
         private readonly ILogger<CourcesController> _logger;
 
-        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriceService enterpriceService, ILogger<CourcesController> logger)
+        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, ILogger<CourcesController> logger)
         {
             _courceService = courceService;
             _jobTitleService = jobTitleService;
@@ -33,9 +33,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> Index()
         {
-            //todo enterprice
             _logger.LogInformation("Accessing Cources Index");
-            var cources = await _courceService.GetAllCourcesEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            var cources = await _courceService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Index.cshtml");
         }
@@ -47,7 +49,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> CreateCource()
         {
             _logger.LogInformation("Accessing Create Cource");
-            var jobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            var jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             if (jobTitles == null || !jobTitles.Any())
             {
                 ViewBag.JobTitles = new List<JobTitle>();  
@@ -56,6 +58,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewBag.JobTitles = jobTitles.ToList();  
             }
+
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
 
@@ -73,7 +79,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             
             _logger.LogInformation("Creating new Cource: {TitleCource}", request.TitleCource);
 
-            Enterprice enterprice = _enterpriceService.GetEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            Enterprice enterprice =await _enterpriceService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
@@ -137,6 +143,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 contentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse);
             }
 
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             // Передача розпарсених даних окремо у ViewBag
             ViewBag.Questions = questions;
             ViewBag.ContentCourse = contentCourse;
@@ -151,15 +160,16 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             //todo
             _logger.LogInformation("Accessing History Passage for Cource ID: {CourceId}", id);
-
-            var historyPassages = await _userResultService.GetAllResultEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var historyPassages = await _userResultService.GetAllResultEnterprice(enterpriseId);
             if (historyPassages == null)
             {
-                _logger.LogWarning("No history passages found for Enterprise ID: {EnterpriseId}", HttpContext.Session.GetString("EnterpriseId"));
+                _logger.LogWarning("No history passages found for Enterprise ID: {EnterpriseId}", enterpriseId);
 
                 return NotFound();
             }
-
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             ViewBag.HistoryPassages = historyPassages;
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
@@ -223,7 +233,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ContentCourse = cource.ContentCourse,
                 Questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions)
             };
-
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             ViewBag.Cource = request;
 
             return View("~/Views/Administrator/Cources/EditCource.cshtml",request);

@@ -15,11 +15,11 @@ namespace PlatformEducationWorkers.Controllers
     public class LoginController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IEnterpriceService _enterpriceService;
+        private readonly IEnterpriseService _enterpriceService;
         private readonly IJobTitleService _jobTitleService;
         private readonly ICreateEnterpriseService _createEnterpriseService;
         private readonly ILogger<LoginController> _logger;
-        public LoginController(IUserService userService, IEnterpriceService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILogger<LoginController> logger)
+        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILogger<LoginController> logger)
         {
             _userService = userService;
             _enterpriceService = enterpriceService;
@@ -53,20 +53,20 @@ namespace PlatformEducationWorkers.Controllers
                 var user = await _userService.Login(request.Login, request.Password);
                 if (user != null)
                 {
-                    HttpContext.Session.SetString("UserId", user.Id.ToString());
+                    HttpContext.Session.SetInt32("UserId", user.Id);
                     HttpContext.Session.SetString("UserRole", user.Role.ToString());
-                    HttpContext.Session.SetString("EnterpriseId", user.Enterprise.Id.ToString());
+                    HttpContext.Session.SetInt32("EnterpriseId", user.Enterprise.Id);
 
                     string userRole = HttpContext.Session.GetString("UserRole");
                     _logger.LogInformation("User {Login} logged in with role: {UserRole}", request.Login, userRole);
 
                     if (userRole == Role.Admin.ToString())
                     {
-                        return View("~/Views/Administrator/Main/Index.cshtml");
+                        return RedirectToAction("Index", "Main", new { area = "Administrator" });
                     }
                     else if (userRole == Role.Workers.ToString())
                     {
-                        return View("~/Views/Worker/Main/Index.cshtml");
+                        return RedirectToAction("Index", "Main", new { area = "Worker" });
                     }
                     else
                     {

@@ -157,6 +157,20 @@ namespace PlatformEducationWorkers.Core.Services
                 throw;
             }
         }
+
+        public async Task<IEnumerable<User>> GetNewUsers(int enterpriseId)
+        {
+            try
+            {
+                var users= await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
+                return users.OrderByDescending(user => user.DateCreate).Take(5);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving new users: {ex.Message}", ex);
+            }
+        }
+
     }
 }
 

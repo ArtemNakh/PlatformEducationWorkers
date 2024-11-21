@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Request.AccountRequest;
 
 namespace PlatformEducationWorkers.Controllers
@@ -8,11 +9,13 @@ namespace PlatformEducationWorkers.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IEnterpriseService _enterpriceService;
         private readonly ILogger<AccountController> _logger;
-        public AccountController(IUserService userService, ILogger<AccountController> logger)
+        public AccountController(IUserService userService, ILogger<AccountController> logger, IEnterpriseService enterpriceService)
         {
             _userService = userService;
             _logger = logger;
+            _enterpriceService = enterpriceService;
         }
 
         [HttpGet]
@@ -24,10 +27,13 @@ namespace PlatformEducationWorkers.Controllers
             {
                 _logger.LogInformation("Fetching user credentials.");
 
-                var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
                 var userRole = HttpContext.Session.GetString("UserRole");
 
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
                 _logger.LogInformation("Successfully fetched credentials for user ID: {UserId}", userId);
@@ -50,7 +56,7 @@ namespace PlatformEducationWorkers.Controllers
             {
                 _logger.LogInformation("Editing credentials for user.");
 
-                var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
 
                 if (user == null)
@@ -67,6 +73,10 @@ namespace PlatformEducationWorkers.Controllers
                 };
 
                 var userRole = HttpContext.Session.GetString("UserRole");
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+
+                ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
                 _logger.LogInformation("Successfully loaded credentials for editing. User ID: {UserId}", userId);
@@ -95,7 +105,7 @@ namespace PlatformEducationWorkers.Controllers
             {
                 _logger.LogInformation("Updating credentials for user.");
 
-                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                int userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
 
                 if (user == null)

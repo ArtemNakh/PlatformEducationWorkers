@@ -14,9 +14,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IJobTitleService _jobTitleService;
         private readonly IUserService _userService;
-        private readonly IEnterpriceService _enterpriceService;
+        private readonly IEnterpriseService _enterpriceService;
         private readonly ILogger<WorkersController> _logger;
-        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriceService enterpriceService, ILogger<WorkersController> logger)
+        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService, ILogger<WorkersController> logger)
         {
             _userService = userService;
             _jobTitleService = jobTitleService;
@@ -24,19 +24,23 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             _logger = logger;
         }
 
+        [HttpGet]
         [Route("Workers")]
         [UserExists]
         public async Task<IActionResult> Index()
         {
             try
             {
-                var enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+                var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                
 
                 _logger.LogInformation("Fetching all users for enterprise ID {EnterpriseId}.", enterpriseId);
                 var users = await _userService.GetAllUsersEnterprice(enterpriseId);
-
+              
+                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
+
                 return View("~/Views/Administrator/Workers/Index.cshtml");
             }
             catch (Exception ex)
@@ -52,10 +56,15 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("CreateWorker")]
         [UserExists]
-        public IActionResult CreateWorker()
+        public async  Task<IActionResult> CreateWorker()
         {
             _logger.LogInformation("Opening 'Create Worker' page.");
-            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+
+            ViewData["CompanyName"] = companyName;
+
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
             _logger.LogInformation("open page Create Worker");
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -73,7 +82,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 try
                 {
                     JobTitle jobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
-                    Enterprice enterprice = await _enterpriceService.GetEnterprice(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+                    Enterprice enterprice = await _enterpriceService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
                     var user = new User
                     {
                         Name = request.Name,
@@ -99,7 +108,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             _logger.LogWarning("Model state is invalid while creating a worker.");
-            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+            ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -119,7 +128,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+
+            ViewData["CompanyName"] = companyName;
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
 
             return View("~/Views/Administrator/Workers/DetailWorker.cshtml", user);
         }
@@ -139,8 +152,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+
+            ViewData["CompanyName"] = companyName;
+
             // Populate job titles and roles for dropdowns
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             // Map the user data to the UpdateUserRequest model to populate the form
@@ -204,7 +222,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             _logger.LogWarning("Model state is invalid while updating worker with ID {Id}.", id);
 
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
             return View("~/Views/Administrator/Workers/EditWorker.cshtml", request);
         }
@@ -224,7 +242,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             try
             {
                 User user = await _userService.GetUser(id);
-                int enterpriceId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+                int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 Enterprice enterprice = await _enterpriceService.GetEnterprice(enterpriceId);
 
                 if (user == null)

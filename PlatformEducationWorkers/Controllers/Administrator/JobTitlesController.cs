@@ -12,10 +12,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     public class JobTitlesController : Controller
     {
         private readonly IJobTitleService _jobTitleService;
-        private readonly IEnterpriceService _enterpriseService;
+        private readonly IEnterpriseService _enterpriseService;
         private readonly ILogger<JobTitlesController> _logger;
 
-        public JobTitlesController(IJobTitleService jobTitleService, IEnterpriceService enterpriseService, ILogger<JobTitlesController> logger)
+        public JobTitlesController(IJobTitleService jobTitleService, IEnterpriseService enterpriseService, ILogger<JobTitlesController> logger)
         {
             _jobTitleService = jobTitleService;
             _enterpriseService = enterpriseService;
@@ -33,7 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 _logger.LogWarning("Invalid model state for creating job title");
 
-                ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"))).Result;
+                ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
                 ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
                 return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -67,7 +67,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _jobTitleService.AddingRole(jobTitle);
             _logger.LogInformation("Job title created successfully: {JobTitleName}", jobTitle.Name);
 
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId")));
+            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -80,15 +80,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             _logger.LogInformation("Fetching job titles");
 
-            var enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             
             var jobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = jobTitles;
             _logger.LogInformation("Job titles fetched successfully");
 
             return View("~/Views/Administrator/JobTitles/Index.cshtml", jobTitles);
         }
 
+        [HttpGet]
         [UserExists]
         [Route("DetailJobTitle")]
         public async Task<IActionResult> DetailJobTitle(int id)
@@ -102,6 +106,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 return RedirectToAction("Index");
             }
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             _logger.LogInformation("Job title details fetched successfully for ID: {Id}", id);
 
             return View("~/Views/Administrator/JobTitles/DetailJobTitle.cshtml",jobTitle);
@@ -128,7 +135,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Name = jobTitle.Name
             };
             _logger.LogInformation("Job title fetched successfully for editing. ID: {Id}", id);
-
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/EditJobTitle.cshtml", request);
         }
 
@@ -164,10 +173,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         [HttpGet]
         [Route("AddJobTitle")]
-        public IActionResult AddJobTitle()
+        public async Task<IActionResult> AddJobTitle()
         {
             _logger.LogInformation("Open page for adding jobTitle");
-
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/AddJobTitle.cshtml");
         }
 
@@ -185,7 +196,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return View(request);
             }
 
-            var enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var enterprise = await _enterpriseService.GetEnterprice(enterpriseId);
 
             if (enterprise == null)

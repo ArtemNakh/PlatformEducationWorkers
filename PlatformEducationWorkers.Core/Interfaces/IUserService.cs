@@ -20,6 +20,6 @@ namespace PlatformEducationWorkers.Core.Interfaces
 
         Task<User> SearchUser(string name, string surname,DateTime birthday);
         Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId);
-
+        Task<IEnumerable<User>> GetNewUsers(int enterpriseId);
     }
 }

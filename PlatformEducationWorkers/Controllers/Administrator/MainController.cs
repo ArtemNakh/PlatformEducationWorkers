@@ -2,6 +2,7 @@
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Core.Services;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
@@ -9,15 +10,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     [Area("Administrator")]
     public class MainController : Controller
     {
-        private readonly IEnterpriceService _enterpriceService;
+        private readonly IEnterpriseService _enterpriceService;
         private readonly IUserService _userService;
         private readonly ILogger<MainController> _logger;
+        private readonly IUserResultService _userResultService;
+        private readonly ICourcesService _courseService;
 
-        public MainController(IEnterpriceService enterpriceService, IUserService userService, ILogger<MainController> logger)
+
+        public MainController(IEnterpriseService enterpriceService, IUserService userService, ILogger<MainController> logger, IUserResultService userResultService, ICourcesService courceService)
         {
             _enterpriceService = enterpriceService;
             _userService = userService;
             _logger = logger;
+            _userResultService = userResultService;
+            _courseService = courceService;
         }
 
         [HttpPost]
@@ -29,10 +35,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 _logger.LogInformation("DeleteEnterprice action started.");
 
-                int enterpriceId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+                int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                
 
-                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                int userId = HttpContext.Session.GetInt32("UserId").Value;
 
                 _logger.LogInformation($"Fetching enterprise with ID: {enterpriceId}");
                 Enterprice enterprice =await _enterpriceService.GetEnterprice(enterpriceId);
@@ -81,8 +87,21 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         [Route("Main")]
         [UserExists]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // Отримуємо останні 5 проходжень для підприємства
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var lastPassages = await _userResultService.GetLastPassages(enterpriseId);
+            var newUsers= await _userService.GetNewUsers(enterpriseId);
+            var newCources= await _courseService.GetNewCourses(enterpriseId);
+            var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
+            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title; 
+            ViewData["CompanyName"] = companyName; 
+            ViewBag.LastPassages = lastPassages;
+            ViewBag.NewUsers = newUsers;
+            ViewBag.NewCourses = newCources;
+            ViewBag.AverageRating = AverageRating;
+
             _logger.LogInformation("Accessed Main Index page.");
 
             return View("~/Views/Administrator/Main/Index.cshtml");

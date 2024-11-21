@@ -15,15 +15,17 @@ namespace PlatformEducationWorkers.Controllers.Worker
     {
         public readonly ICourcesService _courcesService;
         public readonly IUserResultService _userResultService;
+        public readonly IEnterpriseService _enterpriseService;
         public readonly IUserService _userService;
         private readonly ILogger<CourcesController> _logger;
 
-        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService, ILogger<CourcesController> logger)
+        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService, ILogger<CourcesController> logger, IEnterpriseService enterpriseService)
         {
             _courcesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
             _logger = logger;
+            _enterpriseService = enterpriseService;
         }
 
         // Метод для показу всіх непройдених курсів
@@ -36,11 +38,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 _logger.LogInformation("Завантаження непройдених курсів.");
 
-                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
-                int enterpriseId = Convert.ToInt32(HttpContext.Session.GetString("EnterpriseId"));
+                int userId = HttpContext.Session.GetInt32("UserId").Value;
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
                 var uncompletedCourses = await _courcesService.GetUncompletedCourcesForUser(userId, enterpriseId);
+             
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
+                ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
                 return View("~/Views/Worker/Cources/Index.cshtml");
             }
@@ -51,7 +56,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
         }
 
-
         [HttpGet]
         [Route("Statistics")]
         [UserExists]
@@ -61,10 +65,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 _logger.LogInformation("Завантаження статистики курсів.");
 
-                int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                int userId = HttpContext.Session.GetInt32("UserId").Value;
 
                 var coursesStatistics = await _userResultService.GetAllUserResult(userId);
 
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+
+                ViewData["CompanyName"] = companyName;
                 ViewBag.CoursesStatistics = coursesStatistics;
                 return View("~/Views/Worker/Cources/Statistics.cshtml");
             }
@@ -75,7 +83,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
         }
 
-        //
+
         [HttpGet]
         [Route("DetailCource")]
         [UserExists]
@@ -120,6 +128,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                 }
 
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+
+                ViewData["CompanyName"] = companyName;
                 ViewBag.Course = courseDetail;
                 ViewBag.Content = content;
                 ViewBag.Questions = questions;
@@ -164,7 +176,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                         _logger.LogError(ex, "Помилка десеріалізації питань для курсу {CourseId}.", courseId);
                     }
                 }
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
+                ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
                 ViewBag.Questions = questions;
 
@@ -206,7 +221,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
 
-                User user = await _userService.GetUser(Convert.ToInt32(HttpContext.Session.GetString("UserId")));
+                User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
                     _logger.LogWarning("Користувача з ID {UserId} не знайдено.", HttpContext.Session.GetString("UserId"));

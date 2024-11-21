@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PlatformEducationWorkers.Core.Services
 {
-    public class EnterpriceService : IEnterpriceService
+    public class EnterpriceService : IEnterpriseService
     {
         private readonly IRepository _repository;
         public EnterpriceService(IRepository repository)

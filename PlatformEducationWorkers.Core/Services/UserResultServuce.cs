@@ -93,5 +93,50 @@ namespace PlatformEducationWorkers.Core.Services
             //todo
             throw new NotImplementedException();
         }
+
+        public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId)
+        {
+
+            try
+            {
+                if (enterpriceId == 0)
+                    throw new ArgumentException("Enterprise ID cannot be null or zero", nameof(enterpriceId));
+
+                // Отримати останні проходження курсів
+                var results = await _repository.GetQueryAsync<UserResults>(
+                    u => u.Cource.Enterprise.Id == enterpriceId 
+                );
+
+                // Сортуємо за датою завершення та беремо останні 5 записів
+                return results
+                    .OrderByDescending(u => u.DateCompilation)
+                    .Take(5);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving last passages: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<double> GetAverageRating(int enterpriseId)
+        {
+            try
+            {
+                var results = await _repository.GetQueryAsync<UserResults>(
+                    r => r.Cource.Enterprise.Id == enterpriseId
+                );
+
+                if (results.Any())
+                {
+                    return results.Average(r => (double)r.Rating / r.MaxRating) * 100; 
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error calculating average rating: {ex.Message}", ex);
+            }
+        }
+
     }
 }
