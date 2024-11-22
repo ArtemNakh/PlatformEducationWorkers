@@ -1,6 +1,9 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Core.Models
+@using PlatformEducationWorkers.Models.Questions
+@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Деталі курсу";
+    
 }
 
 <div class="container mt-5">
@@ -30,6 +33,18 @@
             <h4 class="text-secondary">Показ обраних відповідей:</h4>
             <p class="text-muted">
                 @if (ViewBag.Cource.ShowSelectedAnswers)
+                {
+                    <span class="badge bg-success">Так</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Ні</span>
+                }
+            </p>
+
+            <h4 class="text-secondary">Показ контекста піл час проходження:</h4>
+            <p class="text-muted">
+                @if (ViewBag.Cource.ShowContextPassage)
                 {
                     <span class="badge bg-success">Так</span>
                 }

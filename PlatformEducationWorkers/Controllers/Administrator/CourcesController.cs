@@ -74,6 +74,15 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Create Cource failed due to invalid model state");
+                var jobTitleslist = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+                if (jobTitleslist == null || !jobTitleslist.Any())
+                {
+                    ViewBag.JobTitles = new List<JobTitle>();
+                }
+                else
+                {
+                    ViewBag.JobTitles = jobTitleslist.ToList();
+                }
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
             
@@ -104,7 +113,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Enterprise = enterprice,
                 AccessRoles = jobTitles,
                 ShowCorrectAnswers = request.ShowCorrectAnswers,
-                ShowSelectedAnswers=request.ShowUserAnwers,
+                ShowSelectedAnswers=request.ShowUserAnswers,
+                ShowContextPassage = request.ShowContextPassage,
             };
 
             await _courceService.AddCource(newCource);
@@ -271,7 +281,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _courceService.UpdateCource(cource);
             _logger.LogInformation("Cource with ID: {CourceId} updated successfully", cource.Id);
 
-            return RedirectToAction("Detail",cource.Id);
+            return RedirectToAction("DetailCource   ", cource.Id);
         }
 
     }

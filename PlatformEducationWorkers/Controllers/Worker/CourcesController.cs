@@ -101,14 +101,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 }
 
                 // Обробка вмісту курсу
-                List<string> content = new();
-                List<QuestionContextRequest> questions = new();
+                string content = "";
+                List<UserQuestionRequest> questions = new();
 
                 if (!string.IsNullOrEmpty(courseDetail.ContentCourse))
                 {
                     try
                     {
-                        content = JsonConvert.DeserializeObject<List<string>>(courseDetail.ContentCourse);
+                        content = JsonConvert.DeserializeObject<string>(courseDetail.ContentCourse);
                     }
                     catch (JsonException ex)
                     {
@@ -120,7 +120,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     try
                     {
-                        questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(courseDetail.Questions);
+                        questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseDetail.Questions);
                     }
                     catch (JsonException ex)
                     {
@@ -215,7 +215,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 //int maxRating = userResultRequest.Questions.Count;
                 //int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
                 int maxRating = userResultRequest.Questions.Count;
-                int userRating = userResultRequest.Questions.Select(n => n.IsSelected == true && n.IsCorrect == true).Count();
+                int userRating = userResultRequest.Questions.Select(n => n.Answers.Where(b=>b.IsSelected == true && b.IsCorrect == true)).Count();
 
 
 
@@ -252,5 +252,44 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 return StatusCode(500, "Сталася помилка.");
             }
         }
+
+
+        [HttpGet]
+        [Route("Theory")]
+        [UserExists]
+        public async Task<IActionResult> TheoryCourse(int courseId)
+        {
+            try
+            {
+                _logger.LogInformation("Теорія курса з ID {CourseId}.", courseId);
+
+                var course = await _courcesService.GetCourcesById(courseId);
+                if (course == null)
+                {
+                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", courseId);
+                    return NotFound();
+                }
+
+               
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+
+                ViewData["CompanyName"] = companyName;
+                ViewBag.Course = course;
+
+                return View("~/Views/Worker/Cources/TheoryCourse.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка під час теорії  курса з ID {CourseId}.", courseId);
+                return StatusCode(500, "Сталася помилка.");
+            }
+
+        }
+
     }
 }
+
+
+/*
+ */

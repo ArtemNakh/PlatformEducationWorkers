@@ -25,10 +25,11 @@ namespace PlatformEducationWorkers.Request
         [Required(ErrorMessage = "ShowQuestions must be true or false.")]
         public bool ShowCorrectAnswers { get; set; }
 
-        [Required(ErrorMessage = "ShowQuestions must be true or false.")]
-        public bool ShowUserAnwers { get; set; }
+        [Required(ErrorMessage = "Show answers must be true or false.")]
+        public bool ShowUserAnswers { get; set; }
 
-
+        [Required(ErrorMessage = "Show Context in passage must be true or false.")]
+        public bool ShowContextPassage { get; set; }
     }
 
 }

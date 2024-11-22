@@ -21,5 +21,6 @@ namespace PlatformEducationWorkers.Core.Models
 
         public bool ShowCorrectAnswers { get; set; }
         public bool ShowSelectedAnswers { get; set; }
+        public bool ShowContextPassage { get; set; }
     }
 }

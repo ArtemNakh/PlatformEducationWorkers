@@ -12,7 +12,8 @@
             <th>Назва Курсу</th>
             <th>Опис</th>
             <th>Деталі</th>
-            <th>Проходження</th> <!-- Додано новий стовпець для кнопки -->
+            <th>Теорія</th>
+            <th>Проходження</th> 
         </tr>
     </thead>
     <tbody>
@@ -24,12 +25,14 @@
                 <td>
                     <a href="@Url.Action("DetailCource", "Cources", new { area = "Worker", id = course.Id })" class="btn btn-primary">Деталі</a>
                 </td>
-
+                <td>
+                    <a href="@Url.Action("TheoryCourse", "Cources", new {area = "Worker", courseId = course.Id })" class=" btn btn-success">Теорія</a>
+                   </td>
                 <td>
                     <a href="@Url.Action("PassageCource", "Cources", new {area = "Worker", courseId = course.Id })" class=" btn btn-success">Пройти курс</a>
 
                 </td>
-
+               
                 
             </tr>
         }

@@ -1,44 +1,58 @@
-﻿
-@using PlatformEducationWorkers.Core.Models;
+﻿@using PlatformEducationWorkers.Core.Models;
 @using PlatformEducationWorkers.Models.Questions
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Take Course";
-    var questions = ViewBag.Questions as List<QuestionContextRequest>;
+    List<QuestionContextRequest> questionsCource = ViewBag.Questions ;
     var cource = ViewBag.Course as Cources;
 }
 
- 
-<h2>@cource.TitleCource</h2>
+<h2>Title of the course</h2>
+<p>@cource.TitleCource</p>
+
+<h2>Desctiption course</h2>
 <p>@cource.Description</p>
 
 
- 
+@if (cource.ShowContextPassage)
+{
+    <h2>Course Content</h2>
+    <p>@cource.ContentCourse</p>
+}
+
 <form asp-action="SaveResultCource" method="post">
     <input type="hidden" name="CourseId" value="@cource.Id" />
 
-    @for (int i = 0; i < questions.Count; i++)
-    {
-        <div>
-            <h4>@questions[i].Text</h4>
-            <input type="hidden" name="Questions[@i].Text" value="@questions[i].Text" />
 
-            @for (int j = 0; j < questions[i].Answers.Count; j++)
+
+
+
+    @for (int i = 0; i < questionsCource.Count; i++)
+    { 
+   
+
+        <div>
+            <h4>@questionsCource[i].Text</h4>
+            <input type="hidden" name="Questions[@i].Text" value="@questionsCource[i].Text" />@*+*@
+
+            @for (int j = 0; j < questionsCource[i].Answers.Count; j++)
             {
-                 <div>
+                <div>
                     <label>
-                        <input type="radio" name="Questions[@i].SelectedAnswer" value="@questions[i].Answers[j].Text" />
-                         @questions[i].Answers[j].Text 
+                        <input type="checkbox" name="Questions[@i].Answers[@j].IsSelected" value="true" />@*+*@
+                        <input type="hidden" name="Questions[@i].Answers[@j].IsCorrect" value="@questionsCource[i].Answers[j].IsCorrect" /> Не працює
+                        <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@questionsCource[i].Answers[j].Text" />@*+*@
+                        @questionsCource[i].Answers[j].Text
                     </label>
-                </div> 
+                </div>
+
             }
 
-            <input type="hidden" name="Questions[@i].CorrectAnswer" value="@questions[i].Answers.FirstOrDefault(a => a.IsCorrect)?.Text" />
-          
-        </div> 
+
+        </div>
     } 
+    @* <input type="hidden" name="Questions[@i].Answers[@j].IsCorrect" value="@questionsCource[i].Answers[j].IsCorrect" /> *@
 
     <button type="submit">Submit</button>
 </form>
-  

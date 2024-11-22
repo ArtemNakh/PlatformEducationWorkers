@@ -1,13 +1,14 @@
-﻿@using PlatformEducationWorkers.Models.Questions;
+﻿
 @using PlatformEducationWorkers.Core.Models;
+@using PlatformEducationWorkers.Request.PassageCource
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Деталі Курсу";
 
     var course = ViewBag.Course as Cources;
-    var content = ViewBag.Content as List<string>;
-    var questions = ViewBag.Questions as List<QuestionContextRequest>;
+    var content = ViewBag.Content as string;
+    var questions = ViewBag.Questions as List<UserQuestionRequest>;
 }
 
 <h2>@course.TitleCource</h2>
@@ -16,13 +17,16 @@
     <p><strong>Опис:</strong> @course.Description</p>
     <p><strong>Дата створення:</strong> @course.DateCreate.ToString("dd.MM.yyyy")</p>
 
-    <h3>Вміст курсу</h3>
-    <ul>
-        @foreach (var item in content)
-        {
-            <li>@item</li>
-        }
-    </ul>
+    @if (course.ShowContextPassage && !string.IsNullOrEmpty(course.ContentCourse))
+    {
+        <h3>Вміст курсу</h3>
+        <ul>
+            @foreach (var item in content)
+            {
+                <li>@item</li>
+            }
+        </ul>
+    }
 
     <h3>Доступні ролі</h3>
     <ul>
@@ -32,24 +36,32 @@
         }
     </ul>
 
-   <h3>Питання</h3>
-    @foreach (var question in questions)
+    @if (questions != null && questions.Any())
     {
-        <p><strong>Питання:</strong> @question.Text</p>
-        
-        <ul>
-            @foreach (var answer in question.Answers)
-            {
-                <li>
-                    @answer.Text 
-                    @if (course.ShowCorrectAnswers && answer.IsCorrect)
-                    {
-                        <span style="color: green;">(Вірна відповідь)</span>
-                    }
+        <h3>Питання</h3>
+        @foreach (var question in questions)
+        {
+            <p><strong>Питання:</strong> @question.Text</p>
 
-                </li>
-            }
-        </ul>
+            <ul>
+                @foreach (var answer in question.Answers)
+                {
+                    <li>
+                        @answer.Text
+
+                        @if (course.ShowCorrectAnswers && answer.IsCorrect)
+                        {
+                            <span style="color: green;">(Вірна відповідь)</span>
+                        }
+
+                        @if (course.ShowSelectedAnswers && answer.IsSelected)
+                        {
+                            <span style="color: blue;">(Вибрана відповідь)</span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
     }
 </div>
 

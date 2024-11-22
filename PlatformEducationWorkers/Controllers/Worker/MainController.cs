@@ -33,7 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 int workerId = HttpContext.Session.GetInt32("UserId").Value; 
 
                 var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
-                var unfinishedCourses = (await _courceService.GetUncompletedCourcesForUser(enterpriseId, workerId));
+                var unfinishedCourses = (await _courceService.GetUncompletedCourcesForUser( workerId,enterpriseId));
 
                 ViewData["CompanyName"] = companyName;
                 ViewData["UnfinishedCourses"] = unfinishedCourses.OrderBy(c=>c.DateCreate);

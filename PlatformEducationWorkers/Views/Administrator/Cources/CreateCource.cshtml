@@ -63,13 +63,23 @@
                 </div>
 
                  <div class="mb-3">
-                    <label asp-for="ShowUserAnwers" class="form-label"><strong>Show user answers?</strong></label>
-                    <select asp-for="ShowUserAnwers" class="form-select border-primary">
+                    <label asp-for="ShowUserAnswers" class="form-label"><strong>Show user answers?</strong></label>
+                    <select asp-for="ShowUserAnswers" class="form-select border-primary">
                         <option value="true">True</option>
                         <option value="false">False</option>
                     </select>
-                    <span asp-validation-for="ShowUserAnwers" class="text-danger"></span>
-                </div> 
+                    <span asp-validation-for="ShowUserAnswers" class="text-danger"></span>
+                </div>
+
+
+                <div class="mb-3">
+                    <label asp-for="ShowContextPassage" class="form-label"><strong>Show Context during the passage course?</strong></label>
+                    <select asp-for="ShowContextPassage" class="form-select border-primary">
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                    <span asp-validation-for="ShowContextPassage" class="text-danger"></span>
+                </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-success btn-lg">
                         <i class="bi bi-save"></i> Create Course
