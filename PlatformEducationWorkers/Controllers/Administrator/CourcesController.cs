@@ -240,13 +240,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Id = cource.Id,
                 TitleCource = cource.TitleCource,
                 Description = cource.Description,
-                ContentCourse = cource.ContentCourse,
+                ContentCourse = JsonConvert.DeserializeObject <string>(cource.ContentCourse),
                 Questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions)
             };
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
-            ViewBag.Cource = request;
 
             return View("~/Views/Administrator/Cources/EditCource.cshtml",request);
 

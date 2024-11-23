@@ -13,7 +13,7 @@
         </div>
         <div class="card-body">
             <form asp-action="CreateCource" method="post">
-                <div asp-validation-summary="All" class="alert alert-danger"></div> <!-- Вивести всі помилки -->
+                <div asp-validation-summary="All" class="alert alert-danger"></div> 
 
                 <div class="mb-3">
                     <label asp-for="TitleCource" class="form-label"><strong>Title of Course</strong></label>
@@ -104,9 +104,8 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = "border p-3 rounded mt-3";
         questionDiv.innerHTML = `
-                <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
+                <h4 class="text-secondary">Question ${questionIndex }</h4>
                 <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
-
                 <div class="answers-container">
                     <h5>Answers</h5>
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
@@ -114,6 +113,9 @@
                     </button>
                     <div id="answers-${questionIndex}" class="mt-2"></div>
                 </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
+                    <i class="bi bi-trash"></i> Remove Question
+                </button>
             `;
         container.appendChild(questionDiv);
         questionIndex++;
@@ -127,20 +129,32 @@
         answerDiv.className = "d-flex align-items-center gap-2 mt-2";
         answerDiv.innerHTML = `
                 <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-75" placeholder="Enter answer" />
-                   <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
-    <label>Correct</label>
+                <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
+                <label>Correct</label>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
+                    <i class="bi bi-trash"></i> Remove Answer
+                </button>
             `;
         answerContainer.appendChild(answerDiv);
+    }
+
+    function removeQuestion(button) {
+        const questionDiv = button.parentElement;
+        questionDiv.remove();
+    }
+
+    function removeAnswer(button) {
+        const answerDiv = button.parentElement;
+        answerDiv.remove();
     }
 
     document.querySelector('form').onsubmit = function () {
         const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="IsCorrect"]');
         checkboxes.forEach(function (checkbox) {
             if (!checkbox.checked) {
-                checkbox.checked = true; // Встановлюємо "checked" для всіх прапорців
-                checkbox.value = "false"; // Значення для не відмічених чекбоксів
+                checkbox.checked = true; 
+                checkbox.value = "false"; 
             }
         });
     };
-
 </script>
