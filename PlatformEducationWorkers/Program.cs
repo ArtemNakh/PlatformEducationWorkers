@@ -52,8 +52,20 @@ app.UseRouting();
 
 app.UseSession();
 app.UseAuthorization();
+
+// Додаємо перенаправлення на стартову сторінку(Login)
+app.Use(async (context, next) =>
+{
+    if (string.IsNullOrEmpty(context.Request.Path.Value) || context.Request.Path == "/")
+    {
+        context.Response.Redirect("/Login/Login");
+        return;
+    }
+    await next();
+});
+
 app.MapControllerRoute(
- name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "default",
+    pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.Run();

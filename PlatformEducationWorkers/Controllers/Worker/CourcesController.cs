@@ -213,9 +213,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return NotFound();
                 }
 
-                //int maxRating = userResultRequest.Questions.Count;
-                //int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
-                int maxRating = userResultRequest.Questions.Count;
+                int maxRating = userResultRequest.Questions.Select(a=>a.Answers.Where(an=>an.IsCorrectAnswer)).Count();
                 int userRating = userResultRequest.Questions.Select(n => n.Answers.Where(b => b.IsSelected == true && b.IsCorrectAnswer == true)).Count();
 
 

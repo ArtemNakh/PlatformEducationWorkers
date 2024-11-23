@@ -7,10 +7,15 @@
 
 <div class="container mt-5">
     <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white text-center">
-            <h2><i class="bi bi-person-workspace"></i> Job Titles</h2>
-        </div>
+
         <div class="card-body">
+            <!-- Пошукова форма -->
+            <form asp-action="FindJobTitles" method="get" class="mb-3 d-flex">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Search by name" value="@Context.Request.Query["searchTerm"]" />
+                <button type="submit" class="btn btn-primary ms-2">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </form>
             <a href="@Url.Action("AddJobTitle", "JobTitles")" class="btn btn-success mb-3">
                 <i class="bi bi-plus-circle"></i> Add New Job Title
             </a>

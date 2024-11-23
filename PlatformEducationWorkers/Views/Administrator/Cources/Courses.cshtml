@@ -1,4 +1,7 @@
-﻿@{
+﻿
+
+
+@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Курси";
 }
@@ -9,7 +12,16 @@
             <h2>Список курсів</h2>
         </div>
         <div class="card-body">
-            @if (ViewBag.Cources != null)
+            <!-- Форма пошуку -->
+            <form asp-action="SearchCourses" asp-controller="Cources" method="get" class="d-flex mb-4">
+                <input type="text" name="searchTerm" class="form-control me-2" placeholder="Введіть назву курсу"
+                       value="@Context.Request.Query["searchTerm"]" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Пошук
+                </button>
+            </form>
+
+            @if (ViewBag.Cources != null )
             {
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered text-center align-middle">
@@ -27,10 +39,10 @@
                                     <td>@course.TitleCource</td>
                                     <td>@course.Description</td>
                                     <td>
-                                        <a asp-action="DetailCource" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info btn-sm">
+                                        <a asp-action="DetailCourse" asp-route-id="@course.Id" asp-area="Administrator" class="btn btn-info btn-sm">
                                             <i class="bi bi-eye"></i> Деталі
                                         </a>
-                                        <form asp-action="DeleteCource" asp-route-id="@course.Id" method="post" style="display:inline;">
+                                        <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post" style="display:inline;">
                                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви дійсно бажаєте видалити цей курс?');">
                                                 <i class="bi bi-trash"></i> Видалити
                                             </button>
@@ -55,5 +67,3 @@
         </div>
     </div>
 </div>
-
-

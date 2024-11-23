@@ -4,28 +4,32 @@ using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Request;
+using PlatformEducationWorkers.Request.PassageCource;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
     [Route("Admin")]
     [Area("Administrator")]
-    public class CourcesController : Controller
+    public class CoursesController : Controller
     {
         private readonly ICourcesService _courceService;
         private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
-        private readonly IEnterpriseService _enterpriceService;
-        private readonly ILogger<CourcesController> _logger;
+        private readonly IEnterpriseService _enterpriseService;
+        private readonly IUserService _userService;
+        private readonly ILogger<CoursesController> _logger;
 
-        public CourcesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, ILogger<CourcesController> logger)
+        public CoursesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, ILogger<CoursesController> logger, IUserService userService)
         {
             _courceService = courceService;
             _jobTitleService = jobTitleService;
             _userResultService = userResultService;
-            _enterpriceService = enterpriceService;
+            _enterpriseService = enterpriceService;
             _logger = logger;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -36,7 +40,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             _logger.LogInformation("Accessing Cources Index");
             var cources = await _courceService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Courses.cshtml");
@@ -46,7 +50,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("Create")]
         [UserExists]
-        public async Task<IActionResult> CreateCource()
+        public async Task<IActionResult> CreateCourse()
         {
             _logger.LogInformation("Accessing Create Cource");
             var jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
@@ -60,7 +64,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
@@ -69,7 +73,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpPost]
         [Route("Create")]
         [UserExists]
-        public async Task<IActionResult> CreateCource(CreateCourceRequest request)
+        public async Task<IActionResult> CreateCourse(CreateCourceRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -88,7 +92,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             
             _logger.LogInformation("Creating new Cource: {TitleCource}", request.TitleCource);
 
-            Enterprice enterprice =await _enterpriceService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            Enterprice enterprice =await _enterpriseService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
@@ -127,7 +131,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("Detail/{id}")]
         [UserExists]
-        public async Task<IActionResult> DetailCource(int id)
+        public async Task<IActionResult> DetailCourse(int id)
         {
             _logger.LogInformation("Accessing Detail Cource for ID: {CourceId}", id);
 
@@ -154,7 +158,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             // Передача розпарсених даних окремо у ViewBag
             ViewBag.Questions = questions;
@@ -172,22 +176,50 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             _logger.LogInformation("Accessing History Passage for Cource ID: {CourceId}", id);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var historyPassages = await _userResultService.GetAllResultEnterprice(enterpriseId);
+            var courses=await _courceService.GetAllCourcesEnterprice(enterpriseId);
             if (historyPassages == null)
             {
                 _logger.LogWarning("No history passages found for Enterprise ID: {EnterpriseId}", enterpriseId);
 
                 return NotFound();
             }
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+
+
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.HistoryPassages = historyPassages;
+            ViewBag.Courses = courses;
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
+
+        [HttpGet]
+        [Route("FindHistoryPassage")]
+        [UserExists]
+        public async Task<IActionResult> FindHistoryPassage(int? courseId)
+        {
+            if(courseId == null)
+            {
+                _logger.LogWarning("No passages courses  for the course ID: {EnterpriseId}", courseId);
+
+                return NotFound();
+            }
+            var historyPassages = await _userResultService.GetAllResultCourses(courseId.Value);
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var courses = await _courceService.GetAllCourcesEnterprice(enterpriseId);
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+
+            ViewBag.HistoryPassages = historyPassages.ToList();
+            ViewBag.Courses = courses.ToList();
+            ViewData["CompanyName"] = companyName;
+            return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
+
+        }
+
 
         [HttpPost]
         [Route("DeleteCource")]
         [UserExists]
-        public async Task<IActionResult> DeleteCource(int id)
+        public async Task<IActionResult> DeleteCourse(int id)
         {
             _logger.LogInformation("Attempting to delete Cource with ID: {CourceId}", id);
 
@@ -210,7 +242,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _courceService.DeleteCource(cource.Id);
             _logger.LogInformation("Cource with ID: {CourceId} deleted successfully", cource.Id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Courses");
 
         }
 
@@ -223,7 +255,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("EditCource")]
         [UserExists]
-        public async Task<IActionResult> EditCource(int id)
+        public async Task<IActionResult> EditCourse(int id)
         {
             _logger.LogInformation("Accessing Edit Cource for ID: {CourceId}", id);
 
@@ -244,7 +276,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions)
             };
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
 
             return View("~/Views/Administrator/Cources/EditCource.cshtml",request);
@@ -254,7 +286,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpPost]
         [Route("EditCource")]
         [UserExists]
-        public async Task<IActionResult> EditCource(EditCourceRequest request)
+        public async Task<IActionResult> EditCourse(EditCourceRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -281,6 +313,94 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             _logger.LogInformation("Cource with ID: {CourceId} updated successfully", cource.Id);
 
             return RedirectToAction("DetailCource   ", cource.Id);
+        }
+
+
+        [HttpGet]
+        [Route("SearchCourses")]
+        [UserExists]
+        public async Task<IActionResult> SearchCourses(string searchTerm)
+        {
+            // Отримати всі курси
+            var allCourses =await _courceService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+
+            // Якщо пошуковий термін не порожній, виконати фільтрацію
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                allCourses = allCourses.Where(c => c.TitleCource.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            // Передати відфільтровані курси у ViewBag
+            ViewBag.Cources = allCourses;
+
+            return View("~/Views/Administrator/Cources/Courses.cshtml");
+        }
+
+
+        [HttpGet]
+        [Route("DetailPassageCourse")]
+        [UserExists]
+        public async Task<IActionResult> DetailPassageCourse(int id)
+        {
+            try
+            {
+                _logger.LogInformation("Завантаження деталей курсу з ID {CourseId}.", id);
+
+                var courseResult = await _userResultService.SearchUserResult(id);
+                if (courseResult == null)
+                {
+                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", id);
+                    return NotFound();
+                }
+
+                // Обробка вмісту курсу
+                string content = "";
+                List<UserQuestionRequest> questions = new();
+
+                if (!string.IsNullOrEmpty(courseResult.Cource.ContentCourse))
+                {
+                    try
+                    {
+                        content = JsonConvert.DeserializeObject<string>(courseResult.Cource.ContentCourse);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Помилка десеріалізації ContentCourse для курсу {CourseId}.", id);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(courseResult.answerJson))
+                {
+                    try
+                    {
+                        questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseResult.answerJson);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Помилка десеріалізації Questions для курсу {CourseId}.", id);
+                    }
+                }
+
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                User user = courseResult.User;
+
+                ViewData["CompanyName"] = companyName;
+                ViewBag.Course = courseResult.Cource;
+                ViewBag.Result = courseResult;
+                ViewBag.Content = content;
+                ViewBag.Questions = questions;
+                ViewBag.USer = user;
+
+                return View("~/Views/Administrator/Cources/DetailPassageCourse.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка під час завантаження деталей курсу з ID {CourseId}.", id);
+                return StatusCode(500, "Сталася помилка.");
+            }
+
         }
 
     }

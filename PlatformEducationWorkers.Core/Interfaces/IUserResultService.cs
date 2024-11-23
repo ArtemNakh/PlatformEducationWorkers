@@ -13,6 +13,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task DeleteResult(int resultId);
         Task<IEnumerable<UserResults>> GetAllUserResult(int userId);
         Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId);
+        Task<IEnumerable<UserResults>> GetAllResultCourses(int CourseId);
         Task<UserResults> SearchUserResult(int courceId);
 
         Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId);

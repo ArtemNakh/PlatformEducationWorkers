@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
@@ -27,7 +28,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("Workers")]
         [UserExists]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Workers()
         {
             try
             {
@@ -36,12 +37,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 _logger.LogInformation("Fetching all users for enterprise ID {EnterpriseId}.", enterpriseId);
                 var users = await _userService.GetAllUsersEnterprice(enterpriseId);
-              
+              var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
+
                 var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
-
-                return View("~/Views/Administrator/Workers/Index.cshtml");
+                ViewBag.JobTitles = JobTitles.ToList();
+                return View("~/Views/Administrator/Workers/Workers.cshtml");
             }
             catch (Exception ex)
             {
@@ -51,6 +53,45 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
         }
 
+        [HttpGet]
+        [Route("SearchWorkers")]
+        [UserExists]
+        public async Task<IActionResult> SearchWorkers(string name, string jobTitle)
+        {
+            try
+            {
+                var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                _logger.LogInformation("Fetching all users for enterprise ID {EnterpriseId}.", enterpriseId);
+
+                // Отримуємо всіх користувачів для підприємства
+                var users = await _userService.GetAllUsersEnterprice(enterpriseId);
+
+                var JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+
+                // Якщо є фільтри, застосовуємо їх
+                if (!string.IsNullOrEmpty(name))
+                {
+                    users = users.Where(u => u.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(jobTitle))
+                {
+                    users = users.Where(n=>n.JobTitle.Name== jobTitle);
+                }
+                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                ViewData["CompanyName"] = companyName;
+                ViewBag.Users = users?.ToList();
+                ViewBag.JobTitles = JobTitles.ToList();
+
+                return View("~/Views/Administrator/Workers/Workers.cshtml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching workers.");
+                TempData["ErrorMessage"] = "An error occurred while loading workers.";
+                return RedirectToAction("Index");
+            }
+        }
 
 
         [HttpGet]

@@ -1,4 +1,5 @@
-﻿@{
+﻿@using PlatformEducationWorkers.Core.Models
+@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 
     ViewData["Title"] = "Історія проходжень курсу";
@@ -11,6 +12,25 @@
             <h2>Історія проходжень курсу</h2>
         </div>
         <div class="card-body">
+
+            <form asp-action="FindHistoryPassage" method="get" class="mb-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <select id="courseId" name="courseId" class="form-control">
+                            <option value="">Виберіть курс</option>
+                            @foreach (Cources course in ViewBag.Courses)
+                            {
+                                <option value="@course.Id">@course.TitleCource</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Пошук
+                        </button>
+                    </div>
+                </div>
+            </form>
             @if (historyPassages != null && historyPassages.Any())
             {
                 <div class="table-responsive">
@@ -22,6 +42,7 @@
                                 <th>Дата проходження</th>
                                 <th>Результат</th>
                                 <th>Макс результат</th>
+                                <th>Дія</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,6 +54,13 @@
                                     <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
                                     <td>@passage.Rating</td>
                                     <td>@passage.MaxRating</td>
+                                    <td>
+                                        <form action="@Url.Action("DetailPassageCourse", "Courses", new { area = "Administrator" })" method="get">
+                                            <input type="hidden" name="id" value="@passage.Cource.Id" />
+                                            <button type="submit" class="btn btn-primary btn-lg">Деталі проходження</button>
+                                        </form>
+
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -45,7 +73,7 @@
             }
 
             <div class="text-center mt-4">
-                <a asp-action="Index" asp-controller="Cources" asp-area="Administrator" class="btn btn-secondary">
+                <a asp-action="Courses" asp-controller="Courses" asp-area="Administrator" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Назад до списку курсів
                 </a>
             </div>

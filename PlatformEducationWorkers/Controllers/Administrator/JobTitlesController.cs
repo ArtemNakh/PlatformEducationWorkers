@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
@@ -76,7 +77,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         [Route("JobTitles")]
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> JobTitles()
         {
             _logger.LogInformation("Fetching job titles");
 
@@ -89,8 +90,25 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.JobTitles = jobTitles;
             _logger.LogInformation("Job titles fetched successfully");
 
-            return View("~/Views/Administrator/JobTitles/Index.cshtml", jobTitles);
+            return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles);
         }
+
+
+        [UserExists]
+        [Route("FindJobTitles")]
+        [HttpGet]
+        public async Task<ActionResult> FindJobTitles(string searchTerm)
+        {
+            IEnumerable<JobTitle> jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                jobTitles = jobTitles.Where(j => j.Name.Contains(searchTerm));
+            }
+
+            return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles.ToList());
+        }
+
 
         [HttpGet]
         [UserExists]

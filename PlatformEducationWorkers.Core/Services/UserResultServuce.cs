@@ -56,7 +56,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-       
+
 
         public async Task<IEnumerable<UserResults>> GetAllUserResult(int userId)
         {
@@ -104,7 +104,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Отримати останні проходження курсів
                 var results = await _repository.GetQueryAsync<UserResults>(
-                    u => u.Cource.Enterprise.Id == enterpriceId 
+                    u => u.Cource.Enterprise.Id == enterpriceId
                 );
 
                 // Сортуємо за датою завершення та беремо останні 5 записів
@@ -128,13 +128,31 @@ namespace PlatformEducationWorkers.Core.Services
 
                 if (results.Any())
                 {
-                    return results.Average(r => (double)r.Rating / r.MaxRating) * 100; 
+                    return results.Average(r => (double)r.Rating / r.MaxRating) * 100;
                 }
                 return 0;
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error calculating average rating: {ex.Message}", ex);
+            }
+        }
+
+
+        public async Task<IEnumerable<UserResults>> GetAllResultCourses(int CourseId)
+        {
+            try
+            {
+                if (CourseId == null)
+                    throw new Exception("$Error  get  user  all results,userId is null");
+                
+
+                var results = await _repository.GetQueryAsync<UserResults>(u => u.Cource.Id == CourseId);
+                return results;
+            }
+            catch (Exception)
+            {
+                throw new Exception("$Error get all results,error: {ex}");
             }
         }
 
