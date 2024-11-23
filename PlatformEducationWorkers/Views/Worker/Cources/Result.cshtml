@@ -6,18 +6,20 @@
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Деталі Курсу";
 
-    var course = ViewBag.Course as Cources;
+    //var course = ViewBag.Course as Cources;
+    var result = ViewBag.Result as UserResults;
     var content = ViewBag.Content as string;
     var questions = ViewBag.Questions as List<UserQuestionRequest>;
 }
 
-<h2>@course.TitleCource</h2>
+<h2>@result.Cource.TitleCource</h2>
 
 <div class="course-details">
-    <p><strong>Опис:</strong> @course.Description</p>
-    <p><strong>Дата створення:</strong> @course.DateCreate.ToString("dd.MM.yyyy")</p>
+    <p><strong>Опис:</strong> @result.Cource.Description</p>
+    <p><strong>Дата створення курса:</strong> @result.Cource.DateCreate.ToString("dd.MM.yyyy")</p>
+    <p><strong>Дата проходження курса:</strong> @result.DateCompilation.ToString("dd.MM.yyyy")</p>
 
-    @if (course.ShowContextPassage && !string.IsNullOrEmpty(course.ContentCourse))
+    @if (result.Cource.ShowContextPassage && !string.IsNullOrEmpty(content))
     {
         <h3>Вміст курсу</h3>
         <ul>
@@ -28,14 +30,7 @@
         </ul>
     }
 
-    <h3>Доступні ролі</h3>
-    <ul>
-        @foreach (var role in course.AccessRoles)
-        {
-            <li>@role.Name</li>
-        }
-    </ul>
-
+   
     @if (questions != null && questions.Any())
     {
         <h3>Питання</h3>
@@ -49,12 +44,12 @@
                     <li>
                         @answer.Text
 
-                        @if (course.ShowCorrectAnswers && answer.IsCorrect)
+                        @if (result.Cource.ShowCorrectAnswers && answer.IsCorrectAnswer)
                         {
                             <span style="color: green;">(Вірна відповідь)</span>
                         }
 
-                        @if (course.ShowSelectedAnswers && answer.IsSelected)
+                        @if (result.Cource.ShowSelectedAnswers && answer.IsSelected)
                         {
                             <span style="color: blue;">(Вибрана відповідь)</span>
                         }

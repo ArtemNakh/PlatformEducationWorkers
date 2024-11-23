@@ -42,7 +42,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
                 var uncompletedCourses = await _courcesService.GetUncompletedCourcesForUser(userId, enterpriseId);
-             
+
                 var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
@@ -93,8 +93,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 _logger.LogInformation("Завантаження деталей курсу з ID {CourseId}.", id);
 
-                var courseDetail = await _courcesService.GetCourcesById(id);
-                if (courseDetail == null)
+                var courseResult = await _userResultService.SearchUserResult(id);//await _courcesService.GetCourcesById(id);
+                if (courseResult == null)
                 {
                     _logger.LogWarning("Курс з ID {CourseId} не знайдено.", id);
                     return NotFound();
@@ -102,13 +102,13 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 // Обробка вмісту курсу
                 string content = "";
-                List<UserQuestionRequest> questions = new();
+                List<UserQuestionRequest> questions = new() ;/*= new List<UserQuestionRequest>();*/
 
-                if (!string.IsNullOrEmpty(courseDetail.ContentCourse))
+                if (!string.IsNullOrEmpty(courseResult.Cource.ContentCourse))
                 {
                     try
                     {
-                        content = JsonConvert.DeserializeObject<string>(courseDetail.ContentCourse);
+                        content = JsonConvert.DeserializeObject<string>(courseResult.Cource.ContentCourse);
                     }
                     catch (JsonException ex)
                     {
@@ -116,11 +116,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                 }
 
-                if (!string.IsNullOrEmpty(courseDetail.Questions))
+                if (!string.IsNullOrEmpty(courseResult.answerJson))
                 {
                     try
                     {
-                        questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseDetail.Questions);
+                        questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseResult.answerJson);
                     }
                     catch (JsonException ex)
                     {
@@ -132,11 +132,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
-                ViewBag.Course = courseDetail;
+                ViewBag.Course = courseResult.Cource;
+                ViewBag.Result = courseResult;
                 ViewBag.Content = content;
                 ViewBag.Questions = questions;
 
-                return View("~/Views/Worker/Cources/DetailCource.cshtml");
+                return View("~/Views/Worker/Cources/Result.cshtml");
             }
             catch (Exception ex)
             {
@@ -169,6 +170,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     try
                     {
+                        //questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(course.Questions);
                         questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(course.Questions);
                     }
                     catch (JsonException ex)
@@ -215,7 +217,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 //int maxRating = userResultRequest.Questions.Count;
                 //int userRating = userResultRequest.Questions.Count(q => q.IsCorrect);
                 int maxRating = userResultRequest.Questions.Count;
-                int userRating = userResultRequest.Questions.Select(n => n.Answers.Where(b=>b.IsSelected == true && b.IsCorrect == true)).Count();
+                int userRating = userResultRequest.Questions.Select(n => n.Answers.Where(b => b.IsSelected == true && b.IsCorrectAnswer == true)).Count();
 
 
 
@@ -229,7 +231,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 }
                 string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
 
-                
+
                 var userResult = new UserResults
                 {
                     User = user,
@@ -237,7 +239,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     DateCompilation = DateTime.Now,
                     Rating = userRating,
                     MaxRating = maxRating,
-                    answerJson= userAnswersJson,
+                    answerJson = userAnswersJson,
 
                 };
 
@@ -270,7 +272,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return NotFound();
                 }
 
-               
+
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 

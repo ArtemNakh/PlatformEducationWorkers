@@ -4,7 +4,7 @@
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Take Course";
-    List<QuestionContextRequest> questionsCource = ViewBag.Questions ;
+   // List<QuestionContextRequest> questionsCource = ViewBag.Questions ;
     var cource = ViewBag.Course as Cources;
 }
 
@@ -28,22 +28,25 @@
 
 
 
-    @for (int i = 0; i < questionsCource.Count; i++)
+    @for (int i = 0; i < ViewBag.Questions.Count; i++)
     { 
    
 
         <div>
-            <h4>@questionsCource[i].Text</h4>
-            <input type="hidden" name="Questions[@i].Text" value="@questionsCource[i].Text" />@*+*@
+            <h4>@ViewBag.Questions[i].Text</h4>
+            <input type="hidden" name="Questions[@i].Text" value="@ViewBag.Questions[i].Text" />@*+*@
 
-            @for (int j = 0; j < questionsCource[i].Answers.Count; j++)
+            @for (int j = 0; j < ViewBag.Questions[i].Answers.Count; j++)
             {
                 <div>
                     <label>
                         <input type="checkbox" name="Questions[@i].Answers[@j].IsSelected" value="true" />@*+*@
-                        <input type="hidden" name="Questions[@i].Answers[@j].IsCorrect" value="@questionsCource[i].Answers[j].IsCorrect" /> Не працює
-                        <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@questionsCource[i].Answers[j].Text" />@*+*@
-                        @questionsCource[i].Answers[j].Text
+                        <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@ViewBag.Questions[i].Answers[j].Text" />
+                       
+                        <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(ViewBag.Questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
+
+                       
+                        @ViewBag.Questions[i].Answers[j].Text
                     </label>
                 </div>
 
@@ -52,7 +55,6 @@
 
         </div>
     } 
-    @* <input type="hidden" name="Questions[@i].Answers[@j].IsCorrect" value="@questionsCource[i].Answers[j].IsCorrect" /> *@
 
     <button type="submit">Submit</button>
 </form>
