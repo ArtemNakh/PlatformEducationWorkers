@@ -2,6 +2,76 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h2 class="mb-0">@ViewBag.Course.TitleCource</h2>
+        </div>
+        <div class="card-body px-4 py-5">
+            <h4 class="text-secondary mb-3">Опис:</h4>
+            <p class="text-muted fs-5">@ViewBag.Course.Description</p>
+
+            <h4 class="text-secondary mt-4 mb-3">Вміст курсу:</h4>
+            <div class="bg-light p-4 rounded">
+                <p class="mb-0 fs-5">@ViewBag.Course.ContentCourse</p>
+            </div>
+
+            <div class="mt-4">
+                <h4 class="text-secondary mb-3">Показ правильних відповідей:</h4>
+                <p class="fs-5">
+                    @if (ViewBag.Course.ShowCorrectAnswers)
+                    {
+                        <span class="badge bg-success fs-6">Так</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger fs-6">Ні</span>
+                    }
+                </p>
+            </div>
+
+            <div class="mt-4">
+                <h4 class="text-secondary mb-3">Показ обраних відповідей:</h4>
+                <p class="fs-5">
+                    @if (ViewBag.Course.ShowSelectedAnswers)
+                    {
+                        <span class="badge bg-success fs-6">Так</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger fs-6">Ні</span>
+                    }
+                </p>
+            </div>
+
+            <div class="mt-4">
+                <h4 class="text-secondary mb-3">Показ контекста під час проходження:</h4>
+                <p class="fs-5">
+                    @if (ViewBag.Course.ShowContextPassage)
+                    {
+                        <span class="badge bg-success fs-6">Так</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger fs-6">Ні</span>
+                    }
+                </p>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("UncompleteCourses", "Cources", new { area = "Worker" })" class="btn btn-secondary btn-lg">
+                Назад до курсів
+            </a>
+        </div>
+    </div>
+</div>
+
+@* @using PlatformEducationWorkers.Core.Models
+
+@{
+    Layout = "~/Views/Shared/_LayoutWorker.cshtml";
    // ViewBag.Title = "Theory Course";
     //var cource = ViewBag.Course as Cources;
 }
@@ -60,3 +130,4 @@
     </div>
    
 </div>
+ *@

@@ -1,28 +1,37 @@
-﻿@using PlatformEducationWorkers.Core.Models
+﻿@using PlatformEducationWorkers.Core.Models;
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
 }
 
-@if (ViewData["UnfinishedCourses"] != null)
-{
-    var unfinishedCourses = ViewData["UnfinishedCourses"] as IEnumerable<Cources>;
+<div class="container mt-5">
+    @if (ViewData["UnfinishedCourses"] != null)
+    {
+        var unfinishedCourses = ViewData["UnfinishedCourses"] as IEnumerable<Cources>;
 
-    <div>
-        <h3>Unfinished Courses:</h3>
-        <ul>
-            @foreach (var course in unfinishedCourses)
-            {
-                <li>
-                    <strong>@course.TitleCource</strong><br>
-                    @course.Description <br>
-                    <small>Created on: @course.DateCreate.ToString("dd/MM/yyyy")</small>
-                </li>
-            }
-        </ul>
-    </div>
-}
-else
-{
-    <p>No unfinished courses.</p>
-    <p>Looks like you’ve mastered everything! 🎓 Now go and teach someone else!</p>
-}
+        <div class="card shadow-lg">
+            <div class="card-header bg-warning text-dark text-center">
+                <h3 class="mb-0">Незавершені курси</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    @foreach (var course in unfinishedCourses)
+                    {
+                        <li class="list-group-item">
+                            <h5 class="mb-1 text-primary">@course.TitleCource</h5>
+                            <p class="mb-1">@course.Description</p>
+                            <small class="text-muted">Створено: @course.DateCreate.ToString("dd.MM.yyyy")</small>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success text-center shadow-lg mt-5">
+            <h4 class="alert-heading">Всі курси завершені!</h4>
+            <p class="mb-3">Ви освоїли всі доступні курси! 🎓</p>
+            <p>Тепер настав час поділитися своїми знаннями з іншими!</p>
+        </div>
+    }
+</div>

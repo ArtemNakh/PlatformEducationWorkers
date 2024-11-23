@@ -32,7 +32,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [HttpGet]
         [Route("Cources")]
         [UserExists]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> UncompleteCourses()
         {
             try
             {
@@ -47,7 +47,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
-                return View("~/Views/Worker/Cources/Index.cshtml");
+                return View("~/Views/Worker/Cources/UncompleteCourses.cshtml");
             }
             catch (Exception ex)
             {
@@ -85,9 +85,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
         [HttpGet]
-        [Route("DetailCource")]
+        [Route("ResultCourse")]
         [UserExists]
-        public async Task<IActionResult> DetailCource(int id)
+        public async Task<IActionResult> ResultCourse(int id)
         {
             try
             {
@@ -147,8 +147,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
         }
 
-
-        // Метод для перегляду курсу та його питань
+        
         [HttpGet]
         [Route("PassageCource")]
         [UserExists]
@@ -292,6 +291,3 @@ namespace PlatformEducationWorkers.Controllers.Worker
     }
 }
 
-
-/*
- */

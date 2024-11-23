@@ -29,9 +29,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [HttpGet]
-        [Route("Cources")]
+        [Route("Courses")]
         [UserExists]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Courses()
         {
             _logger.LogInformation("Accessing Cources Index");
             var cources = await _courceService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
@@ -39,7 +39,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
-            return View("~/Views/Administrator/Cources/Index.cshtml");
+            return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 
 

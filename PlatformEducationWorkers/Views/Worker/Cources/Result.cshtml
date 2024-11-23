@@ -1,4 +1,86 @@
-﻿
+﻿@using PlatformEducationWorkers.Core.Models;
+@using PlatformEducationWorkers.Request.PassageCource;
+
+@{
+    Layout = "~/Views/Shared/_LayoutWorker.cshtml";
+    ViewBag.Title = "Деталі Курсу";
+
+    var result = ViewBag.Result as UserResults;
+    var content = ViewBag.Content as string;
+    var questions = ViewBag.Questions as List<UserQuestionRequest>;
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h2 class="mb-0">@result.Cource.TitleCource</h2>
+        </div>
+        <div class="card-body px-4 py-5">
+            <h4 class="text-secondary">Опис:</h4>
+            <p class="text-muted fs-5">@result.Cource.Description</p>
+
+            <div class="mt-4">
+                <h4 class="text-secondary">Дата створення курсу:</h4>
+                <p class="fs-5 text-muted">@result.Cource.DateCreate.ToString("dd.MM.yyyy")</p>
+            </div>
+
+            <div class="mt-4">
+                <h4 class="text-secondary">Дата проходження курсу:</h4>
+                <p class="fs-5 text-muted">@result.DateCompilation.ToString("dd.MM.yyyy")</p>
+            </div>
+
+            @if (result.Cource.ShowContextPassage && !string.IsNullOrEmpty(content))
+            {
+                <div class="mt-4">
+                    <h4 class="text-secondary">Вміст курсу:</h4>
+                    <ul class="list-group">
+                       
+                         <li class="list-group-item">@content</li>
+                        
+                    </ul>
+                </div>
+            }
+
+            @if (questions != null && questions.Any())
+            {
+                <div class="mt-5">
+                    <h4 class="text-secondary">Питання:</h4>
+                    @foreach (var question in questions)
+                    {
+                        <div class="mt-4">
+                            <h5 class="text-dark"><strong>Питання:</strong> @question.Text</h5>
+                            <ul class="list-group">
+                                @foreach (var answer in question.Answers)
+                                {
+                                    <li class="list-group-item">
+                                        @answer.Text
+
+                                        @if (result.Cource.ShowCorrectAnswers && answer.IsCorrectAnswer)
+                                        {
+                                            <span class="badge bg-success ms-2">Вірна відповідь</span>
+                                        }
+
+                                        @if (result.Cource.ShowSelectedAnswers && answer.IsSelected)
+                                        {
+                                            <span class="badge bg-primary ms-2">Вибрана відповідь</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("StatisticCources", "Cources", new { area = "Worker" })" class="btn btn-secondary btn-lg">
+                Назад до курсів
+            </a>
+        </div>
+    </div>
+</div>
+
+@* 
 @using PlatformEducationWorkers.Core.Models;
 @using PlatformEducationWorkers.Request.PassageCource
 
@@ -61,3 +143,4 @@
 </div>
 
 <a href="@Url.Action("Index", "Cources", new { area = "Worker" })" class="btn btn-secondary">Назад до курсів</a>
+ *@

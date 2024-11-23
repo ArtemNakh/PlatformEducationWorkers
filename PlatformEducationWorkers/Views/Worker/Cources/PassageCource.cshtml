@@ -1,60 +1,69 @@
 ﻿@using PlatformEducationWorkers.Core.Models;
-@using PlatformEducationWorkers.Models.Questions
+@using PlatformEducationWorkers.Models.Questions;
 
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
-    ViewBag.Title = "Take Course";
-   // List<QuestionContextRequest> questionsCource = ViewBag.Questions ;
+    ViewBag.Title = "Проходження курсу";
+
     var cource = ViewBag.Course as Cources;
 }
 
-<h2>Title of the course</h2>
-<p>@cource.TitleCource</p>
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h2 class="mb-0">Проходження курсу</h2>
+        </div>
+        <div class="card-body px-4 py-5">
+            <div class="mb-4">
+                <h3 class="text-secondary">Назва курсу:</h3>
+                <p class="fs-5 text-muted">@cource.TitleCource</p>
+            </div>
 
-<h2>Desctiption course</h2>
-<p>@cource.Description</p>
+            <div class="mb-4">
+                <h3 class="text-secondary">Опис курсу:</h3>
+                <p class="fs-5 text-muted">@cource.Description</p>
+            </div>
 
-
-@if (cource.ShowContextPassage)
-{
-    <h2>Course Content</h2>
-    <p>@cource.ContentCourse</p>
-}
-
-<form asp-action="SaveResultCource" method="post">
-    <input type="hidden" name="CourseId" value="@cource.Id" />
-
-
-
-
-
-    @for (int i = 0; i < ViewBag.Questions.Count; i++)
-    { 
-   
-
-        <div>
-            <h4>@ViewBag.Questions[i].Text</h4>
-            <input type="hidden" name="Questions[@i].Text" value="@ViewBag.Questions[i].Text" />@*+*@
-
-            @for (int j = 0; j < ViewBag.Questions[i].Answers.Count; j++)
+            @if (cource.ShowContextPassage)
             {
-                <div>
-                    <label>
-                        <input type="checkbox" name="Questions[@i].Answers[@j].IsSelected" value="true" />@*+*@
-                        <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@ViewBag.Questions[i].Answers[j].Text" />
-                       
-                        <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(ViewBag.Questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
-
-                       
-                        @ViewBag.Questions[i].Answers[j].Text
-                    </label>
+                <div class="mb-4">
+                    <h3 class="text-secondary">Вміст курсу:</h3>
+                    <p class="bg-light p-3 rounded text-dark">@cource.ContentCourse</p>
                 </div>
-
             }
 
+            <form asp-action="SaveResultCource" method="post" class="mt-5">
+                <input type="hidden" name="CourseId" value="@cource.Id" />
 
+                @for (int i = 0; i < ViewBag.Questions.Count; i++)
+                {
+                    <div class="mb-4">
+                        <h4 class="text-primary">Питання @i + 1: @ViewBag.Questions[i].Text</h4>
+                        <input type="hidden" name="Questions[@i].Text" value="@ViewBag.Questions[i].Text" />
+
+                        @for (int j = 0; j < ViewBag.Questions[i].Answers.Count; j++)
+                        {
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    name="Questions[@i].Answers[@j].IsSelected" 
+                                    value="true" 
+                                    id="answer-@i-@j" />
+                                <label class="form-check-label" for="answer-@i-@j">
+                                    @ViewBag.Questions[i].Answers[j].Text
+                                </label>
+                                <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@ViewBag.Questions[i].Answers[j].Text" />
+                                <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(ViewBag.Questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn btn-success btn-lg px-5">Завершити</button>
+                </div>
+            </form>
         </div>
-    } 
-
-    <button type="submit">Submit</button>
-</form>
+    </div>
+</div>

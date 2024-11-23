@@ -4,35 +4,44 @@
     var coursesStatistics = ViewBag.CoursesStatistics as IEnumerable<UserResults>;
 }
 
-<h2>Пройдені курси - Статистика</h2>
-
-@if (coursesStatistics == null || !coursesStatistics.Any()) // Перевірка, чи модель порожня
-{
-    <p>Ви ще не пройшли жоден тест.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Назва курсу</th>
-                <th>Набраний бал</th>
-                <th>Максимальний бал</th>
-                <th>Дії</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var course in coursesStatistics)
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Пройдені курси - Статистика</h2>
+        </div>
+        <div class="card-body">
+            @if (coursesStatistics == null || !coursesStatistics.Any())
             {
-                <tr>
-                    <td>@course.Cource.TitleCource</td>
-                    <td>@course.Rating</td>
-                    <td>@course.MaxRating</td>
-                    <td>
-                        <a asp-action="DetailCource" asp-route-id="@course.Cource.Id" class="btn btn-primary">Деталі</a>
-                    </td>
-                </tr>
+                <p class="text-muted text-center">Ви ще не пройшли жоден тест.</p>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Назва курсу</th>
+                            <th>Набраний бал</th>
+                            <th>Максимальний бал</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in coursesStatistics)
+                        {
+                            <tr>
+                                <td>@course.Cource.TitleCource</td>
+                                <td>@course.Rating</td>
+                                <td>@course.MaxRating</td>
+                                <td>
+                                    <a asp-action="ResultCourse" asp-route-id="@course.Cource.Id" class="btn btn-primary">
+                                        Результати
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
