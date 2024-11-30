@@ -6,7 +6,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Request;
+using PlatformEducationWorkers.Request.CourceRequest;
 using PlatformEducationWorkers.Request.PassageCource;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
@@ -144,12 +144,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             // Десеріалізація JSON у відповідні об'єкти
-            List<QuestionContextRequest> questions = null;
+            List<QuestionContext> questions = null;
             string contentCourse = null;
 
             if (!string.IsNullOrEmpty(cource.Questions))
             {
-                questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions);
+                questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions);
             }
 
             if (!string.IsNullOrEmpty(cource.ContentCourse))
@@ -273,7 +273,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 TitleCource = cource.TitleCource,
                 Description = cource.Description,
                 ContentCourse = JsonConvert.DeserializeObject <string>(cource.ContentCourse),
-                Questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(cource.Questions)
+                Questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions)
             };
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;

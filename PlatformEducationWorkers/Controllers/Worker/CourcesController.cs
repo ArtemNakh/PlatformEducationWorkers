@@ -164,13 +164,13 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return NotFound();
                 }
 
-                List<QuestionContextRequest> questions = new();
+                List<QuestionContext> questions = new();
                 if (!string.IsNullOrEmpty(course.Questions))
                 {
                     try
                     {
                         //questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(course.Questions);
-                        questions = JsonConvert.DeserializeObject<List<QuestionContextRequest>>(course.Questions);
+                        questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                     }
                     catch (JsonException ex)
                     {

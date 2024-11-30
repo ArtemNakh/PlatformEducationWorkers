@@ -1,9 +1,10 @@
 ﻿using PlatformEducationWorkers.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlatformEducationWorkers.Request
+namespace PlatformEducationWorkers.Request.AccountRequest
 {
-    public class UpdateUserRequest
+
+    public class CreateUserRequest
     {
         [Required(ErrorMessage = "Ім'я є обов'язковим.")]
         public string Name { get; set; }
@@ -18,11 +19,12 @@ namespace PlatformEducationWorkers.Request
         [EmailAddress(ErrorMessage = "Некоректний формат Email.")]
         public string Email { get; set; }
 
-        // Поле Password може бути необов'язковим, якщо ви не хочете оновлювати пароль
-        public string? Password { get; set; }
+        [Required(ErrorMessage = "Пароль є обов'язковим.")]
+        [StringLength(100, ErrorMessage = "Пароль повинен бути більше ніж 6 символів.", MinimumLength = 6)]
+        public string Password { get; set; }
 
-        // Логін можна не змінювати, тому це поле можна зробити необов'язковим
-        public string? Login { get; set; }
+        [Required(ErrorMessage = "Логін є обов'язковим.")]
+        public string Login { get; set; }
 
         [Required(ErrorMessage = "Посада є обов'язковою.")]
         public int JobTitleId { get; set; }

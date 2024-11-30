@@ -26,7 +26,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpPost]
         [Route("CreateJobTitle")]
         [UserExists]
-        public async Task<IActionResult> CreateJobTitle(PlatformEducationWorkers.Request.CreateJobTitleRequest request)
+        public async Task<IActionResult> CreateJobTitle(PlatformEducationWorkers.Request.JobTitlesRequest.CreateJobTitleRequest request)
         {
             _logger.LogInformation("Start creating job title");
 

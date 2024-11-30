@@ -1,10 +1,9 @@
 ﻿using PlatformEducationWorkers.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlatformEducationWorkers.Request
+namespace PlatformEducationWorkers.Request.AccountRequest
 {
-
-    public class CreateUserRequest
+    public class UpdateUserRequest
     {
         [Required(ErrorMessage = "Ім'я є обов'язковим.")]
         public string Name { get; set; }
@@ -19,12 +18,13 @@ namespace PlatformEducationWorkers.Request
         [EmailAddress(ErrorMessage = "Некоректний формат Email.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Пароль є обов'язковим.")]
-        [StringLength(100, ErrorMessage = "Пароль повинен бути більше ніж 6 символів.", MinimumLength = 6)] 
-        public string Password { get; set; }
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(20, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 100 characters.")]
+        public string? Password { get; set; }
 
-        [Required(ErrorMessage = "Логін є обов'язковим.")]
-        public string Login { get; set; }
+        [Required(ErrorMessage = "Login is required.")]
+        [StringLength(20, MinimumLength = 5, ErrorMessage = "Login must be between 5 and 50 characters.")]
+        public string? Login { get; set; }
 
         [Required(ErrorMessage = "Посада є обов'язковою.")]
         public int JobTitleId { get; set; }

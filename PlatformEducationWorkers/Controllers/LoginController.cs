@@ -5,8 +5,8 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Request;
 using PlatformEducationWorkers.Request.AccountRequest;
+using PlatformEducationWorkers.Request.Login_RegisterRequest;
 
 namespace PlatformEducationWorkers.Controllers
 {
@@ -30,7 +30,7 @@ namespace PlatformEducationWorkers.Controllers
 
         [HttpGet]
         [Route("Login")]
-        public IActionResult Index()
+        public IActionResult Login()
         {
             _logger.LogInformation("Displaying login page.");
             return View();
@@ -62,11 +62,11 @@ namespace PlatformEducationWorkers.Controllers
 
                     if (userRole == Role.Admin.ToString())
                     {
-                        return RedirectToAction("Index", "Main", new { area = "Administrator" });
+                        return RedirectToAction("Main", "Main", new { area = "Administrator" });
                     }
                     else if (userRole == Role.Workers.ToString())
                     {
-                        return RedirectToAction("Index", "Main", new { area = "Worker" });
+                        return RedirectToAction("Main", "Main", new { area = "Worker" });
                     }
                     else
                     {
@@ -95,7 +95,7 @@ namespace PlatformEducationWorkers.Controllers
         {
             _logger.LogInformation("User logging out.");
             HttpContext.Session.Clear();
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
 
         [HttpGet]

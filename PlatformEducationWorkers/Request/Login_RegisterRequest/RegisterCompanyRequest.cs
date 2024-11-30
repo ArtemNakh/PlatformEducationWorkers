@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PlatformEducationWorkers.Request
+namespace PlatformEducationWorkers.Request.Login_RegisterRequest
 {
     public class RegisterCompanyRequest
     {

@@ -1,7 +1,7 @@
 ﻿using PlatformEducationWorkers.Models.Questions;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlatformEducationWorkers.Request
+namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class CreateCourceRequest
     {
@@ -17,7 +17,7 @@ namespace PlatformEducationWorkers.Request
         public string ContentCourse { get; set; } // JSON format for course content
 
         [Required(ErrorMessage = "At least one question is required.")]
-        public List<QuestionContextRequest> Questions { get; set; } = new List<QuestionContextRequest>();
+        public List<QuestionContext> Questions { get; set; } = new List<QuestionContext>();
 
         [Required(ErrorMessage = "At least one access role must be selected.")]
         public List<int> AccessRoleIds { get; set; } // List of JobTitle IDs for access roles

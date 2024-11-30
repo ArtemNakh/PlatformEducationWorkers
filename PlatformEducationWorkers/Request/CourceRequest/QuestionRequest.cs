@@ -10,8 +10,7 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         [Required(ErrorMessage = "At least one answer must be provided.")]
         public List<AnswerRequest> Answers { get; set; } = new List<AnswerRequest>();
 
-        // Кастомна валідація для перевірки на наявність хоча б однієї правильної відповіді
-        [CustomValidation(typeof(QuestionRequest), "ValidateAnswers")]
+       [CustomValidation(typeof(QuestionRequest), "ValidateAnswers")]
         public static ValidationResult ValidateAnswers(List<AnswerRequest> answers, ValidationContext context)
         {
             if (answers == null || !answers.Any())

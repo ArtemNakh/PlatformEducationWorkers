@@ -13,17 +13,14 @@ builder.Services.AddDbContext<PlatformEducationContex>(options =>
     options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("Local")));
 
 
-// Додавання сесії та отримання тайм-ауту з конфігураційного файлу
-//var sessionTimeout = builder.Configuration.GetValue<int>("Session:IdleTimeout");
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeout")); // Використання значення з appsettings.json
+    options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeout")); 
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
-//builder.Services.AddTransient<IAdministratorService,AdministratorService>();
 builder.Services.AddTransient<IUserService,UserService>();
 builder.Services.AddTransient<IUserResultService,UserResultService>();
 builder.Services.AddTransient<IEnterpriseService,EnterpriceService>();
@@ -53,7 +50,6 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
 
-// Додаємо перенаправлення на стартову сторінку(Login)
 app.Use(async (context, next) =>
 {
     if (string.IsNullOrEmpty(context.Request.Path.Value) || context.Request.Path == "/")
