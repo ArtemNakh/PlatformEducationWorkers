@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models;
@@ -18,21 +20,21 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IEnterpriseService _enterpriceService;
         private readonly IJobTitleService _jobTitleService;
         private readonly ICreateEnterpriseService _createEnterpriseService;
-        private readonly ILogger<LoginController> _logger;
-        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILogger<LoginController> logger)
+        private readonly ILoggerService  _loggingService;
+        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILoggerService loggingService)
         {
             _userService = userService;
             _enterpriceService = enterpriceService;
             _jobTitleService = jobTitleService;
             _createEnterpriseService = createEnterpriseService;
-            _logger = logger;
+             _loggingService = loggingService;
         }
 
         [HttpGet]
         [Route("Login")]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
-            _logger.LogInformation("Displaying login page.");
+           await  _loggingService.LogAsync(Logger.LogType.Info, "Displaying login page.");
             return View();
         }
 
@@ -42,14 +44,14 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid login request: {Login}", request.Login);
+               await  _loggingService.LogAsync(Logger.LogType.Warning, "Invalid login request: {Login}");
                 return BadRequest(ModelState);
             }
 
             try
             {
-                _logger.LogInformation("Attempting to login user: {Login}", request.Login);
-
+               await  _loggingService.LogAsync(Logger.LogType.Info, $"Attempting to login user: {request.Login}");
+               
                 var user = await _userService.Login(request.Login, request.Password);
                 if (user != null)
                 {
@@ -58,7 +60,8 @@ namespace PlatformEducationWorkers.Controllers
                     HttpContext.Session.SetInt32("EnterpriseId", user.Enterprise.Id);
 
                     string userRole = HttpContext.Session.GetString("UserRole");
-                    _logger.LogInformation("User {Login} logged in with role: {UserRole}", request.Login, userRole);
+
+                   await  _loggingService.LogAsync(Logger.LogType.Info, $"User {request.Login} logged in with role: {userRole}");
 
                     if (userRole == Role.Admin.ToString())
                     {
@@ -70,39 +73,45 @@ namespace PlatformEducationWorkers.Controllers
                     }
                     else
                     {
-                        _logger.LogWarning("Invalid role for user: {Login}", request.Login);
+                       await  _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid role for user: {request.Login}");
+
                         TempData["Error"] = "Invalid login or password";
                         return RedirectToAction("Login", "Login");
                     }
                 }
                 else
                 {
-                    _logger.LogWarning("Invalid login attempt for user: {Login}", request.Login);
+                   await  _loggingService.LogAsync(Logger.LogType.Error, $"Invalid login attempt for user: {request.Login}");
+
+
                     TempData["Error"] = "Invalid login or password";
                     return RedirectToAction("Login", "Login");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during login attempt for user: {Login}", request.Login);
+               await  _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred during login attempt for user: {request.Login}");
+
                 TempData["Error"] = "An error occurred while logging in.";
                 return RedirectToAction("Login", "Login");
             }
         }
 
         [HttpGet]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            _logger.LogInformation("User logging out.");
+           await  _loggingService.LogAsync(Logger.LogType.Info, $"User logging out.");
+
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
 
         [HttpGet]
         [Route("Register")]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            _logger.LogInformation("Rendering registration page.");
+           await  _loggingService.LogAsync(Logger.LogType.Info, $"Rendering registration page.");
+
             return View();
         }
 
@@ -112,13 +121,14 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid registration form submission for enterprise: {EnterpriseTitle}", model.Title);
+               await  _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid registration form submission for enterprise: {model.Title}");
+
                 return View(model);
             }
 
             try
             {
-                _logger.LogInformation("Registering new enterprise: {EnterpriseTitle} with owner: {OwnerName}", model.Title, model.OwnerName);
+               await  _loggingService.LogAsync(Logger.LogType.Info, $"Registering new enterprise: {model.Title} with owner: {model.OwnerName}");
 
                 var enterprise = new Enterprice
                 {
@@ -142,13 +152,14 @@ namespace PlatformEducationWorkers.Controllers
                 };
 
                 await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
+               await  _loggingService.LogAsync(Logger.LogType.Info, $"Enterprise {model.Title} successfully registered.");
 
-                _logger.LogInformation("Enterprise {EnterpriseTitle} successfully registered.", model.Title);
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while registering new enterprise: {EnterpriseTitle}", model.Title);
+               await  _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred while registering new enterprise: {model.Title}");
+
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }

@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformEducationWorkers", "PlatformEducationWorkers\PlatformEducationWorkers.csproj", "{77D8546E-7131-49C6-B178-EC1B65BBFA2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformEducationWorkers", "PlatformEducationWorkers\PlatformEducationWorkers.csproj", "{77D8546E-7131-49C6-B178-EC1B65BBFA2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformEducationWorkers.Storage", "PlatformEducationWorkers.Storage\PlatformEducationWorkers.Storage.csproj", "{A8E046B8-B5E0-4432-8566-A208E0DACEC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformEducationWorkers.Storage", "PlatformEducationWorkers.Storage\PlatformEducationWorkers.Storage.csproj", "{A8E046B8-B5E0-4432-8566-A208E0DACEC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformEducationWorkers.Core", "PlatformEducationWorkers.Core\PlatformEducationWorkers.Core.csproj", "{284DA213-933D-4393-B124-207DB9AC4D58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformEducationWorkers.Core", "PlatformEducationWorkers.Core\PlatformEducationWorkers.Core.csproj", "{284DA213-933D-4393-B124-207DB9AC4D58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformEducationWorkers.Logging", "Logging\PlatformEducationWorkers.Logging.csproj", "{C1D4F0B2-ADA0-4BDB-88BE-8EB94DACDF72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{284DA213-933D-4393-B124-207DB9AC4D58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{284DA213-933D-4393-B124-207DB9AC4D58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{284DA213-933D-4393-B124-207DB9AC4D58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1D4F0B2-ADA0-4BDB-88BE-8EB94DACDF72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1D4F0B2-ADA0-4BDB-88BE-8EB94DACDF72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1D4F0B2-ADA0-4BDB-88BE-8EB94DACDF72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1D4F0B2-ADA0-4BDB-88BE-8EB94DACDF72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

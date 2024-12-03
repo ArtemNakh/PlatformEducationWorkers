@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Questions;
@@ -17,15 +18,17 @@ namespace PlatformEducationWorkers.Controllers.Worker
         public readonly IUserResultService _userResultService;
         public readonly IEnterpriseService _enterpriseService;
         public readonly IUserService _userService;
-        private readonly ILogger<CourcesController> _logger;
+        public readonly ILoggerService _loggerService;
 
-        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService, ILogger<CourcesController> logger, IEnterpriseService enterpriseService)
+
+        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService,IEnterpriseService enterpriseService, ILoggerService loggerService)
         {
             _courcesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
-            _logger = logger;
+
             _enterpriseService = enterpriseService;
+            _loggerService = loggerService;
         }
 
         // Метод для показу всіх непройдених курсів
@@ -36,7 +39,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                _logger.LogInformation("Завантаження непройдених курсів.");
+
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -51,7 +55,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час завантаження непройдених курсів.");
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
+               
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -63,7 +68,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                _logger.LogInformation("Завантаження статистики курсів.");
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
 
@@ -78,7 +85,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час завантаження статистики курсів.");
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -91,12 +100,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                _logger.LogInformation("Завантаження деталей курсу з ID {CourseId}.", id);
+
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
                 var courseResult = await _userResultService.SearchUserResult(id);//await _courcesService.GetCourcesById(id);
                 if (courseResult == null)
                 {
-                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", id);
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {id} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     return NotFound();
                 }
 
@@ -112,7 +124,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        _logger.LogError(ex, "Помилка десеріалізації ContentCourse для курсу {CourseId}.", id);
+                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації ContentCourse для курсу {id}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     }
                 }
 
@@ -124,7 +138,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        _logger.LogError(ex, "Помилка десеріалізації Questions для курсу {CourseId}.", id);
+                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації Questions для курсу {id}.", HttpContext.Session.GetInt32("UserId").Value);
+
+                        
                     }
                 }
 
@@ -141,7 +157,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час завантаження деталей курсу з ID {CourseId}.", id);
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return StatusCode(500, "Сталася помилка.");
             }
 
@@ -155,12 +173,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                _logger.LogInformation("Початок проходження курсу з ID {CourseId}.", courseId);
+
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Початок проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
                 var course = await _courcesService.GetCourcesById(courseId);
                 if (course == null)
                 {
-                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", courseId);
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     return NotFound();
                 }
 
@@ -174,7 +195,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        _logger.LogError(ex, "Помилка десеріалізації питань для курсу {CourseId}.", courseId);
+                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації питань для курсу {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     }
                 }
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -188,7 +211,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час проходження курсу з ID {CourseId}.", courseId);
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -202,14 +227,17 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("Модель UserResultRequest недійсна: {ModelState}", ModelState);
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Модель UserResultRequest недійсна: {ModelState}", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     return BadRequest(ModelState);
                 }
 
                 var course = await _courcesService.GetCourcesById(userResultRequest.CourseId);
                 if (course == null)
                 {
-                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", userResultRequest.CourseId);
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+
                     return NotFound();
                 }
 
@@ -223,7 +251,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
-                    _logger.LogWarning("Користувача з ID {UserId} не знайдено.", HttpContext.Session.GetString("UserId"));
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Користувача з ID {HttpContext.Session.GetString("UserId")} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+
                     return RedirectToAction("Login", "Login");
                 }
                 string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
@@ -241,13 +270,16 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 };
 
                 await _userResultService.AddResult(userResult);
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Результат курсу з ID {userResultRequest.CourseId} успішно збережено.", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation("Результат курсу з ID {CourseId} успішно збережено.", userResultRequest.CourseId);
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час збереження результату курсу з ID {CourseId}.", userResultRequest.CourseId);
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час збереження результату курсу з ID {userResultRequest.CourseId}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -260,12 +292,16 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                _logger.LogInformation("Теорія курса з ID {CourseId}.", courseId);
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Теорія курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 var course = await _courcesService.GetCourcesById(courseId);
                 if (course == null)
                 {
-                    _logger.LogWarning("Курс з ID {CourseId} не знайдено.", courseId);
+                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     return NotFound();
                 }
 
@@ -280,7 +316,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка під час теорії  курса з ID {CourseId}.", courseId);
+                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час теорії  курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return StatusCode(500, "Сталася помилка.");
             }
 

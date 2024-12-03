@@ -2,6 +2,8 @@
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 
+using System.Net.Http.Json;
+
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -14,15 +16,17 @@ namespace PlatformEducationWorkers.Core.Services
             _repository = repository;
         }
 
-        public Task<Cources> AddCource(Cources cources)
+        public async Task<Cources> AddCource(Cources courses)
         {
+            
             try
             {
                 //додати валідацію
-                if (cources == null)
+                if (courses == null)
                     throw new Exception("Cource is null");
 
-                return _repository.Add(cources);
+
+                return await _repository.Add(courses);
             }
             catch (Exception ex)
             {
@@ -31,7 +35,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task DeleteCource(int courceId)
+        public  Task DeleteCource(int courceId)
         {
             try
             {
@@ -39,7 +43,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (courceId == null)
                     throw new Exception("Cource is null");
 
-                return _repository.Delete<Cources>(courceId);
+                return  _repository.Delete<Cources>(courceId);
             }
             catch (Exception ex)
             {

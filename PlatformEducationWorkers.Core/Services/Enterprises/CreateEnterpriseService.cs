@@ -1,13 +1,13 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces.Repositories;
-using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 
-namespace PlatformEducationWorkers.Core.Services
+namespace PlatformEducationWorkers.Core.Services.Enterprises
 {
     public class CreateEnterpriseService : ICreateEnterpriseService
     {
@@ -58,5 +58,5 @@ namespace PlatformEducationWorkers.Core.Services
         }
     }
 
-   
+
 }

@@ -18,26 +18,33 @@ namespace PlatformEducationWorkers.Core.Services
             _repository = repository;
         }
 
-        public Task<User> AddUser(User user)
+       
+
+        public async Task<User> AddUser(User user)
         {
             try
             {
                 if (user == null)
-                    throw new Exception($"Error adding user,user is null");
+                    throw new Exception($"Error adding user, user is null");
 
-                if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname==user.Surname && e.Birthday==user.Birthday).Result.Count() > 0)
-                    throw new Exception($"Error adding user, those man already exist");
-              
-                if(_repository.GetQuery<User>(e=>e.Login == user.Login && e.Password==user.Password).Result.Count() > 0)
+                if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname == user.Surname && e.Birthday == user.Birthday).Result.Any())
+                    throw new Exception($"Error adding user, such user already exists");
+                if (_repository.GetQuery<User>(e => e.Login == user.Login && e.Password == user.Password).Result.Count() > 0)
                     throw new Exception($"Error adding user,Please choose correct password or login");
 
-                return _repository.Add(user);
+                var salt = HashHelper.GenerateSalt();
+                user.Salt = salt;
+                user.Password = HashHelper.ComputeHash(user.Password, salt);
+                user.Login = HashHelper.ComputeHash(user.Login, salt);
+
+                return await _repository.Add(user);
             }
             catch (Exception ex)
             {
-                throw new Exception("Error adding new User: ", ex);
+                throw new Exception("Error adding new user: ", ex);
             }
         }
+
 
         public Task DeleteUser(int userId)
         {
@@ -95,35 +102,49 @@ namespace PlatformEducationWorkers.Core.Services
         public async Task<User> Login(string login, string password)
         {
             try
-            {
-                //додати валідацію
-                var user = await _repository.GetQuery<User>(u => u.Login == login && u.Password == password);
-                return user.FirstOrDefault();
+            { 
+                var user = (await _repository.GetQuery<User>(u => true))
+                           .FirstOrDefault(u => u.Login == HashHelper.ComputeHash(login, u.Salt));
+
+                if (user == null)
+                    throw new Exception("Invalid login or password");
+
+                var hashedPassword = HashHelper.ComputeHash(password, user.Salt);
+                if (user.Password != hashedPassword)
+                    throw new Exception("Invalid login or password");
+
+                return user;
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error login user , error:{ex}");
             }
         }
-
         public async Task<User> Registration(User user)
         {
             try
             {
-                //додати валідацію
-                if (_repository.GetQuery<User>(r => r.Password == user.Password).Result.Count() > 0)
-                {
-                    throw new Exception($"Error Choose other password");
-                }
+                if (user == null)
+                    throw new ArgumentNullException(nameof(user), "User object is null");
 
+
+                if (_repository.GetQuery<User>(u => HashHelper.ComputeHash(u.Login, u.Salt) == user.Login).Result.Any())
+                    throw new Exception("A user with this login already exists");
+
+
+                var salt = HashHelper.GenerateSalt();
+                user.Salt = salt;
+                user.Password = HashHelper.ComputeHash(user.Password, salt);
+                user.Login = HashHelper.ComputeHash(user.Login, salt);
                 return await _repository.Add(user);
-              
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error registration user , error:{ex}");
+                throw new Exception($"Error registering user: {ex.Message}", ex);
             }
         }
+
+       
 
         public async Task<User> SearchUser(string name, string surname, DateTime birthday)
         {

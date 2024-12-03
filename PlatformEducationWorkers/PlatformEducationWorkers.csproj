@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.409.1" />
     <PackageReference Include="bootstrap" Version="5.3.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
@@ -28,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Logging\PlatformEducationWorkers.Logging.csproj" />
     <ProjectReference Include="..\PlatformEducationWorkers.Core\PlatformEducationWorkers.Core.csproj" />
     <ProjectReference Include="..\PlatformEducationWorkers.Storage\PlatformEducationWorkers.Storage.csproj" />
   </ItemGroup>

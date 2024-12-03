@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Runtime.Internal;
+using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Request;
@@ -14,13 +17,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IJobTitleService _jobTitleService;
         private readonly IEnterpriseService _enterpriseService;
-        private readonly ILogger<JobTitlesController> _logger;
+        private readonly ILoggerService _loggerService;
 
-        public JobTitlesController(IJobTitleService jobTitleService, IEnterpriseService enterpriseService, ILogger<JobTitlesController> logger)
+
+        public JobTitlesController(IJobTitleService jobTitleService, IEnterpriseService enterpriseService,  ILoggerService loggerService)
         {
             _jobTitleService = jobTitleService;
             _enterpriseService = enterpriseService;
-            _logger = logger;
+            _loggerService = loggerService;
         }
 
         [HttpPost]
@@ -28,11 +32,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateJobTitle(PlatformEducationWorkers.Request.JobTitlesRequest.CreateJobTitleRequest request)
         {
-            _logger.LogInformation("Start creating job title");
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Start creating job title", HttpContext.Session.GetInt32("UserId").Value);
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for creating job title");
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Invalid model state for creating job title", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
                 ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
@@ -44,7 +51,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             if (enterpriseId == null)
             {
-                _logger.LogWarning("Enterprise ID is null. Redirecting to login.");
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Enterprise ID is null. Redirecting to login.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 //переадресація на сторінку логін
                 return RedirectToAction("Login", "Login");
@@ -53,7 +62,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var enterprise = await _enterpriseService.GetEnterprice(enterpriseId);
             if (enterprise == null)
             {
-                _logger.LogWarning("Enterprise not found. Redirecting to login.");
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Enterprise not found. Redirecting to login.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 //переадресація на сторінку логін
                 return RedirectToAction("Login", "Login");
@@ -66,7 +77,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             };
 
             await _jobTitleService.AddingRole(jobTitle);
-            _logger.LogInformation("Job title created successfully: {JobTitleName}", jobTitle.Name);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title created successfully: {jobTitle.Name}", HttpContext.Session.GetInt32("UserId").Value);
 
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
@@ -79,7 +91,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         public async Task<IActionResult> JobTitles()
         {
-            _logger.LogInformation("Fetching job titles");
+             await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching job titles", HttpContext.Session.GetInt32("UserId").Value);
 
             var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             
@@ -88,7 +100,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = jobTitles;
-            _logger.LogInformation("Job titles fetched successfully");
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job titles fetched successfully", HttpContext.Session.GetInt32("UserId").Value);
 
             return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles);
         }
@@ -115,19 +128,21 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DetailJobTitle")]
         public async Task<IActionResult> DetailJobTitle(int id)
         {
-            _logger.LogInformation("Fetching details for job title ID: {Id}", id);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching details for job title ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
             {
-                _logger.LogWarning("Job title with ID {Id} not found", id);
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Job title with ID {id} not found", HttpContext.Session.GetInt32("UserId").Value);
 
                 return RedirectToAction("Index");
             }
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
-            _logger.LogInformation("Job title details fetched successfully for ID: {Id}", id);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title details fetched successfully for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             return View("~/Views/Administrator/JobTitles/DetailJobTitle.cshtml",jobTitle);
         }
@@ -137,12 +152,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         public async Task<IActionResult> EditJobTitle(int id)
         {
-            _logger.LogInformation("Fetching job title for editing. ID: {Id}", id);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching job title for editing. ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
             {
-                _logger.LogWarning("Job title with ID {Id} not found for editing", id);
+
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Job title with ID {id} not found for editing", HttpContext.Session.GetInt32("UserId").Value);
 
                 return RedirectToAction("Index");
             }
@@ -151,8 +168,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 Id = jobTitle.Id,
                 Name = jobTitle.Name
-            };
-            _logger.LogInformation("Job title fetched successfully for editing. ID: {Id}", id);
+            }; 
+            
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title fetched successfully for editing. ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
+
+
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
@@ -164,11 +184,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("EditJobTitle")]
         public async Task<IActionResult> EditJobTitle(EditJobTitleRequest request)
         {
-            _logger.LogInformation("Editing job title with ID: {Id}", request.Id);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Editing job title with ID: {request.Id}", HttpContext.Session.GetInt32("UserId").Value);
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for editing job title with ID: {Id}", request.Id);
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Invalid model state for editing job title with ID: {request.Id}", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 return View(request);
             }
@@ -180,7 +203,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             };
 
             await _jobTitleService.UpdateJobTitle(jobTitle);
-            _logger.LogInformation("Job title updated successfully with ID: {Id}", request.Id);
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title updated successfully with ID: {request.Id}", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
             return RedirectToAction("Index");
         }
@@ -193,7 +218,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("AddJobTitle")]
         public async Task<IActionResult> AddJobTitle()
         {
-            _logger.LogInformation("Open page for adding jobTitle");
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Open page for adding jobTitle", HttpContext.Session.GetInt32("UserId").Value);
+
+
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
@@ -205,11 +232,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("AddJobTitle")]
         public async Task<IActionResult> AddJobTitle(PlatformEducationWorkers.Request.JobTitlesRequest.CreateJobTitleRequest request)
         {
-            _logger.LogInformation("adding job title ");
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"adding job title ", HttpContext.Session.GetInt32("UserId").Value);
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for adding job title");
+
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Invalid model state for adding job title", HttpContext.Session.GetInt32("UserId").Value);
 
                 return View(request);
             }
@@ -219,7 +248,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             if (enterprise == null)
             {
-                _logger.LogWarning("Enterprise was not found");
+
+                await _loggerService.LogAsync(Logger.LogType.Warning, $"Enterprise was not found", HttpContext.Session.GetInt32("UserId").Value);
 
                 return RedirectToAction("Login", "Login");
             }
@@ -231,7 +261,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             };
 
             await _jobTitleService.AddingRole(jobTitle);
-            _logger.LogInformation("Job title was adding successfully");
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title was adding successfully", HttpContext.Session.GetInt32("UserId").Value);
 
             return RedirectToAction("Index");
         }
@@ -239,10 +270,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteJobTitle(int id)
         {
-            _logger.LogInformation("Deleting job title with ID: {Id}", id);
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Deleting job title with ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             await _jobTitleService.DeleteJobTitle(id);
-            _logger.LogInformation("Job title deleted successfully with ID: {Id}", id);
+
+            await _loggerService.LogAsync(Logger.LogType.Info, $"Job title deleted successfully with ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             return RedirectToAction("Index");
         }

@@ -1,16 +1,23 @@
+using Amazon;
+using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Core.Services.Enterprises;
+using PlatformEducationWorkers.Logger;
 using PlatformEducationWorkers.Storage;
 using PlatformEducationWorkers.Storage.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<PlatformEducationContex>(options =>
-    options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("Local")));
+    options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("LocalDb")));
+
 
 
 builder.Services.AddDistributedMemoryCache();
@@ -21,6 +28,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
+builder.Services.AddScoped<ILoggerService, LoggerService>();
+builder.Services.AddScoped<ILogRepository, LogsRepository>();
 builder.Services.AddTransient<IUserService,UserService>();
 builder.Services.AddTransient<IUserResultService,UserResultService>();
 builder.Services.AddTransient<IEnterpriseService,EnterpriceService>();

@@ -1,9 +1,9 @@
-﻿using PlatformEducationWorkers.Core.Interfaces;
+﻿using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlatformEducationWorkers.Core.Services
+namespace PlatformEducationWorkers.Core.Services.Enterprises
 {
     public class EnterpriceService : IEnterpriseService
     {
@@ -44,7 +44,7 @@ namespace PlatformEducationWorkers.Core.Services
                 var enterprice = await _repository.GetById<Enterprice>(enterpriceId);
                 if (enterprice == null)
                     throw new Exception($"Enterprice with id {enterpriceId} not found");
-               
+
 
                 var courses = (await _repository.GetQuery<Cources>(c => c.Enterprise.Id == enterpriceId)).ToList();
                 foreach (var course in courses)
@@ -55,7 +55,7 @@ namespace PlatformEducationWorkers.Core.Services
                 var users = (await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId)).ToList();
                 foreach (var user in users)
                 {
-                    if (enterprice.Owner!=null  &&user.Id == enterprice.Owner.Id  )
+                    if (enterprice.Owner != null && user.Id == enterprice.Owner.Id)
                     {
                         enterprice.Owner = null;
                         await _repository.Update(enterprice);
@@ -63,7 +63,7 @@ namespace PlatformEducationWorkers.Core.Services
                     await _repository.Delete<User>(user.Id);
                 }
 
-               
+
                 var jobTitles = (await _repository.GetQuery<JobTitle>(j => j.Enterprise.Id == enterpriceId)).ToList();
                 foreach (var job in jobTitles)
                 {
@@ -72,7 +72,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
                 // Видалення фірми
-                await _repository.Delete<Enterprice>(enterpriceId); 
+                await _repository.Delete<Enterprice>(enterpriceId);
             }
             catch (Exception ex)
             {
@@ -143,7 +143,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        
-        
+
+
     }
 }

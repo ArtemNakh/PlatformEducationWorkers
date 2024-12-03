@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PlatformEducationWorkers.Storage
 {
-    public class PlatformEducationContex: DbContext
+    public class PlatformEducationContex : DbContext
     {
         public PlatformEducationContex(DbContextOptions<PlatformEducationContex> options) : base(options)
         {
@@ -29,6 +30,7 @@ namespace PlatformEducationWorkers.Storage
 
 
 
+        public DbSet<LogEntry> Logs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Enterprice> Enterprises { get; set; }
         public DbSet<Cources> Cources { get; set; }

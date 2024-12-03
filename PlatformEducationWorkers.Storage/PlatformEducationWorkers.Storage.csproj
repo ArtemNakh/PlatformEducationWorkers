@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Logging\PlatformEducationWorkers.Logging.csproj" />
     <ProjectReference Include="..\PlatformEducationWorkers.Core\PlatformEducationWorkers.Core.csproj" />
   </ItemGroup>
 

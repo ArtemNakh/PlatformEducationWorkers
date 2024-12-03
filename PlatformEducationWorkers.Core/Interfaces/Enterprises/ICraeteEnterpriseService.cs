@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformEducationWorkers.Core.Interfaces
+namespace PlatformEducationWorkers.Core.Interfaces.Enterprises
 {
     public interface ICreateEnterpriseService
     {

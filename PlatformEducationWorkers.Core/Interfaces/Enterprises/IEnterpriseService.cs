@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PlatformEducationWorkers.Core.Models;
 
-namespace PlatformEducationWorkers.Core.Interfaces
+namespace PlatformEducationWorkers.Core.Interfaces.Enterprises
 {
     public interface IEnterpriseService
     {

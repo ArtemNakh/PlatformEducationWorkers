@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
+using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Request.AccountRequest;
 
@@ -10,12 +12,13 @@ namespace PlatformEducationWorkers.Controllers
     {
         private readonly IUserService _userService;
         private readonly IEnterpriseService _enterpriceService;
-        private readonly ILogger<AccountController> _logger;
-        public AccountController(IUserService userService, ILogger<AccountController> logger, IEnterpriseService enterpriceService)
+
+        private readonly ILoggerService _loggingService;
+        public AccountController(IUserService userService, ILogger<AccountController> logger, IEnterpriseService enterpriceService, ILoggerService loggingService)
         {
             _userService = userService;
-            _logger = logger;
             _enterpriceService = enterpriceService;
+            _loggingService = loggingService;
         }
 
         [HttpGet]
@@ -25,7 +28,7 @@ namespace PlatformEducationWorkers.Controllers
         {
             try
             {
-                _logger.LogInformation("Fetching user credentials.");
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Fetching user credentials.", HttpContext.Session.GetInt32("UserId").Value);
 
                 var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
@@ -36,12 +39,16 @@ namespace PlatformEducationWorkers.Controllers
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
-                _logger.LogInformation("Successfully fetched credentials for user ID: {UserId}", userId);
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully fetched credentials for user ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 return View(user);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching user credentials.");
+                await _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred while fetching user credentials.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 TempData["Error"] = "Помилка завантаження даних користувача.";
                 return RedirectToAction("Index", "Home");
             }
@@ -54,14 +61,18 @@ namespace PlatformEducationWorkers.Controllers
         {
             try
             {
-                _logger.LogInformation("Editing credentials for user.");
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Editing credentials for user.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
 
                 if (user == null)
                 {
-                    _logger.LogWarning("User not found. User ID: {UserId}", userId);
+                    await _loggingService.LogAsync(Logger.LogType.Warning, $"User not found. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+
+
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
@@ -78,13 +89,16 @@ namespace PlatformEducationWorkers.Controllers
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully loaded credentials for editing. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation("Successfully loaded credentials for editing. User ID: {UserId}", userId);
+
                 return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while loading edit credentials form.");
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Error occurred while loading edit credentials form.", HttpContext.Session.GetInt32("UserId").Value);
+
+
                 TempData["Error"] = "Помилка завантаження форми редагування.";
                 return RedirectToAction("Credentials");
             }
@@ -97,20 +111,22 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for updating credentials.");
+                await _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid model state for updating credentials.", HttpContext.Session.GetInt32("UserId").Value);
+
                 return View(request);
             }
 
             try
             {
-                _logger.LogInformation("Updating credentials for user.");
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Updating credentials for user.", HttpContext.Session.GetInt32("UserId").Value);
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
 
                 if (user == null)
                 {
-                    _logger.LogWarning("User not found during credentials update. User ID: {UserId}", userId);
+                    await _loggingService.LogAsync(Logger.LogType.Info, $"User not found during credentials update. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+                                        
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
@@ -119,15 +135,16 @@ namespace PlatformEducationWorkers.Controllers
                 user.Password = request.NewPassword;
 
                 await _userService.UpdateUser(user);
+                await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully updated credentials for user ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation("Successfully updated credentials for user ID: {UserId}", userId);
 
                 TempData["Success"] = "Дані успішно оновлено.";
                 return RedirectToAction("Credentials");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while updating user credentials.");
+                await _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred while updating user credentials.", HttpContext.Session.GetInt32("UserId").Value);
+
                 ModelState.AddModelError(string.Empty, "Помилка оновлення даних.");
                 return View(request);
             }

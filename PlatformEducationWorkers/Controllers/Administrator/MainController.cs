@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 
@@ -12,18 +13,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IEnterpriseService _enterpriceService;
         private readonly IUserService _userService;
-        private readonly ILogger<MainController> _logger;
+
         private readonly IUserResultService _userResultService;
+        private readonly ILoggerService _loggerService;
         private readonly ICourcesService _courseService;
 
 
-        public MainController(IEnterpriseService enterpriceService, IUserService userService, ILogger<MainController> logger, IUserResultService userResultService, ICourcesService courceService)
+        public MainController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICourcesService courceService, ILoggerService loggerService)
         {
             _enterpriceService = enterpriceService;
             _userService = userService;
-            _logger = logger;
+          
             _userResultService = userResultService;
             _courseService = courceService;
+            _loggerService = loggerService;
         }
 
         [HttpPost]
@@ -33,23 +36,28 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             try
             {
-                _logger.LogInformation("DeleteEnterprice action started.");
+
+                await _loggerService.LogAsync(Logger.LogType.Info, $"DeleteEnterprice action started.", HttpContext.Session.GetInt32("UserId").Value);
 
                 int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation($"Fetching enterprise with ID: {enterpriceId}");
+
                 Enterprice enterprice =await _enterpriceService.GetEnterprice(enterpriceId);
+                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching user with ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation($"Fetching user with ID: {userId}");
+
                 User user = await _userService.GetUser(userId);
 
                 if (enterprice == null)
                 {
                     string errorMessage = $"Enterprise with ID {enterpriceId} not found.";
-                    _logger.LogError(errorMessage);
+                   
+                    await _loggerService.LogAsync(Logger.LogType.Error, $"Enterprise with ID {enterpriceId} not found.", HttpContext.Session.GetInt32("UserId").Value);
+
                     throw new Exception(errorMessage);
 
                 }
@@ -57,7 +65,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 if (user == null)
                 {
                     string errorMessage = $"User with ID {userId} not found.";
-                    _logger.LogError(errorMessage);
+                    await _loggerService.LogAsync(Logger.LogType.Error, errorMessage, HttpContext.Session.GetInt32("UserId").Value);
+                    
                     throw new Exception(errorMessage);
                 }
 
@@ -65,19 +74,24 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 if (enterprice.Owner != null && enterprice.Owner.Id == user.Id)
                 {
                     string errorMessage = $"User with ID {userId} cannot delete enterprise because they are not the owner.";
-                    _logger.LogError(errorMessage);
+                    
+                    await _loggerService.LogAsync(Logger.LogType.Error, errorMessage, HttpContext.Session.GetInt32("UserId").Value);
+
                     throw new Exception(errorMessage);
                 }
+                await _loggerService.LogAsync(Logger.LogType.Info, "Deleting enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation($"Deleting enterprise with ID: {enterpriceId}");
                 await _enterpriceService.DeleteingEnterprice(enterpriceId);
+                await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Index.", HttpContext.Session.GetInt32("UserId").Value);
 
-                _logger.LogInformation("Enterprise deleted successfully. Redirecting to Index.");
+
                 return RedirectToAction("Index", "Main");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting enterprise.");
+                await _loggerService.LogAsync(Logger.LogType.Error, "Error occurred while deleting enterprise.", HttpContext.Session.GetInt32("UserId").Value);
+
+
 
                 // Обробка помилки і повернення на попередню сторінку з повідомленням
                 TempData["ErrorMessage"] = $"Error deleting Enterprice: {ex.Message}";
@@ -101,8 +115,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.NewUsers = newUsers;
             ViewBag.NewCourses = newCources;
             ViewBag.AverageRating = AverageRating;
+            await _loggerService.LogAsync(Logger.LogType.Info, "Accessed Main Index page.", HttpContext.Session.GetInt32("UserId").Value);
 
-            _logger.LogInformation("Accessed Main Index page.");
+
 
             return View("~/Views/Administrator/Main/Index.cshtml");
         }

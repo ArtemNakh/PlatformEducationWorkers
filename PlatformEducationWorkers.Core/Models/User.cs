@@ -16,6 +16,7 @@ namespace PlatformEducationWorkers.Core.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string  Login { get; set; }
+        public string Salt { get; set; } // Додаємо поле для солі
 
         public virtual Enterprice Enterprise { get; set; }
 
