@@ -56,11 +56,10 @@ namespace PlatformEducationWorkers.Storage.Repositories
             return await _context.Set<T>().FindAsync(id);
         }
 
-        // Асинхронний метод для виконання запиту з фільтром
         public async Task<IEnumerable<T>> GetQueryAsync<T>(Expression<Func<T, bool>> func) where T : class
         {
-            var query = _context.Set<T>().Where(func); // Створюємо запит
-            return await query.ToListAsync(); // Виконуємо асинхронний запит
+            var query = _context.Set<T>().Where(func); 
+            return await query.ToListAsync(); 
         }
     }
 }
