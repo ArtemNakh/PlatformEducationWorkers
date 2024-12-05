@@ -9,7 +9,8 @@
     <div class="card shadow-lg">
 
         <div class="card-body">
-            <!-- Пошукова форма -->
+
+
             <form asp-action="FindJobTitles" method="get" class="mb-3 d-flex">
                 <input type="text" name="searchTerm" class="form-control" placeholder="Search by name" value="@Context.Request.Query["searchTerm"]" />
                 <button type="submit" class="btn btn-primary ms-2">
@@ -55,7 +56,8 @@
     </div>
 </div>
 
-<!-- Modal -->
+
+
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -82,21 +84,19 @@
 
 @section Scripts {
     <script>
-        // Attach event listener to all delete buttons
+
         document.addEventListener('DOMContentLoaded', function () {
             const confirmDeleteModal = document.getElementById('confirmDeleteModal');
             const deleteForm = document.getElementById('deleteJobTitleForm');
             const jobTitleNameSpan = document.getElementById('jobTitleName');
 
             confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget; // Button that triggered the modal
+                const button = event.relatedTarget; 
                 const jobTitleId = button.getAttribute('data-jobtitle-id');
                 const jobTitleName = button.getAttribute('data-jobtitle-name');
 
-                // Update modal content
                 jobTitleNameSpan.textContent = jobTitleName;
 
-                // Update form action
                 deleteForm.action = `@Url.Action("DeleteJobTitle", "JobTitles")?id=${jobTitleId}`;
             });
         });

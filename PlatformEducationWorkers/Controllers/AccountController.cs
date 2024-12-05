@@ -11,13 +11,13 @@ namespace PlatformEducationWorkers.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IEnterpriseService _enterpriceService;
+        private readonly IEnterpriseService _enterpriseService;
 
         private readonly ILoggerService _loggingService;
         public AccountController(IUserService userService, ILogger<AccountController> logger, IEnterpriseService enterpriceService, ILoggerService loggingService)
         {
             _userService = userService;
-            _enterpriceService = enterpriceService;
+            _enterpriseService = enterpriceService;
             _loggingService = loggingService;
         }
 
@@ -35,7 +35,7 @@ namespace PlatformEducationWorkers.Controllers
                 var userRole = HttpContext.Session.GetString("UserRole");
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
@@ -85,7 +85,7 @@ namespace PlatformEducationWorkers.Controllers
 
                 var userRole = HttpContext.Session.GetString("UserRole");
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;

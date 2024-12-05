@@ -17,13 +17,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IJobTitleService _jobTitleService;
         private readonly IUserService _userService;
-        private readonly IEnterpriseService _enterpriceService;
+        private readonly IEnterpriseService  _enterpriseService;
         private readonly ILoggerService _loggerService;
         public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService,ILoggerService loggerService)
         {
             _userService = userService;
             _jobTitleService = jobTitleService;
-            _enterpriceService = enterpriceService;
+             _enterpriseService = enterpriceService;
             _loggerService = loggerService;
         }
 
@@ -42,7 +42,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 var users = await _userService.GetAllUsersEnterprice(enterpriseId);
               var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
 
-                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -84,7 +84,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     users = users.Where(n=>n.JobTitle.Name== jobTitle);
                 }
-                var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -110,7 +110,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Create Worker' page.", HttpContext.Session.GetInt32("UserId").Value);
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
 
@@ -136,7 +136,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 try
                 {
                     JobTitle jobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
-                    Enterprice enterprice = await _enterpriceService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+                    Enterprice enterprice = await  _enterpriseService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
                     var user = new User
                     {
                         Name = request.Name,
@@ -192,7 +192,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
@@ -217,7 +217,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
 
@@ -316,7 +316,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 User user = await _userService.GetUser(id);
                 int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                Enterprice enterprice = await _enterpriceService.GetEnterprice(enterpriceId);
+                Enterprice enterprice = await  _enterpriseService.GetEnterprice(enterpriceId);
 
                 if (user == null)
                 {

@@ -11,7 +11,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     [Area("Administrator")]
     public class MainController : Controller
     {
-        private readonly IEnterpriseService _enterpriceService;
+        private readonly IEnterpriseService  _enterpriseService;
         private readonly IUserService _userService;
 
         private readonly IUserResultService _userResultService;
@@ -21,7 +21,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         public MainController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICourcesService courceService, ILoggerService loggerService)
         {
-            _enterpriceService = enterpriceService;
+             _enterpriseService = enterpriceService;
             _userService = userService;
           
             _userResultService = userResultService;
@@ -46,7 +46,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                Enterprice enterprice =await _enterpriceService.GetEnterprice(enterpriceId);
+                Enterprice enterprice =await  _enterpriseService.GetEnterprice(enterpriceId);
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching user with ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
 
@@ -81,7 +81,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
                 await _loggerService.LogAsync(Logger.LogType.Info, "Deleting enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                await _enterpriceService.DeleteingEnterprice(enterpriceId);
+                await  _enterpriseService.DeleteingEnterprice(enterpriceId);
                 await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Index.", HttpContext.Session.GetInt32("UserId").Value);
 
 
@@ -109,7 +109,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var newUsers= await _userService.GetNewUsers(enterpriseId);
             var newCources= await _courseService.GetNewCourses(enterpriseId);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
-            var companyName = (await _enterpriceService.GetEnterprice(enterpriseId)).Title; 
+            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title; 
             ViewData["CompanyName"] = companyName; 
             ViewBag.LastPassages = lastPassages;
             ViewBag.NewUsers = newUsers;

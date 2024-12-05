@@ -14,7 +14,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
     [Area("Worker")]
     public class CourcesController : Controller
     {
-        public readonly ICourcesService _courcesService;
+        public readonly ICourcesService _coursesService;
         public readonly IUserResultService _userResultService;
         public readonly IEnterpriseService _enterpriseService;
         public readonly IUserService _userService;
@@ -23,7 +23,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
         public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService,IEnterpriseService enterpriseService, ILoggerService loggerService)
         {
-            _courcesService = courcesService;
+            _coursesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
 
@@ -45,7 +45,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                var uncompletedCourses = await _courcesService.GetUncompletedCourcesForUser(userId, enterpriseId);
+                var uncompletedCourses = await _coursesService.GetUncompletedCourcesForUser(userId, enterpriseId);
 
                 var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
 
@@ -103,7 +103,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
-                var courseResult = await _userResultService.SearchUserResult(id);//await _courcesService.GetCourcesById(id);
+                var courseResult = await _userResultService.SearchUserResult(id);//await _coursesService.GetCourcesById(id);
                 if (courseResult == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {id} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -176,7 +176,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Початок проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
-                var course = await _courcesService.GetCourcesById(courseId);
+                var course = await _coursesService.GetCourcesById(courseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -233,7 +233,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return BadRequest(ModelState);
                 }
 
-                var course = await _courcesService.GetCourcesById(userResultRequest.CourseId);
+                var course = await _coursesService.GetCourcesById(userResultRequest.CourseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -296,7 +296,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
 
-                var course = await _courcesService.GetCourcesById(courseId);
+                var course = await _coursesService.GetCourcesById(courseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
