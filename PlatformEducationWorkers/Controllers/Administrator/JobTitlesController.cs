@@ -30,7 +30,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpPost]
         [Route("CreateJobTitle")]
         [UserExists]
-        public async Task<IActionResult> CreateJobTitle(PlatformEducationWorkers.Request.JobTitlesRequest.CreateJobTitleRequest request)
+        public async Task<IActionResult> CreateJobTitle(CreateJobTitleRequest request)
         {
 
             await _loggerService.LogAsync(Logger.LogType.Info, $"Start creating job title", HttpContext.Session.GetInt32("UserId").Value);
@@ -53,9 +53,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 await _loggerService.LogAsync(Logger.LogType.Warning, $"Enterprise ID is null. Redirecting to login.", HttpContext.Session.GetInt32("UserId").Value);
 
-
-
-                //переадресація на сторінку логін
                 return RedirectToAction("Login", "Login");
             }
 
@@ -64,9 +61,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 await _loggerService.LogAsync(Logger.LogType.Warning, $"Enterprise not found. Redirecting to login.", HttpContext.Session.GetInt32("UserId").Value);
 
-
-
-                //переадресація на сторінку логін
                 return RedirectToAction("Login", "Login");
             }
 
@@ -136,7 +130,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 await _loggerService.LogAsync(Logger.LogType.Warning, $"Job title with ID {id} not found", HttpContext.Session.GetInt32("UserId").Value);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("JobTitles");
             }
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
@@ -161,7 +155,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 await _loggerService.LogAsync(Logger.LogType.Warning, $"Job title with ID {id} not found for editing", HttpContext.Session.GetInt32("UserId").Value);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("JobTitles");
             }
 
             var request = new EditJobTitleRequest
@@ -207,8 +201,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
-            return RedirectToAction("Index");
-        }
+            return RedirectToAction("JobTitles");
+        }   
 
 
 
@@ -264,7 +258,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _loggerService.LogAsync(Logger.LogType.Info, $"Job title was adding successfully", HttpContext.Session.GetInt32("UserId").Value);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("JobTitles");
         }
         [HttpPost]
         [UserExists]
@@ -276,7 +270,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _loggerService.LogAsync(Logger.LogType.Info, $"Job title deleted successfully with ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("JobTitles");
         }
     }
 

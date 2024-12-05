@@ -94,13 +94,15 @@ namespace PlatformEducationWorkers.Core.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId)
+        public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId,int numbersPassage)
         {
 
             try
             {
                 if (enterpriceId == 0)
                     throw new ArgumentException("Enterprise ID cannot be null or zero", nameof(enterpriceId));
+                if (numbersPassage <= 0)
+                    throw new ArgumentException("numbers last passage can`t be less 1", nameof(numbersPassage));
 
                 // Отримати останні проходження курсів
                 var results = await _repository.GetQueryAsync<UserResults>(
@@ -110,7 +112,7 @@ namespace PlatformEducationWorkers.Core.Services
                 // Сортуємо за датою завершення та беремо останні 5 записів
                 return results
                     .OrderByDescending(u => u.DateCompilation)
-                    .Take(5);
+                    .Take(numbersPassage);
             }
             catch (Exception ex)
             {

@@ -50,7 +50,7 @@ namespace PlatformEducationWorkers.Controllers
 
 
                 TempData["Error"] = "Помилка завантаження даних користувача.";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Login","Login");
             }
         }
 

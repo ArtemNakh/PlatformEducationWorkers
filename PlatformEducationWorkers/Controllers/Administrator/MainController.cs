@@ -82,10 +82,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 await _loggerService.LogAsync(Logger.LogType.Info, "Deleting enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
                 await  _enterpriseService.DeleteingEnterprice(enterpriceId);
-                await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Index.", HttpContext.Session.GetInt32("UserId").Value);
+                await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Main.", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                return RedirectToAction("Index", "Main");
+                return RedirectToAction("Main", "Main");
             }
             catch (Exception ex)
             {
@@ -95,17 +95,18 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 // Обробка помилки і повернення на попередню сторінку з повідомленням
                 TempData["ErrorMessage"] = $"Error deleting Enterprice: {ex.Message}";
-                return RedirectToAction("Index", "Main");
+                return RedirectToAction("Main", "Main");
             }
         }
 
         [Route("Main")]
         [UserExists]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Main()
         {
-            // Отримуємо останні 5 проходжень для підприємства
+
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var lastPassages = await _userResultService.GetLastPassages(enterpriseId);
+            int numbersLastPassage = 5;
+            var lastPassages = await _userResultService.GetLastPassages(enterpriseId, numbersLastPassage);
             var newUsers= await _userService.GetNewUsers(enterpriseId);
             var newCources= await _courseService.GetNewCourses(enterpriseId);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
@@ -115,11 +116,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.NewUsers = newUsers;
             ViewBag.NewCourses = newCources;
             ViewBag.AverageRating = AverageRating;
-            await _loggerService.LogAsync(Logger.LogType.Info, "Accessed Main Index page.", HttpContext.Session.GetInt32("UserId").Value);
+            await _loggerService.LogAsync(Logger.LogType.Info, "Accessed Main Main page.", HttpContext.Session.GetInt32("UserId").Value);
 
 
 
-            return View("~/Views/Administrator/Main/Index.cshtml");
+            return View("~/Views/Administrator/Main/Main.cshtml");
         }
     }
 }

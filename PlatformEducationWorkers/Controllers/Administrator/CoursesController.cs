@@ -130,7 +130,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _loggingService.LogAsync(Logger.LogType.Info, $"Cource {request.TitleCource} created successfully", HttpContext.Session.GetInt32("UserId").Value);
 
             
-            return RedirectToAction("Index");
+            return RedirectToAction("Courses");
         }
 
 

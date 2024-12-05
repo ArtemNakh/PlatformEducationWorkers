@@ -24,7 +24,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [HttpGet]
         [Route("Main")]
         [UserExists]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Main()
         {
             _logger.LogInformation("User accessed the Main page of the Worker area.");
 
@@ -38,7 +38,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 ViewData["CompanyName"] = companyName;
                 ViewData["UnfinishedCourses"] = unfinishedCourses.OrderBy(c=>c.DateCreate);
-                return View("~/Views/Worker/Main/Index.cshtml");
+                return View("~/Views/Worker/Main/Main.cshtml");
             }
             catch (Exception ex)
             {

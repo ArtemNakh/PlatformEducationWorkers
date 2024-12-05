@@ -16,7 +16,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<IEnumerable<UserResults>> GetAllResultCourses(int CourseId);
         Task<UserResults> SearchUserResult(int courceId);
 
-        Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId);
+        Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId,int numbersPassage);
 
         Task<double> GetAverageRating(int enterpriseId);
     }

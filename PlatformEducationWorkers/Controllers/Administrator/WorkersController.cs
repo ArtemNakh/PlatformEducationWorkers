@@ -54,7 +54,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Login");
             }
         }
 
@@ -97,7 +97,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Workers");
             }
         }
 
@@ -155,7 +155,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                     await _loggerService.LogAsync(Logger.LogType.Info, $"Worker created successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
                 {
@@ -280,7 +280,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} updated successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
                 {
@@ -336,14 +336,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 await _userService.DeleteUser(id);
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} deleted successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Workers");
             }
             catch (Exception ex)
             {
                 await _loggerService.LogAsync(Logger.LogType.Error, $"Error while deleting worker with ID { id}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Workers");
             }
         }
 

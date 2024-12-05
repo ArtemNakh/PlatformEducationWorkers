@@ -273,7 +273,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Результат курсу з ID {userResultRequest.CourseId} успішно збережено.", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                return RedirectToAction("Index");
+                return RedirectToAction("UncompleteCourses");
             }
             catch (Exception ex)
             {
