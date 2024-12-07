@@ -18,7 +18,7 @@ namespace PlatformEducationWorkers.Core.Models
         public string  Login { get; set; }
         public string Salt { get; set; } // Додаємо поле для солі
 
-        public virtual Enterprice Enterprise { get; set; }
+        public virtual Enterprise Enterprise { get; set; }
 
         public virtual JobTitle JobTitle { get; set; }
         public Role Role { get; set; }

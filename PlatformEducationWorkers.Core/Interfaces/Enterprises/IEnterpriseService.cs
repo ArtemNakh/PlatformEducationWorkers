@@ -9,11 +9,11 @@ namespace PlatformEducationWorkers.Core.Interfaces.Enterprises
 {
     public interface IEnterpriseService
     {
-        Task<Enterprice> AddingEnterprice(Enterprice enterprice);
-        Task<Enterprice> UpdateEnterprice(Enterprice enterprice);
-        Task DeleteingEnterprice(int enterpriceId);
-        Task<Enterprice> GetEnterprice(int enterpriceId);
-        Task<Enterprice> GetEnterpriceByUser(int userId);
-        Task<Enterprice> GetEnterprice(string title);
+        Task<Enterprise> AddingEnterprise(Enterprise enterprise);
+        Task<Enterprise> UpdateEnterprise(Enterprise enterprise);
+        Task DeleteingEnterprise(int enterpriseId);
+        Task<Enterprise> GetEnterprise(int enterpriseId);
+        Task<Enterprise> GetEnterpriseByUser(int userId);
+        Task<Enterprise> GetEnterprise(string title);
     }
 }

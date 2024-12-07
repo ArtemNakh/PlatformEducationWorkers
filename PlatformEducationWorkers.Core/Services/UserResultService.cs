@@ -48,9 +48,9 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (enterpriceId == null)
                     throw new Exception("$Error  get all user results by entyerprice,enterpriceId is null");
-                return await _repository.GetQueryAsync<UserResults>(u => u.Cource.Enterprise.Id == enterpriceId);
+                return await _repository.GetQueryAsync<UserResults>(u => u.Course.Enterprise.Id == enterpriceId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw new Exception("$Error get all results,error: {ex}");
             }
@@ -80,7 +80,7 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (courceId == null)
                     throw new Exception("$Error  get user  results,courceId is null");
-                return (await _repository.GetQueryAsync<UserResults>(u => u.Cource.Id == courceId)).FirstOrDefault();
+                return (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
             }
             catch (Exception)
             {
@@ -106,7 +106,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Отримати останні проходження курсів
                 var results = await _repository.GetQueryAsync<UserResults>(
-                    u => u.Cource.Enterprise.Id == enterpriceId
+                    u => u.Course.Enterprise.Id == enterpriceId
                 );
 
                 // Сортуємо за датою завершення та беремо останні 5 записів
@@ -125,7 +125,7 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
                 var results = await _repository.GetQueryAsync<UserResults>(
-                    r => r.Cource.Enterprise.Id == enterpriseId
+                    r => r.Course.Enterprise.Id == enterpriseId
                 );
 
                 if (results.Any())
@@ -149,7 +149,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("$Error  get  user  all results,userId is null");
                 
 
-                var results = await _repository.GetQueryAsync<UserResults>(u => u.Cource.Id == CourseId);
+                var results = await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == CourseId);
                 return results;
             }
             catch (Exception)

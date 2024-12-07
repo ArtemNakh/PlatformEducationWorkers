@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
     ViewBag.Title = "Проходження курсу";
 
-    var cource = ViewBag.Course as Cources;
+    var course = ViewBag.Course as Courses;
 }
 
 <div class="container mt-5">
@@ -16,24 +16,24 @@
         <div class="card-body px-4 py-5">
             <div class="mb-4">
                 <h3 class="text-secondary">Назва курсу:</h3>
-                <p class="fs-5 text-muted">@cource.TitleCource</p>
+                <p class="fs-5 text-muted">@course.TitleCource</p>
             </div>
 
             <div class="mb-4">
                 <h3 class="text-secondary">Опис курсу:</h3>
-                <p class="fs-5 text-muted">@cource.Description</p>
+                <p class="fs-5 text-muted">@course.Description</p>
             </div>
 
-            @if (cource.ShowContextPassage)
+            @if (course.ShowContextPassage)
             {
                 <div class="mb-4">
                     <h3 class="text-secondary">Вміст курсу:</h3>
-                    <p class="bg-light p-3 rounded text-dark">@cource.ContentCourse</p>
+                    <p class="bg-light p-3 rounded text-dark">@course.ContentCourse</p>
                 </div>
             }
 
-            <form asp-action="SaveResultCource" method="post" class="mt-5">
-                <input type="hidden" name="CourseId" value="@cource.Id" />
+            <form asp-action="SaveResultCourse" method="post" class="mt-5">
+                <input type="hidden" name="CourseId" value="@course.Id" />
 
                 @for (int i = 0; i < ViewBag.Questions.Count; i++)
                 {

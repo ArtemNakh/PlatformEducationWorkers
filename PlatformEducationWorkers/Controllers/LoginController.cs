@@ -50,7 +50,7 @@ namespace PlatformEducationWorkers.Controllers
 
             try
             {
-               await  _loggingService.LogAsync(Logger.LogType.Info, $"Attempting to login user: {request.Login}");
+               //await  _loggingService.LogAsync(Logger.LogType.Info, $"Attempting to login user: {request.Login}");
                
                 var user = await _userService.Login(request.Login, request.Password);
                 if (user != null)
@@ -92,7 +92,7 @@ namespace PlatformEducationWorkers.Controllers
             {
                await  _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred during login attempt for user: {request.Login}");
 
-                TempData["Error"] = "An error occurred while logging in.";
+                TempData["Error"] = "Invalid login or password";
                 return RedirectToAction("Login", "Login");
             }
         }
@@ -100,7 +100,7 @@ namespace PlatformEducationWorkers.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-           await  _loggingService.LogAsync(Logger.LogType.Info, $"User logging out.");
+           //await  _loggingService.LogAsync(Logger.LogType.Info, $"User logging out.");
 
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
@@ -130,13 +130,13 @@ namespace PlatformEducationWorkers.Controllers
             {
                await  _loggingService.LogAsync(Logger.LogType.Info, $"Registering new enterprise: {model.Title} with owner: {model.OwnerName}");
 
-                var enterprise = new Enterprice
+                var enterprise = new Enterprise
                 {
                     Title = model.Title,
                     DateCreate = DateTime.UtcNow,
                     Email = model.Email,
                     Users = new List<User>(),
-                    Cources = new List<Cources>()
+                    Courses = new List<Courses>()
                 };
 
                 var owner = new User

@@ -65,7 +65,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
                 // Видаляємо вибрану роль зі списку доступних ролей курса
-                IEnumerable<Cources> courses = await _repository.GetQuery<Cources>(c => c.AccessRoles.Any(jt => jt.Id == jobTitle.Id));
+                IEnumerable<Courses> courses = await _repository.GetQuery<Courses>(c => c.AccessRoles.Any(jt => jt.Id == jobTitle.Id));
                 foreach (var course in courses)
                 {
                     course.AccessRoles.Remove(jobTitle);

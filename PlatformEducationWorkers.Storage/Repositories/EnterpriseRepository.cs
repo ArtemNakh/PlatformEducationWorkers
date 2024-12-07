@@ -20,9 +20,9 @@ namespace PlatformEducationWorkers.Storage.Repositories
             _context = context;
         }
 
-        public async Task AddEnterpriseAsync(Enterprice enterprise)
+        public async Task AddEnterpriseAsync(Enterprise enterprise)
         {
-            await _context.Set<Enterprice>().AddAsync(enterprise);
+            await _context.Set<Enterprise>().AddAsync(enterprise);
         }
 
         public async Task AddJobTitleAsync(JobTitle jobTitle)

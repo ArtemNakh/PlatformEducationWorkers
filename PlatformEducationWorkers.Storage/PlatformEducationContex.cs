@@ -20,7 +20,7 @@ namespace PlatformEducationWorkers.Storage
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Enterprice>()
+            modelBuilder.Entity<Enterprise>()
                 .HasOne(e => e.Owner)
                 .WithMany() // Вказує, що один користувач може бути власником кількох підприємств
                 .HasForeignKey("OwnerId") // Додано вказівку зовнішнього ключа без властивості в моделі
@@ -32,8 +32,8 @@ namespace PlatformEducationWorkers.Storage
 
         public DbSet<LogEntry> Logs { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Enterprice> Enterprises { get; set; }
-        public DbSet<Cources> Cources { get; set; }
+        public DbSet<Enterprise> Enterprises { get; set; }
+        public DbSet<Courses> Cources { get; set; }
         public DbSet<UserResults> UserResults { get; set; }
         public DbSet<JobTitle> JobTitles { get; set; }
     }

@@ -29,8 +29,16 @@ namespace PlatformEducationWorkers.Core.Services
 
                 if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname == user.Surname && e.Birthday == user.Birthday).Result.Any())
                     throw new Exception($"Error adding user, such user already exists");
-                if (_repository.GetQuery<User>(e => e.Login == user.Login && e.Password == user.Password).Result.Count() > 0)
-                    throw new Exception($"Error adding user,Please choose correct password or login");
+                //додати перевірку захешованого паролю
+                //if (_repository.GetQuery<User>(e => e.Login == user.Login && e.Password == user.Password).Result.Count() > 0)
+                //    throw new Exception($"Error adding user,Please choose other password or login");
+                var allusers =  _repository.GetAll<User>().ToList(); // Завантажити всіх користувачів
+                bool isDuplicate = allusers.Any(e =>
+                    HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
+                    HashHelper.ComputeHash(user.Password, e.Salt) == e.Password);
+
+                if (isDuplicate)
+                    throw new Exception("Error adding user, please choose another password or login.");
 
                 var salt = HashHelper.GenerateSalt();
                 user.Salt = salt;
@@ -59,16 +67,16 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<User>> GetAllUsersEnterprice(int enterpriceId)
+        public Task<IEnumerable<User>> GetAllUsersEnterprise(int enterpriseId)
         {
             try
             {
                 //додати перевірку на вірність полів
-                return _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId);
+                return _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriseId);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error get all users by enterpriceId : {enterpriceId} error: ", ex);
+                throw new Exception($"Error get all users by enterpriceId : {enterpriseId} error: ", ex);
             }
         }
 

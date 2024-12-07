@@ -13,7 +13,7 @@
         </div>
         <div class="card-body">
 
-            <form asp-action="SearchCourses" asp-controller="Cources" method="get" class="d-flex mb-4">
+            <form asp-action="SearchCourses" asp-controller="Courses" method="get" class="d-flex mb-4">
                 <input type="text" name="searchTerm" class="form-control me-2" placeholder="Введіть назву курсу"
                        value="@Context.Request.Query["searchTerm"]" />
                 <button type="submit" class="btn btn-primary">
@@ -60,7 +60,8 @@
             }
 
             <div class="text-center mt-4">
-                <a href="@Url.Action("CreateCource", "Cources", new { area = "Administrator" })" class="btn btn-success">
+                
+                <a href="@Url.Action("CreateCourse", "Courses", new { area = "Administrator" })" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Додати новий курс
                 </a>
             </div>

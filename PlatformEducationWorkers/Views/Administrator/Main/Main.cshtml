@@ -27,7 +27,7 @@
                                 {
                                     <tr>
                                         <td>@result.User.Name</td>
-                                        <td>@result.Cource.TitleCource</td>
+                                        <td>@result.Course.TitleCource</td>
                                         <td>@result.DateCompilation.ToShortDateString()</td>
                                         <td>@result.Rating / @result.MaxRating</td>
                                     </tr>
@@ -47,7 +47,7 @@
                     <h4 class="mb-0">New Courses</h4>
                 </div>
                 <div class="card-body">
-                    @if (ViewBag.NewCourses != null && ((IEnumerable<PlatformEducationWorkers.Core.Models.Cources>)ViewBag.NewCourses).Any())
+                    @if (ViewBag.NewCourses != null && ((IEnumerable<PlatformEducationWorkers.Core.Models.Courses>)ViewBag.NewCourses).Any())
                     {
                         <table class="table table-bordered">
                             <thead>
@@ -58,7 +58,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var course in (IEnumerable<PlatformEducationWorkers.Core.Models.Cources>)ViewBag.NewCourses)
+                                @foreach (var course in (IEnumerable<PlatformEducationWorkers.Core.Models.Courses>)ViewBag.NewCourses)
                                 {
                                     <tr>
                                         <td>@course.TitleCource</td>

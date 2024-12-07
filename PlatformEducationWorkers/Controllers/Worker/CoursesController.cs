@@ -12,16 +12,16 @@ namespace PlatformEducationWorkers.Controllers.Worker
 {
     [Route("Workers")]
     [Area("Worker")]
-    public class CourcesController : Controller
+    public class CoursesController : Controller
     {
-        public readonly ICourcesService _coursesService;
+        public readonly ICoursesService _coursesService;
         public readonly IUserResultService _userResultService;
         public readonly IEnterpriseService _enterpriseService;
         public readonly IUserService _userService;
         public readonly ILoggerService _loggerService;
 
 
-        public CourcesController(ICourcesService courcesService, IUserResultService userResultService, IUserService userService,IEnterpriseService enterpriseService, ILoggerService loggerService)
+        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService,IEnterpriseService enterpriseService, ILoggerService loggerService)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;
@@ -40,14 +40,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                var uncompletedCourses = await _coursesService.GetUncompletedCourcesForUser(userId, enterpriseId);
+                var uncompletedCourses = await _coursesService.GetUncompletedCoursesForUser(userId, enterpriseId);
 
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
@@ -64,11 +64,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [HttpGet]
         [Route("Statistics")]
         [UserExists]
-        public async Task<IActionResult> StatisticCources()
+        public async Task<IActionResult> StatisticCourses()
         {
             try
             {
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
 
 
 
@@ -77,7 +77,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var coursesStatistics = await _userResultService.GetAllUserResult(userId);
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.CoursesStatistics = coursesStatistics;
@@ -116,11 +116,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 string content = "";
                 List<UserQuestionRequest> questions = new() ;/*= new List<UserQuestionRequest>();*/
 
-                if (!string.IsNullOrEmpty(courseResult.Cource.ContentCourse))
+                if (!string.IsNullOrEmpty(courseResult.Course.ContentCourse))
                 {
                     try
                     {
-                        content = JsonConvert.DeserializeObject<string>(courseResult.Cource.ContentCourse);
+                        content = JsonConvert.DeserializeObject<string>(courseResult.Course.ContentCourse);
                     }
                     catch (JsonException ex)
                     {
@@ -145,10 +145,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 }
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
-                ViewBag.Course = courseResult.Cource;
+                ViewBag.Course = courseResult.Course;
                 ViewBag.Result = courseResult;
                 ViewBag.Content = content;
                 ViewBag.Questions = questions;
@@ -169,14 +169,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [HttpGet]
         [Route("PassageCource")]
         [UserExists]
-        public async Task<IActionResult> PassageCource(int courseId)
+        public async Task<IActionResult> PassageCourse(int courseId)
         {
             try
             {
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Початок проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Початок проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
-                var course = await _coursesService.GetCourcesById(courseId);
+                var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -201,7 +201,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                 }
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
@@ -221,7 +221,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [HttpPost]
         [Route("PassageCource")]
         [UserExists]
-        public async Task<IActionResult> SaveResultCource(UserResultRequest userResultRequest)
+        public async Task<IActionResult> SaveResultCourse(UserResultRequest userResultRequest)
         {
             try
             {
@@ -233,7 +233,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return BadRequest(ModelState);
                 }
 
-                var course = await _coursesService.GetCourcesById(userResultRequest.CourseId);
+                var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -261,7 +261,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var userResult = new UserResults
                 {
                     User = user,
-                    Cource = course,
+                    Course = course,
                     DateCompilation = DateTime.Now,
                     Rating = userRating,
                     MaxRating = maxRating,
@@ -292,11 +292,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
         {
             try
             {
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Теорія курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
+               // await _loggerService.LogAsync(Logger.LogType.Info, $"Теорія курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
 
-                var course = await _coursesService.GetCourcesById(courseId);
+                var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
                     await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
@@ -307,7 +307,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;

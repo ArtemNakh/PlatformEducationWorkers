@@ -18,7 +18,7 @@
                     <div class="col-md-8">
                         <select id="courseId" name="courseId" class="form-control">
                             <option value="">Виберіть курс</option>
-                            @foreach (Cources course in ViewBag.Courses)
+                            @foreach (Courses course in ViewBag.Courses)
                             {
                                 <option value="@course.Id">@course.TitleCource</option>
                             }
@@ -50,13 +50,13 @@
                             {
                                 <tr>
                                     <td>@passage.User.Name</td>
-                                    <td>@passage.Cource.TitleCource</td>
+                                    <td>@passage.Course.TitleCource</td>
                                     <td>@passage.DateCompilation.ToString("dd.MM.yyyy")</td>
                                     <td>@passage.Rating</td>
                                     <td>@passage.MaxRating</td>
                                     <td>
                                         <form action="@Url.Action("DetailPassageCourse", "Courses", new { area = "Administrator" })" method="get">
-                                            <input type="hidden" name="id" value="@passage.Cource.Id" />
+                                            <input type="hidden" name="id" value="@passage.Course.Id" />
                                             <button type="submit" class="btn btn-primary btn-lg">Деталі проходження</button>
                                         </form>
 

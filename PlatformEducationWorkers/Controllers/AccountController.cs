@@ -28,14 +28,14 @@ namespace PlatformEducationWorkers.Controllers
         {
             try
             {
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Fetching user credentials.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggingService.LogAsync(Logger.LogType.Info, $"Fetching user credentials.", HttpContext.Session.GetInt32("UserId").Value);
 
                 var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
                 var userRole = HttpContext.Session.GetString("UserRole");
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
@@ -61,7 +61,7 @@ namespace PlatformEducationWorkers.Controllers
         {
             try
             {
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Editing credentials for user.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggingService.LogAsync(Logger.LogType.Info, $"Editing credentials for user.", HttpContext.Session.GetInt32("UserId").Value);
 
 
 
@@ -85,7 +85,7 @@ namespace PlatformEducationWorkers.Controllers
 
                 var userRole = HttpContext.Session.GetString("UserRole");
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;

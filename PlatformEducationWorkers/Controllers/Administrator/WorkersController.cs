@@ -36,13 +36,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
+               // await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                var users = await _userService.GetAllUsersEnterprice(enterpriseId);
+                var users = await _userService.GetAllUsersEnterprise(enterpriseId);
               var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
 
-                var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -67,10 +67,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
                 // Отримуємо всіх користувачів для підприємства
-                var users = await _userService.GetAllUsersEnterprice(enterpriseId);
+                var users = await _userService.GetAllUsersEnterprise(enterpriseId);
 
                 var JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
 
@@ -84,7 +84,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     users = users.Where(n=>n.JobTitle.Name== jobTitle);
                 }
-                var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -107,17 +107,17 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async  Task<IActionResult> CreateWorker()
         {
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Create Worker' page.", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Create Worker' page.", HttpContext.Session.GetInt32("UserId").Value);
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
 
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Open page Create Worker", HttpContext.Session.GetInt32("UserId").Value);
+           // await _loggerService.LogAsync(Logger.LogType.Info, $"Open page Create Worker", HttpContext.Session.GetInt32("UserId").Value);
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
@@ -128,7 +128,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("CreateWorker")]
         public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to create a new worker.", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to create a new worker.", HttpContext.Session.GetInt32("UserId").Value);
 
 
             if (ModelState.IsValid)
@@ -136,7 +136,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 try
                 {
                     JobTitle jobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
-                    Enterprice enterprice = await  _enterpriseService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+                    Enterprise enterprice = await  _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
                     var user = new User
                     {
                         Name = request.Name,
@@ -153,7 +153,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                     await _userService.AddUser(user);
 
-                    await _loggerService.LogAsync(Logger.LogType.Info, $"Worker created successfully.", HttpContext.Session.GetInt32("UserId").Value);
+                    //await _loggerService.LogAsync(Logger.LogType.Info, $"Worker created successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
                     return RedirectToAction("Workers");
                 }
@@ -180,7 +180,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> DetailWorker(int id)
         {
 
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching details for worker ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching details for worker ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             var user = await _userService.GetUser(id);
             if (user == null)
@@ -192,7 +192,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
@@ -205,7 +205,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditWorker(int id)
         {
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Edit Worker' page for ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+          //  await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Edit Worker' page for ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             var user = await _userService.GetUser(id);
             if (user == null)
@@ -217,7 +217,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
 
@@ -245,7 +245,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditWorker(int id, UpdateUserRequest request)
         {
 
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+           // await _loggerService.LogAsync(Logger.LogType.Info, $"Updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             if (ModelState.IsValid)
             {
@@ -301,7 +301,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DeleteWorker/{id}")]
         public async Task<IActionResult> DeleteWorker(int id)
         {
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to delete worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+          //  await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to delete worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
             if (id == null)
@@ -316,7 +316,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 User user = await _userService.GetUser(id);
                 int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                Enterprice enterprice = await  _enterpriseService.GetEnterprice(enterpriceId);
+                Enterprise enterprice = await  _enterpriseService.GetEnterprise(enterpriceId);
 
                 if (user == null)
                 {

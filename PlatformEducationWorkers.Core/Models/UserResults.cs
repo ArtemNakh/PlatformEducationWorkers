@@ -10,7 +10,7 @@ namespace PlatformEducationWorkers.Core.Models
     {
         public int Id { get; set; }
         public virtual User User  { get; set; }
-        public virtual Cources Cource { get; set; }
+        public virtual Courses Course { get; set; }
         public DateTime DateCompilation { get; set; }
         public int Rating { get; set; }
         public int MaxRating { get; set; }

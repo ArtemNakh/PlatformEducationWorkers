@@ -7,16 +7,16 @@ using System.Net.Http.Json;
 
 namespace PlatformEducationWorkers.Core.Services
 {
-    public class CourceService : ICourcesService
+    public class CourseService : ICoursesService
     {
         private readonly IRepository _repository;
 
-        public CourceService(IRepository repository)
+        public CourseService(IRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task<Cources> AddCource(Cources courses)
+        public async Task<Courses> AddCourse(Courses courses)
         {
             
             try
@@ -35,15 +35,15 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public  Task DeleteCource(int courceId)
+        public  Task DeleteCourse(int courseId)
         {
             try
             {
                 //додати валідацію
-                if (courceId == null)
+                if (courseId == null)
                     throw new Exception("Cource is null");
 
-                return  _repository.Delete<Cources>(courceId);
+                return  _repository.Delete<Courses>(courseId);
             }
             catch (Exception ex)
             {
@@ -52,15 +52,15 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<Cources>> GetAllCourcesEnterprice(int enterpriceId)
+        public Task<IEnumerable<Courses>> GetAllCoursesEnterprise(int enterpriseId)
         {
             try
             {
                 //додати валідацію
-                if (enterpriceId == null)
+                if (enterpriseId == null)
                     throw new Exception("enterprice is null");
 
-                return _repository.GetQuery<Cources>(u => u.Enterprise.Id == enterpriceId);
+                return _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId);
             }
             catch (Exception ex)
             {
@@ -69,7 +69,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<IEnumerable<Cources>> GetAllCourcesUser(int userId)
+        public async Task<IEnumerable<Courses>> GetAllCoursesUser(int userId)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
                 // Змінити запит, щоб враховувати, що AccessRoles — це колекція, а JobTitle — одиночний елемент
-                IEnumerable<Cources> cources = await _repository.GetQuery<Cources>(c => c.AccessRoles.Any(ar => ar.Id == user.JobTitle.Id));
+                IEnumerable<Courses> cources = await _repository.GetQuery<Courses>(c => c.AccessRoles.Any(ar => ar.Id == user.JobTitle.Id));
 
                 return cources.ToList();
             }
@@ -94,17 +94,17 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<Cources> GetCourcesById(int courceId)
+        public async Task<Courses> GetCoursesById(int courseId)
         {
             try
             {
                 //додати валідацію
-                if (courceId == null)
+                if (courseId == null)
                     throw new Exception("cource is null");
 
 
 
-                return await _repository.GetByIdAsync<Cources>(courceId);
+                return await _repository.GetByIdAsync<Courses>(courseId);
             }
             catch (Exception ex)
             {
@@ -113,18 +113,18 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<Cources>> GetCourcesByJobTitle(int jobTitleId, int enterpriceId)
+        public Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId, int enterpriseId)
         {
             try
             {
                 if (jobTitleId == null)
                     throw new Exception("jobTitleId is null");
-                if (enterpriceId == null)
+                if (enterpriseId == null)
                     throw new Exception("enterpriceId is null");
 
                 JobTitle jobtitile = _repository.GetById<JobTitle>(jobTitleId).Result;
 
-                return _repository.GetQuery<Cources>(n => n.AccessRoles.Contains(jobtitile) && n.Enterprise.Id == enterpriceId);
+                return _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobtitile) && n.Enterprise.Id == enterpriseId);
 
             }
             catch (Exception ex)
@@ -134,29 +134,29 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<Cources> GetCourcesBytitle(int titleCource)
+        public Task<Courses> GetCoursesBytitle(int titleCource)
         {
             throw new NotImplementedException();
         }
 
 
-        public Task<Cources> UpdateCource(Cources cources)
+        public Task<Courses> UpdateCourse(Courses courses)
         {
             try
             {
                 //додати валідацію
-                if (cources == null)
+                if (courses == null)
                     throw new Exception("cource is null");
 
-                Cources oldCource = _repository.GetById<Cources>(cources.Id).Result;
+                Courses oldCource = _repository.GetById<Courses>(courses.Id).Result;
 
-                oldCource.TitleCource = cources.TitleCource;
-                oldCource.AccessRoles = cources.AccessRoles;
-                oldCource.Questions = cources.Questions;
-                oldCource.ContentCourse = cources.ContentCourse;
-                oldCource.Description = cources.Description;
+                oldCource.TitleCource = courses.TitleCource;
+                oldCource.AccessRoles = courses.AccessRoles;
+                oldCource.Questions = courses.Questions;
+                oldCource.ContentCourse = courses.ContentCourse;
+                oldCource.Description = courses.Description;
 
-                return _repository.Update(cources);
+                return _repository.Update(courses);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
 
-        public async Task<IEnumerable<Cources>> GetUncompletedCourcesForUser(int userId, int enterpriceId)
+        public async Task<IEnumerable<Courses>> GetUncompletedCoursesForUser(int userId, int enterpriceId)
         {
             try
             {
@@ -180,18 +180,18 @@ namespace PlatformEducationWorkers.Core.Services
                 var userCourses = await _repository.GetQueryAsync<UserResults>(uc => uc.User.Id == userId);
 
                 // Асинхронно отримуємо всі курси для підприємства
-                var allCourses = await _repository.GetQueryAsync<Cources>(u => u.Enterprise.Id == enterpriceId);
+                var allCourses = await _repository.GetQueryAsync<Courses>(u => u.Enterprise.Id == enterpriceId);
 
                 // Асинхронно отримуємо користувача
                 var user = await _repository.GetByIdAsync<User>(userId);
 
                 // Список для зберігання непройдених курсів
-                List<Cources> uncompletedCourses = new List<Cources>();
+                List<Courses> uncompletedCourses = new List<Courses>();
 
                 foreach (var course in allCourses)
                 {
                     // Перевіряємо, чи курс був пройдений
-                    bool courseCompleted = userCourses.Any(uc => uc.Cource.Id == course.Id);
+                    bool courseCompleted = userCourses.Any(uc => uc.Course.Id == course.Id);
 
                     bool isJobTitleMatch = course.AccessRoles.Any(c => c.Id == user.JobTitle.Id);
 
@@ -211,11 +211,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<IEnumerable<Cources>> GetNewCourses(int enterpriseId)
+        public async Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId)
         {
             try
             {
-                var cources = await _repository.GetQueryAsync<Cources>(
+                var cources = await _repository.GetQueryAsync<Courses>(
                     c => c.Enterprise.Id == enterpriseId);
                 return cources.OrderByDescending(course => course.DateCreate).Take(5);
                

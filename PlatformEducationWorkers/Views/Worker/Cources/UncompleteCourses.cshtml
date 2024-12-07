@@ -20,18 +20,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Cources>)
+                    @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Courses>)
                     {
                         <tr>
                             <td>@course.TitleCource</td>
                             <td>@course.Description</td>
                             <td>
-                                <a href="@Url.Action("TheoryCourse", "Cources", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
+                                <a href="@Url.Action("TheoryCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
                                     Теорія
                                 </a>
                             </td>
                             <td>
-                                <a href="@Url.Action("PassageCource", "Cources", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
+                                <a href="@Url.Action("PassageCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
                                     Пройти курс
                                 </a>
                             </td>
@@ -43,41 +43,5 @@
     </div>
 </div>
 
-@* @using PlatformEducationWorkers.Core.Models
-@{
-    Layout = "~/Views/Shared/_LayoutWorker.cshtml";
-    ViewBag.Title = "Непройдені Курси";
-}
 
-<h2>Непройдені Курси</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Назва Курсу</th>
-            <th>Опис</th>
-            <th>Деталі</th>
-            <th>Теорія</th>
-            <th>Проходження</th> 
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Cources>)
-        {
-            <tr>
-                <td>@course.TitleCource</td>
-                <td>@course.Description</td>
-                
-                <td>
-                    <a href="@Url.Action("TheoryCourse", "Cources", new {area = "Worker", courseId = course.Id })" class=" btn btn-success">Теорія</a>
-                   </td>
-                <td>
-                    <a href="@Url.Action("PassageCource", "Cources", new {area = "Worker", courseId = course.Id })" class=" btn btn-success">Пройти курс</a>
-
-                </td>
-               
-                
-            </tr>
-        }
-    </tbody>
-</table> *@

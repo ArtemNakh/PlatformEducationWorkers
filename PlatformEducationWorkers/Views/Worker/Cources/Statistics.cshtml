@@ -29,11 +29,11 @@
                         @foreach (var course in coursesStatistics)
                         {
                             <tr>
-                                <td>@course.Cource.TitleCource</td>
+                                <td>@course.Course.TitleCource</td>
                                 <td>@course.Rating</td>
                                 <td>@course.MaxRating</td>
                                 <td>
-                                    <a asp-action="ResultCourse" asp-route-id="@course.Cource.Id" class="btn btn-primary">
+                                    <a asp-action="ResultCourse" asp-route-id="@course.Course.Id" class="btn btn-primary">
                                         Результати
                                     </a>
                                 </td>

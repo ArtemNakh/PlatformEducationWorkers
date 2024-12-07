@@ -16,10 +16,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         private readonly IUserResultService _userResultService;
         private readonly ILoggerService _loggerService;
-        private readonly ICourcesService _courseService;
+        private readonly ICoursesService _courseService;
 
 
-        public MainController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICourcesService courceService, ILoggerService loggerService)
+        public MainController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, ILoggerService loggerService)
         {
              _enterpriseService = enterpriceService;
             _userService = userService;
@@ -46,7 +46,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
 
-                Enterprice enterprice =await  _enterpriseService.GetEnterprice(enterpriceId);
+                Enterprise enterprice =await  _enterpriseService.GetEnterprise(enterpriceId);
                 await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching user with ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
 
@@ -81,7 +81,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
                 await _loggerService.LogAsync(Logger.LogType.Info, "Deleting enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
 
-                await  _enterpriseService.DeleteingEnterprice(enterpriceId);
+                await  _enterpriseService.DeleteingEnterprise(enterpriceId);
                 await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Main.", HttpContext.Session.GetInt32("UserId").Value);
 
 
@@ -110,7 +110,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var newUsers= await _userService.GetNewUsers(enterpriseId);
             var newCources= await _courseService.GetNewCourses(enterpriseId);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
-            var companyName = (await  _enterpriseService.GetEnterprice(enterpriseId)).Title; 
+            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title; 
             ViewData["CompanyName"] = companyName; 
             ViewBag.LastPassages = lastPassages;
             ViewBag.NewUsers = newUsers;

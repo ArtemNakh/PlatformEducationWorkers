@@ -13,7 +13,7 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             _repository = repository;
         }
 
-        public Task<Enterprice> AddingEnterprice(Enterprice enterprice)
+        public Task<Enterprise> AddingEnterprise(Enterprise enterprice)
         {
             try
             {
@@ -21,9 +21,9 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                 if (enterprice == null)
                     throw new Exception($"Error adding Enterprice,enterprice is null");
 
-                if (_repository.GetQuery<Enterprice>(e => e.Title == enterprice.Title).Result.Count() > 0)
+                if (_repository.GetQuery<Enterprise>(e => e.Title == enterprice.Title).Result.Count() > 0)
                     throw new Exception($"Error adding Enterprice, Choose other name");
-                if (_repository.GetQuery<Enterprice>(e => e.Email == enterprice.Email).Result.Count() > 0)
+                if (_repository.GetQuery<Enterprise>(e => e.Email == enterprice.Email).Result.Count() > 0)
                     throw new Exception($"Error adding Enterprice, Choose other Email");
 
                 return _repository.Add(enterprice);
@@ -36,20 +36,20 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public async Task DeleteingEnterprice(int enterpriceId)
+        public async Task DeleteingEnterprise(int enterpriceId)
         {
             try
             {
                 // Отримуємо фірму, яку потрібно видалити
-                var enterprice = await _repository.GetById<Enterprice>(enterpriceId);
+                var enterprice = await _repository.GetById<Enterprise>(enterpriceId);
                 if (enterprice == null)
                     throw new Exception($"Enterprice with id {enterpriceId} not found");
 
 
-                var courses = (await _repository.GetQuery<Cources>(c => c.Enterprise.Id == enterpriceId)).ToList();
+                var courses = (await _repository.GetQuery<Courses>(c => c.Enterprise.Id == enterpriceId)).ToList();
                 foreach (var course in courses)
                 {
-                    await _repository.Delete<Cources>(course.Id);
+                    await _repository.Delete<Courses>(course.Id);
                 }
 
                 var users = (await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId)).ToList();
@@ -72,7 +72,7 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
 
 
                 // Видалення фірми
-                await _repository.Delete<Enterprice>(enterpriceId);
+                await _repository.Delete<Enterprise>(enterpriceId);
             }
             catch (Exception ex)
             {
@@ -80,12 +80,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprice> GetEnterprice(int enterpriceId)
+        public Task<Enterprise> GetEnterprise(int enterpriceId)
         {
             try
             {
                 //додати валідацію
-                return _repository.GetById<Enterprice>(enterpriceId);
+                return _repository.GetById<Enterprise>(enterpriceId);
             }
             catch (Exception ex)
             {
@@ -94,12 +94,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprice> GetEnterprice(string title)
+        public Task<Enterprise> GetEnterprise(string title)
         {
             try
             {
                 //додати валідацію
-                return Task.FromResult(_repository.GetQuery<Enterprice>(e => e.Title == title).Result.FirstOrDefault());
+                return Task.FromResult(_repository.GetQuery<Enterprise>(e => e.Title == title).Result.FirstOrDefault());
 
             }
             catch (Exception ex)
@@ -109,13 +109,13 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprice> GetEnterpriceByUser(int userId)
+        public Task<Enterprise> GetEnterpriseByUser(int userId)
         {
             try
             {
                 User user = _repository.GetById<User>(userId).Result;
                 //додати валідацію
-                return Task.FromResult(_repository.GetQuery<Enterprice>(u => u.Id == user.Enterprise.Id).Result.FirstOrDefault());
+                return Task.FromResult(_repository.GetQuery<Enterprise>(u => u.Id == user.Enterprise.Id).Result.FirstOrDefault());
             }
             catch (Exception ex)
             {
@@ -124,12 +124,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprice> UpdateEnterprice(Enterprice enterprice)
+        public Task<Enterprise> UpdateEnterprise(Enterprise enterprice)
         {
             try
             {
                 if (enterprice == null) throw new Exception($"Error update Enterprice, entrprice is null");
-                Enterprice oldEnterprice = _repository.GetById<Enterprice>(enterprice.Id).Result;
+                Enterprise oldEnterprice = _repository.GetById<Enterprise>(enterprice.Id).Result;
 
                 oldEnterprice.Title = enterprice.Title;
                 oldEnterprice.Email = enterprice.Email;

@@ -17,7 +17,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     [Area("Administrator")]
     public class CoursesController : Controller
     {
-        private readonly ICourcesService _courseService;
+        private readonly ICoursesService _courseService;
         private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
         private readonly IEnterpriseService _enterpriseService;
@@ -25,7 +25,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         private readonly ILoggerService _loggingService;
 
-        public CoursesController(ICourcesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, ILogger<CoursesController> logger, IUserService userService, ILoggerService loggingService)
+        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, ILogger<CoursesController> logger, IUserService userService, ILoggerService loggingService)
         {
             _courseService = courceService;
             _jobTitleService = jobTitleService;
@@ -40,11 +40,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> Courses()
         {
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Cources Index");
+            //await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Cources Index");
 
-            var cources = await _courseService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            var cources = await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Courses.cshtml");
@@ -56,7 +56,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateCourse()
         {
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Create Cource", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Create Cource", HttpContext.Session.GetInt32("UserId").Value);
             var jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             if (jobTitles == null || !jobTitles.Any())
             {
@@ -68,7 +68,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
@@ -81,7 +81,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             if (!ModelState.IsValid)
             {
-                await _loggingService.LogAsync(Logger.LogType.Warning, $"Create Cource failed due to invalid model state", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggingService.LogAsync(Logger.LogType.Warning, $"Create Cource failed due to invalid model state", HttpContext.Session.GetInt32("UserId").Value);
 
                 var jobTitleslist = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
                 if (jobTitleslist == null || !jobTitleslist.Any())
@@ -94,10 +94,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Creating new Cource: {request.TitleCource}", HttpContext.Session.GetInt32("UserId").Value);
+          //  await _loggingService.LogAsync(Logger.LogType.Info, $"Creating new Cource: {request.TitleCource}", HttpContext.Session.GetInt32("UserId").Value);
 
 
-            Enterprice enterprice =await _enterpriseService.GetEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            Enterprise enterprice =await _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
@@ -112,7 +112,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
             }
 
-            var newCource = new Cources
+            var newCource = new Courses
             {
                 TitleCource = request.TitleCource,
                 Description = request.Description,
@@ -126,7 +126,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ShowContextPassage = request.ShowContextPassage,
             };
 
-            await _courseService.AddCource(newCource);
+            await _courseService.AddCourse(newCource);
             await _loggingService.LogAsync(Logger.LogType.Info, $"Cource {request.TitleCource} created successfully", HttpContext.Session.GetInt32("UserId").Value);
 
             
@@ -139,13 +139,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DetailCourse(int id)
         {
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Detail Cource for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Detail Cource for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
 
-            var cource = await _courseService.GetCourcesById(id);
+            var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
             {
-                await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource not found for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
+               // await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource not found for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
                 return NotFound();
             }
@@ -165,7 +165,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             // Передача розпарсених даних окремо у ViewBag
             ViewBag.Questions = questions;
@@ -180,12 +180,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> HistoryPassage(int id)
         {
 
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing History Passage for Cource ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
+            //await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing History Passage for Cource ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
             
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var historyPassages = await _userResultService.GetAllResultEnterprice(enterpriseId);
-            var courses=await _courseService.GetAllCourcesEnterprice(enterpriseId);
+            var courses=await _courseService.GetAllCoursesEnterprise(enterpriseId);
             if (historyPassages == null)
             {
                 await _loggingService.LogAsync(Logger.LogType.Warning, $"No history passages found for Enterprise ID: {enterpriseId}", HttpContext.Session.GetInt32("UserId").Value);
@@ -194,7 +194,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
             ViewBag.HistoryPassages = historyPassages;
             ViewBag.Courses = courses;
@@ -208,14 +208,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             if(courseId == null)
             {
-               await _loggingService.LogAsync(Logger.LogType.Warning, $"No passages courses  for the course ID: {courseId}", HttpContext.Session.GetInt32("UserId").Value);
+              // await _loggingService.LogAsync(Logger.LogType.Warning, $"No passages courses  for the course ID: {courseId}", HttpContext.Session.GetInt32("UserId").Value);
 
                 return NotFound();
             }
             var historyPassages = await _userResultService.GetAllResultCourses(courseId.Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var courses = await _courseService.GetAllCourcesEnterprice(enterpriseId);
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
             ViewBag.HistoryPassages = historyPassages.ToList();
             ViewBag.Courses = courses.ToList();
@@ -233,7 +233,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             
             await _loggingService.LogAsync(Logger.LogType.Info, $"Attempting to delete Cource with ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
-            var cource = await _courseService.GetCourcesById(id);
+            var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
             {
                await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource not found for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
@@ -250,7 +250,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 await _loggingService.LogAsync(Logger.LogType.Warning, $"Deleted user result for Cource ID: {cource.Id}", HttpContext.Session.GetInt32("UserId").Value);
 
             }
-            await _courseService.DeleteCource(cource.Id);
+            await _courseService.DeleteCourse(cource.Id);
 
             await _loggingService.LogAsync(Logger.LogType.Info, $"Cource with ID: {cource.Id} deleted successfully", HttpContext.Session.GetInt32("UserId").Value);
 
@@ -270,9 +270,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditCourse(int id)
         {
 
-            await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Edit Cource for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
+           // await _loggingService.LogAsync(Logger.LogType.Info, $"Accessing Edit Cource for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
 
-            var cource = await _courseService.GetCourcesById(id);
+            var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
             {
                 await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource not found for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
@@ -289,7 +289,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions)
             };
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
 
             return View("~/Views/Administrator/Cources/EditCource.cshtml",request);
@@ -310,7 +310,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return View(request);
             }
 
-            Cources cource =await _courseService.GetCourcesById(request.Id);
+            Courses cource =await _courseService.GetCoursesById(request.Id);
             if (cource == null)
             {
                 await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource not found for ID: {request.Id}", HttpContext.Session.GetInt32("UserId").Value);
@@ -325,7 +325,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             cource.ContentCourse = request.ContentCourse;
             cource.Questions = JsonConvert.SerializeObject(request.Questions);
 
-            await _courseService.UpdateCource(cource); 
+            await _courseService.UpdateCourse(cource); 
             await _loggingService.LogAsync(Logger.LogType.Warning, $"Cource with ID: {cource.Id} updated successfully", HttpContext.Session.GetInt32("UserId").Value);
 
 
@@ -340,7 +340,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> SearchCourses(string searchTerm)
         {
             // Отримати всі курси
-            var allCourses =await _courseService.GetAllCourcesEnterprice(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            var allCourses =await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             // Якщо пошуковий термін не порожній, виконати фільтрацію
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -380,11 +380,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string content = "";
                 List<UserQuestionRequest> questions = new();
 
-                if (!string.IsNullOrEmpty(courseResult.Cource.ContentCourse))
+                if (!string.IsNullOrEmpty(courseResult.Course.ContentCourse))
                 {
                     try
                     {
-                        content = JsonConvert.DeserializeObject<string>(courseResult.Cource.ContentCourse);
+                        content = JsonConvert.DeserializeObject<string>(courseResult.Course.ContentCourse);
                     }
                     catch (JsonException ex)
                     {
@@ -408,11 +408,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                var companyName = (await _enterpriseService.GetEnterprice(enterpriseId)).Title;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 User user = courseResult.User;
 
                 ViewData["CompanyName"] = companyName;
-                ViewBag.Course = courseResult.Cource;
+                ViewBag.Course = courseResult.Course;
                 ViewBag.Result = courseResult;
                 ViewBag.Content = content;
                 ViewBag.Questions = questions;
