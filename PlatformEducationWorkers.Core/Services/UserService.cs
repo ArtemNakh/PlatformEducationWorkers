@@ -1,9 +1,11 @@
-﻿using PlatformEducationWorkers.Core.Interfaces;
+﻿using Newtonsoft.Json;
+using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +20,7 @@ namespace PlatformEducationWorkers.Core.Services
             _repository = repository;
         }
 
-       
+
 
         public async Task<User> AddUser(User user)
         {
@@ -30,9 +32,8 @@ namespace PlatformEducationWorkers.Core.Services
                 if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname == user.Surname && e.Birthday == user.Birthday).Result.Any())
                     throw new Exception($"Error adding user, such user already exists");
                 //додати перевірку захешованого паролю
-                //if (_repository.GetQuery<User>(e => e.Login == user.Login && e.Password == user.Password).Result.Count() > 0)
-                //    throw new Exception($"Error adding user,Please choose other password or login");
-                var allusers =  _repository.GetAll<User>().ToList(); // Завантажити всіх користувачів
+                //Todo(hash only password)
+                var allusers = _repository.GetAll<User>().ToList();
                 bool isDuplicate = allusers.Any(e =>
                     HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
                     HashHelper.ComputeHash(user.Password, e.Salt) == e.Password);
@@ -40,10 +41,17 @@ namespace PlatformEducationWorkers.Core.Services
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
 
+                //хешированія
                 var salt = HashHelper.GenerateSalt();
                 user.Salt = salt;
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
+
+                // Додавання аватарки у вигляді JSON-рядка
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
+                }
 
                 return await _repository.Add(user);
             }
@@ -98,7 +106,7 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
                 //додати валідацію
-                return _repository.GetQuery<User>(r=>r.JobTitle.Id== jobTitleId);
+                return _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitleId);
             }
             catch (Exception ex)
             {
@@ -106,11 +114,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-    
+
         public async Task<User> Login(string login, string password)
         {
             try
-            { 
+            {
                 var user = (await _repository.GetQuery<User>(u => true))
                            .FirstOrDefault(u => u.Login == HashHelper.ComputeHash(login, u.Salt));
 
@@ -136,14 +144,29 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new ArgumentNullException(nameof(user), "User object is null");
 
 
-                if (_repository.GetQuery<User>(u => HashHelper.ComputeHash(u.Login, u.Salt) == user.Login).Result.Any())
-                    throw new Exception("A user with this login already exists");
+                //if (_repository.GetQuery<User>(u => HashHelper.ComputeHash(u.Login, u.Salt) == user.Login).Result.Any())
+                //    throw new Exception("A user with this login already exists");
+                //додати перевірку захешованого паролю
+                //Todo(hash only password)
+                var allusers = _repository.GetAll<User>().ToList();
+                bool isDuplicate = allusers.Any(e =>
+                    HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
+                    HashHelper.ComputeHash(user.Password, e.Salt) == e.Password);
+
+                if (isDuplicate)
+                    throw new Exception("Error adding user, please choose another password or login.");
 
 
                 var salt = HashHelper.GenerateSalt();
                 user.Salt = salt;
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
+
+                // Додавання аватарки у вигляді JSON-рядка
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
+                }
                 return await _repository.Add(user);
             }
             catch (Exception ex)
@@ -152,13 +175,13 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-       
+
 
         public async Task<User> SearchUser(string name, string surname, DateTime birthday)
         {
             try
             {
-                return  _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday).Result.FirstOrDefault();
+                return _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday).Result.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -171,14 +194,47 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
 
-                User olduser =  _repository.GetById<User>(user.Id).Result;
+                User olduser =await  _repository.GetById<User>(user.Id);
+                if (user.Surname != user.Surname)
+                {
+                    olduser.Surname = user.Surname;
+                }
+                if (user.Name != user.Name)
+                {
+                    olduser.Name = user.Name;
+                }
+                if (user.Role != user.Role)
+                {
+                    olduser.Role = user.Role;
+                }
+                if (user.Email != user.Email)
+                {
+                    olduser.Email = user.Email;
+                }
+                if (user.Birthday != user.Birthday)
+                {
+                    olduser.Birthday = user.Birthday;
+                }
 
-                olduser.Surname = user.Surname;
-                olduser.Name = user.Name;   
-                olduser.Role = user.Role;
-                olduser.Email = user.Email;
-                olduser.Birthday=user.Birthday;
-               return  _repository.Update(olduser).Result;
+
+                    var salt = HashHelper.GenerateSalt();
+                olduser.Salt = salt;
+                olduser.Login = user.Login;
+                olduser.Password = user.Password;
+                     olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
+               
+                    olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
+                
+
+
+                // Додавання аватарки у вигляді JSON-рядка
+                if (user.ProfileAvatar != null)
+                {
+                    olduser.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
+
+                }
+
+                return await _repository.Update(olduser);
             }
             catch (Exception ex)
             {
@@ -187,11 +243,13 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+
+
         public async Task<IEnumerable<User>> GetNewUsers(int enterpriseId)
         {
             try
             {
-                var users= await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
+                var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
                 return users.OrderByDescending(user => user.DateCreate).Take(5);
             }
             catch (Exception ex)

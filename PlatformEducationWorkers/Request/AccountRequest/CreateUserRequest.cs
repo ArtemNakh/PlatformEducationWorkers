@@ -31,5 +31,7 @@ namespace PlatformEducationWorkers.Request.AccountRequest
 
         [Required(ErrorMessage = "Роль є обов'язковою.")]
         public Role Role { get; set; }
+
+        public IFormFile? ProfileAvatar { get; set; }
     }
 }

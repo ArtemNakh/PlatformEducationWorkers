@@ -110,14 +110,25 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var newUsers= await _userService.GetNewUsers(enterpriseId);
             var newCources= await _courseService.GetNewCourses(enterpriseId);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
-            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title; 
+            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            // Отримуємо аватарку з сесії (якщо вона є)
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+
             ViewData["CompanyName"] = companyName; 
             ViewBag.LastPassages = lastPassages;
             ViewBag.NewUsers = newUsers;
             ViewBag.NewCourses = newCources;
             ViewBag.AverageRating = AverageRating;
-            await _loggerService.LogAsync(Logger.LogType.Info, "Accessed Main Main page.", HttpContext.Session.GetInt32("UserId").Value);
-
+           
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = "/images/default-avatar.png";
+            }
 
 
             return View("~/Views/Administrator/Main/Main.cshtml");

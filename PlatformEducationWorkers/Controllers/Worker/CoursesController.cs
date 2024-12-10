@@ -48,7 +48,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var uncompletedCourses = await _coursesService.GetUncompletedCoursesForUser(userId, enterpriseId);
 
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
                 return View("~/Views/Worker/Cources/UncompleteCourses.cshtml");
@@ -78,7 +83,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.CoursesStatistics = coursesStatistics;
                 return View("~/Views/Worker/Cources/Statistics.cshtml");
@@ -146,7 +156,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = courseResult.Course;
                 ViewBag.Result = courseResult;
@@ -202,7 +217,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 }
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
                 ViewBag.Questions = questions;
@@ -308,7 +328,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
 

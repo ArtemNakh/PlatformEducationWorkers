@@ -1,6 +1,8 @@
-﻿using Azure.Core;
+﻿using Amazon.Runtime.Internal;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
@@ -58,6 +60,32 @@ namespace PlatformEducationWorkers.Controllers
                     HttpContext.Session.SetInt32("UserId", user.Id);
                     HttpContext.Session.SetString("UserRole", user.Role.ToString());
                     HttpContext.Session.SetInt32("EnterpriseId", user.Enterprise.Id);
+
+                    // Якщо є аватарка, перетворити її у byte[] і зберегти в сесії
+                    if (!string.IsNullOrEmpty(user.ProfileAvatar))
+                    {
+                        try
+                        {
+                            // Десеріалізуємо JSON, що містить аватарку
+                            var avatarJson = JsonConvert.DeserializeObject<string>(user.ProfileAvatar);
+                            if (avatarJson != null && !string.IsNullOrEmpty(avatarJson))
+                            {
+                                // Декодуємо базу64 зображення в byte[]
+                                byte[] avatarBytes = Convert.FromBase64String(avatarJson);
+                                HttpContext.Session.Set("UserAvatar", avatarBytes);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Якщо виникла помилка, можна поставити аватарку за замовчуванням
+                            HttpContext.Session.Set("UserAvatar", new byte[0]);
+                        }
+                    }
+                    else
+                    {
+                        HttpContext.Session.Set("UserAvatar", new byte[0]);
+                    }
+
 
                     string userRole = HttpContext.Session.GetString("UserRole");
 
@@ -138,7 +166,21 @@ namespace PlatformEducationWorkers.Controllers
                     Users = new List<User>(),
                     Courses = new List<Courses>()
                 };
+                string photoAvatar = "";
+                // Обробка аватарки
+                if (model.ProfileAvatar != null && model.ProfileAvatar.Length > 0)
+                {
+                    // Конвертуємо аватарку у Base64
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.ProfileAvatar.CopyToAsync(memoryStream);
+                        byte[] fileBytes = memoryStream.ToArray();
+                        string base64Image = Convert.ToBase64String(fileBytes);
 
+                        // Збереження Base64 рядка в базу даних
+                        photoAvatar = base64Image;
+                    }
+                }
                 var owner = new User
                 {
                     Name = model.OwnerName,
@@ -148,11 +190,12 @@ namespace PlatformEducationWorkers.Controllers
                     Email = model.Email,
                     Password = model.Password,
                     Login = model.Login,
-                    Role = Role.Admin
+                    Role = Role.Admin,
+                    ProfileAvatar = photoAvatar,
                 };
 
                 await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
-               await  _loggingService.LogAsync(Logger.LogType.Info, $"Enterprise {model.Title} successfully registered.");
+               //await  _loggingService.LogAsync(Logger.LogType.Info, $"Enterprise {model.Title} successfully registered.");
 
                 return RedirectToAction("Login", "Login");
             }

@@ -43,6 +43,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
               var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
 
                 var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -66,7 +72,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             try
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 //await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
                 // Отримуємо всіх користувачів для підприємства
@@ -82,18 +88,23 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 if (!string.IsNullOrEmpty(jobTitle))
                 {
-                    users = users.Where(n=>n.JobTitle.Name== jobTitle);
+                    users = users.Where(n => n.JobTitle.Name == jobTitle).AsQueryable(); 
                 }
-                var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
-                ViewBag.Users = users?.ToList();
+                ViewBag.Users = users;
                 ViewBag.JobTitles = JobTitles.ToList();
 
                 return View("~/Views/Administrator/Workers/Workers.cshtml");
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"An error occurred while fetching workers.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Error, $"An error occurred while fetching workers.", HttpContext.Session.GetInt32("UserId").Value);
 
 
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
@@ -111,7 +122,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
 
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
@@ -149,8 +165,22 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         Role = request.Role,
                         DateCreate = DateTime.Now,
                         Enterprise = enterprice
-                    };
 
+                    };
+                    // Обробка аватарки
+                    if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
+                    {
+                        // Конвертуємо аватарку у Base64
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await request.ProfileAvatar.CopyToAsync(memoryStream);
+                            byte[] fileBytes = memoryStream.ToArray();
+                            string base64Image = Convert.ToBase64String(fileBytes);
+
+                            // Збереження Base64 рядка в базу даних
+                            user.ProfileAvatar = base64Image;
+                        }
+                    }
                     await _userService.AddUser(user);
 
                     //await _loggerService.LogAsync(Logger.LogType.Info, $"Worker created successfully.", HttpContext.Session.GetInt32("UserId").Value);
@@ -193,7 +223,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+            
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
 
@@ -222,7 +258,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewData["CompanyName"] = companyName;
 
             // Populate job titles and roles for dropdowns
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+            ViewBag.JobTitles = (await _jobTitleService.GetAllJobTitles(enterpriseId)).ToList();
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             // Map the user data to the UpdateUserRequest model to populate the form
@@ -234,8 +270,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Email = user.Email,
                 JobTitleId = user.JobTitle.Id,
                 Role = user.Role
-            };
 
+            };
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             return View("~/Views/Administrator/Workers/EditWorker.cshtml", updateUserRequest);
         }
 
@@ -275,21 +317,35 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     {
                         user.Login = request.Login;
                     }
+                    // Обробка аватарки
+                    if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
+                    {
+                        // Конвертуємо аватарку у Base64
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await request.ProfileAvatar.CopyToAsync(memoryStream);
+                            byte[] fileBytes = memoryStream.ToArray();
+                            string base64Image = Convert.ToBase64String(fileBytes);
+
+                            // Збереження Base64 рядка в базу даних
+                            user.ProfileAvatar = base64Image;
+                        }
+                    }
 
                     await _userService.UpdateUser(user); 
-                    await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} updated successfully.", HttpContext.Session.GetInt32("UserId").Value);
+                    //await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} updated successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
 
                     return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Error, $"Error while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+                   // await _loggerService.LogAsync(Logger.LogType.Error, $"Error while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
                     return BadRequest(ex.Message);
                 }
             }
 
-            await _loggerService.LogAsync(Logger.LogType.Warning, $"Model state is invalid while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+           // await _loggerService.LogAsync(Logger.LogType.Warning, $"Model state is invalid while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();

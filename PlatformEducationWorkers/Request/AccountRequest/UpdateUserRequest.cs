@@ -19,7 +19,7 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(20, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 100 characters.")]
+        [StringLength(20, MinimumLength = 5, ErrorMessage = "Password must be between 8 and 100 characters.")]
         public string? Password { get; set; }
 
         [Required(ErrorMessage = "Login is required.")]
@@ -31,5 +31,7 @@ namespace PlatformEducationWorkers.Request.AccountRequest
 
         [Required(ErrorMessage = "Роль є обов'язковою.")]
         public Role Role { get; set; }
+
+        public IFormFile? ProfileAvatar { get; set; }
     }
 }

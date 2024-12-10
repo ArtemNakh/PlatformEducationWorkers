@@ -36,10 +36,16 @@ namespace PlatformEducationWorkers.Controllers
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully fetched credentials for user ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully fetched credentials for user ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
 
 
                 return View(user);
@@ -79,14 +85,19 @@ namespace PlatformEducationWorkers.Controllers
 
                 var model = new UpdateUserCredentialsRequest
                 {
-                    NewLogin = user.Login,
-                    NewPassword = user.Password
+                   // NewLogin = user.Login,
+                    //NewPassword = user.Password
                 };
 
                 var userRole = HttpContext.Session.GetString("UserRole");
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
                 await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully loaded credentials for editing. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
@@ -111,42 +122,60 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid model state for updating credentials.", HttpContext.Session.GetInt32("UserId").Value);
-
-                return View(request);
+               
+                return RedirectToAction("Credentials");
             }
 
             try
             {
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Updating credentials for user.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
-                var user = await _userService.GetUser(userId);
+                User user= await _userService.GetUser(userId);
 
-                if (user == null)
+                if (userId == null)
                 {
-                    await _loggingService.LogAsync(Logger.LogType.Info, $"User not found during credentials update. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+                   // await _loggingService.LogAsync(Logger.LogType.Info, $"User not found during credentials update. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
                                         
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
+                if (request.NewLogin != null)
+                {
+                    user.Login = request.NewLogin;
+                }
 
-                user.Login = request.NewLogin;
-                user.Password = request.NewPassword;
+                if (request.NewPassword != null)
+                {
+                    user.Password = request.NewPassword;
+                }
+
+                // Обробка аватарки
+                if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
+                {
+                    // Конвертуємо аватарку у Base64
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await request.ProfileAvatar.CopyToAsync(memoryStream);
+                        byte[] fileBytes = memoryStream.ToArray();
+                        string base64Image = Convert.ToBase64String(fileBytes);
+
+                        // Збереження Base64 рядка в базу даних
+                        user.ProfileAvatar = base64Image;
+                    }
+                }
+
 
                 await _userService.UpdateUser(user);
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Successfully updated credentials for user ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
-
+                
 
                 TempData["Success"] = "Дані успішно оновлено.";
                 return RedirectToAction("Credentials");
             }
             catch (Exception ex)
             {
-                await _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred while updating user credentials.", HttpContext.Session.GetInt32("UserId").Value);
-
+                
                 ModelState.AddModelError(string.Empty, "Помилка оновлення даних.");
-                return View(request);
+                return RedirectToAction("Credentials");
             }
         }
     }

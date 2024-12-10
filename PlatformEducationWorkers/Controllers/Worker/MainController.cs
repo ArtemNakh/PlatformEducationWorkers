@@ -35,7 +35,13 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 var unfinishedCourses = (await _courseService.GetUncompletedCoursesForUser( workerId,enterpriseId));
-
+                // Отримуємо аватарку з сесії (якщо вона є)
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewData["UnfinishedCourses"] = unfinishedCourses.OrderBy(c=>c.DateCreate);
                 return View("~/Views/Worker/Main/Main.cshtml");

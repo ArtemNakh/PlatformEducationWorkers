@@ -13,62 +13,69 @@
             <h2>Edit User Details</h2>
         </div>
         <div class="card-body">
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-
+            <form asp-action="EditWorker" asp-controller="Workers" method="post" enctype="multipart/form-data">
+                
                 <div class="form-group mb-3">
                     <label for="Name" class="form-label">Name</label>
-                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Surname" class="form-label">Surname</label>
-                    @Html.TextBoxFor(m => m.Surname, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Surname, "", new { @class = "text-danger" })
+                    <input asp-for="Surname" class="form-control" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Birthday" class="form-label">Birthday</label>
-                    @Html.EditorFor(m => m.Birthday, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Birthday, "", new { @class = "text-danger" })
+                    <input asp-for="Birthday" class="form-control" type="date" />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Email" class="form-label">Email</label>
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="JobTitleId" class="form-label">Job Title</label>
-                    @Html.DropDownListFor(m => m.JobTitleId, new SelectList(ViewBag.JobTitles, "Id", "Name"), "- Select Job Title -", new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.JobTitleId, "", new { @class = "text-danger" })
+                    <select asp-for="JobTitleId" class="form-control" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
+                        <option value="">- Select Job Title -</option>
+                    </select>
+                    <span asp-validation-for="JobTitleId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Role" class="form-label">Role</label>
-                    @Html.DropDownListFor(m => m.Role, new SelectList(Enum.GetValues(typeof(Role))), new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Role, "", new { @class = "text-danger" })
+                    <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles))">
+                        <option value="">- Select Role -</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Password" class="form-label">Password</label>
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    <input asp-for="Password" class="form-control" type="password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="Login" class="form-label">Login</label>
-                    @Html.TextBoxFor(m => m.Login, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Login, "", new { @class = "text-danger" })
+                    <input asp-for="Login" class="form-control" />
+                    <span asp-validation-for="Login" class="text-danger"></span>
                 </div>
-
+                <!-- Поле для аватарки -->
+                <div class="form-group mb-3">
+                    <label asp-for="ProfileAvatar" class="form-label"><strong>Аватарка</strong></label>
+                    <input type="file" asp-for="ProfileAvatar" class="form-control" />
+                    <span asp-validation-for="ProfileAvatar" class="text-danger"></span>
+                </div>
                 <button type="submit" class="btn btn-success btn-lg mt-3">Save Changes</button>
-            }
+            </form>
 
-            <a href="@Url.Action("Workers")" class="btn btn-secondary btn-lg mt-3">Cancel</a>
+            <a asp-action="Workers" asp-controller="Administrator" class="btn btn-secondary btn-lg mt-3">Cancel</a>
         </div>
     </div>
 </div>

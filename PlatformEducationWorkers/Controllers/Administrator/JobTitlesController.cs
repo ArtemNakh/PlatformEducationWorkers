@@ -74,8 +74,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
-          //  await _loggerService.LogAsync(Logger.LogType.Info, $"Job title created successfully: {jobTitle.Name}", HttpContext.Session.GetInt32("UserId").Value);
-
+            //  await _loggerService.LogAsync(Logger.LogType.Info, $"Job title created successfully: {jobTitle.Name}", HttpContext.Session.GetInt32("UserId").Value);
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
@@ -94,6 +99,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var jobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
 
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = jobTitles;
 
@@ -114,7 +125,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 jobTitles = jobTitles.Where(j => j.Name.Contains(searchTerm));
             }
-
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles.ToList());
         }
 
@@ -136,6 +152,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
 
           //  await _loggerService.LogAsync(Logger.LogType.Info, $"Job title details fetched successfully for ID: {id}", HttpContext.Session.GetInt32("UserId").Value);
@@ -171,6 +193,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/EditJobTitle.cshtml", request);
         }
@@ -219,6 +247,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/AddJobTitle.cshtml");
         }

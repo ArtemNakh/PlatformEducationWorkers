@@ -56,6 +56,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                     owner.Salt = salt;
                     owner.Password = HashHelper.ComputeHash(owner.Password, salt);
                     owner.Login = HashHelper.ComputeHash(owner.Login, salt);
+                    // Додавання аватарки у вигляді JSON-рядка
+                    if (owner.ProfileAvatar != null && !string.IsNullOrEmpty(owner.ProfileAvatar))
+                    {
+                        owner.ProfileAvatar = System.Text.Json.JsonSerializer.Serialize(owner.ProfileAvatar);
+                    }
+
 
                 }
                 catch (Exception ex)

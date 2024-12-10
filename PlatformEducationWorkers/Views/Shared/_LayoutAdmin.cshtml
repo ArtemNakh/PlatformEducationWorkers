@@ -81,6 +81,21 @@
         main {
             min-height: 400px;
         }
+
+        /* Вирівнювання аватарки в правому куті */
+        .navbar-nav .nav-item:last-child {
+            margin-left: auto; /* Це вирівнює елемент в праву частину */
+        }
+
+
+        /* Стили для аватарки */
+        .navbar-nav .nav-item img {
+            width: 40px; /* Ширина аватарки */
+            height: 40px; /* Висота аватарки */
+            object-fit: cover; /* Обтинання з пропорціями */
+            border-radius: 50%; /* Кругла форма аватарки */
+            margin-left: 10px; /* Відступ від правої навігаційної кнопки */
+        }
     </style>
 </head>
 <body>
@@ -121,6 +136,10 @@
                             <li class="nav-item">
                                 <a  asp-controller="Login" asp-action="Logout" class="btn btn-danger text-white">Вихід</a>
                             </li>
+                            <!--  аватарка -->
+                            <div class="navbar-nav nav-item ml-auto d-flex align-items-center">
+                                <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="rounded-circle">
+                            </div>
 
                         </ul>
                     </div>

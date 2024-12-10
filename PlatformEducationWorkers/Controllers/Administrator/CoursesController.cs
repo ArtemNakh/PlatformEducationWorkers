@@ -45,6 +45,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var cources = await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            // Отримуємо аватарку з сесії (якщо вона є)
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Courses.cshtml");
@@ -69,6 +76,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
@@ -84,6 +97,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 //await _loggingService.LogAsync(Logger.LogType.Warning, $"Create Cource failed due to invalid model state", HttpContext.Session.GetInt32("UserId").Value);
 
                 var jobTitleslist = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+               
                 if (jobTitleslist == null || !jobTitleslist.Any())
                 {
                     ViewBag.JobTitles = new List<JobTitle>();
@@ -166,6 +180,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             // Передача розпарсених даних окремо у ViewBag
             ViewBag.Questions = questions;
@@ -195,6 +215,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.HistoryPassages = historyPassages;
             ViewBag.Courses = courses;
@@ -216,7 +242,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewBag.HistoryPassages = historyPassages.ToList();
             ViewBag.Courses = courses.ToList();
             ViewData["CompanyName"] = companyName;
@@ -290,6 +321,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             };
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
             ViewData["CompanyName"] = companyName;
 
             return View("~/Views/Administrator/Cources/EditCource.cshtml",request);
@@ -347,6 +384,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 allCourses = allCourses.Where(c => c.TitleCource.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     .ToList();
+            }
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
 
             // Передати відфільтровані курси у ViewBag
@@ -410,7 +453,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 User user = courseResult.User;
-
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = courseResult.Course;
                 ViewBag.Result = courseResult;

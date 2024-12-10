@@ -12,6 +12,79 @@
             font-size: 1.8rem;
             color: white !important;
         }
+       
+
+
+
+
+
+        .navbar {
+            background-color: #007bff;
+            border-bottom: 2px solid #0056b3;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: white !important;
+            font-size: 1.1rem;
+        }
+
+           .navbar-nav .nav-item .nav-link:hover {
+                color: #f1f1f1 !important;
+            }
+
+        .navbar-toggler-icon {
+            background-color: white;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s ease-in-out;
+        }
+
+            .btn-custom:hover {
+                background-color: #0056b3;
+                transform: scale(1.05);
+            }
+
+        .btn-link.text-danger {
+            font-size: 1rem;
+            color: #dc3545;
+            text-decoration: none;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            font-size: 1rem;
+        }
+
+        .container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        main {
+            min-height: 400px;
+        }
+
+        /* Вирівнювання аватарки в правому куті */
+        .navbar-nav .nav-item:last-child {
+            margin-left: auto; /* Це вирівнює елемент в праву частину */
+        }
+        /* Стили для аватарки */
+        .navbar-nav .nav-item img {
+            width: 40px; /* Ширина аватарки */
+            height: 40px; /* Висота аватарки */
+            object-fit: cover; /* Обтинання з пропорціями */
+            border-radius: 50%; /* Кругла форма аватарки */
+            margin-left: 10px; /* Відступ від правої навігаційної кнопки */
+        }
     </style>
 </head>
 <body>
@@ -44,6 +117,11 @@
                             <li class="nav-item">
                                 <a asp-controller="Login" asp-action="Logout" class="btn btn-danger text-white">Logout</a>
                             </li>
+
+                            <!--  аватарка -->
+                            <div class="navbar-nav nav-item ml-auto d-flex align-items-center">
+                                <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="rounded-circle">
+                            </div>
                         </ul>
                     </div>
                 </div>
