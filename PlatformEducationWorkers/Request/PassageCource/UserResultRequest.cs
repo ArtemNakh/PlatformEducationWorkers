@@ -9,5 +9,6 @@ namespace PlatformEducationWorkers.Request.PassageCource
 
         [Required(ErrorMessage = "At least one question is required.")]
         public List<UserQuestionRequest> Questions { get; set; } = new List<UserQuestionRequest>();
+
     }
 }

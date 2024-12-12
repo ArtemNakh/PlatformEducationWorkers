@@ -1,9 +1,7 @@
-﻿@using PlatformEducationWorkers.Core.Models
-@using PlatformEducationWorkers.Models.Questions
+﻿@using PlatformEducationWorkers.Models.Questions
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Деталі курсу";
-    
 }
 
 <div class="container mt-5">
@@ -42,7 +40,7 @@
                 }
             </p>
 
-            <h4 class="text-secondary">Показ контекста піл час проходження:</h4>
+            <h4 class="text-secondary">Показ контекста під час проходження:</h4>
             <p class="text-muted">
                 @if (ViewBag.Cource.ShowContextPassage)
                 {
@@ -69,15 +67,37 @@
                             </h2>
                             <div id="collapse-@i" class="accordion-collapse collapse" aria-labelledby="heading-@i" data-bs-parent="#questionsAccordion">
                                 <div class="accordion-body">
+                                    @if (!string.IsNullOrEmpty(question.PhotoQuestionBase64))
+                                    {
+                                        <div class="mb-3">
+                                            <img src="data:image/jpeg;base64,@question.PhotoQuestionBase64" alt="Фото питання" class="img-fluid rounded" />
+                                        </div>
+                                    }
+
                                     <ul class="list-group">
                                         @foreach (var answer in question.Answers)
                                         {
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                @answer.Text
-                                                @if (answer.IsCorrect)
-                                                {
-                                                    <span class="badge bg-success">Правильна</span>
-                                                }
+                                            <li class="list-group-item">
+                                                <div>
+                                                    @answer.Text
+                                                    @if (!string.IsNullOrEmpty(answer.PhotoAnswerBase64))
+                                                    {
+                                                        <div>
+                                                            <img src="data:image/jpeg;base64,@answer.PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid rounded mt-2" />
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="mt-2">
+                                                    <br />
+                                                    @if (answer.IsCorrect)
+                                                    {
+                                                        <span class="badge bg-success">Правильна</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger">Неправильна</span>
+                                                    }
+                                                </div>
                                             </li>
                                         }
                                     </ul>
@@ -104,9 +124,6 @@
                     <i class="bi bi-arrow-left"></i> Назад
                 </a>
             </div>
-          
         </div>
-       
     </div>
-</div>
 </div>

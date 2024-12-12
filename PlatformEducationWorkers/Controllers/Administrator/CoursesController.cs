@@ -113,6 +113,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             Enterprise enterprice =await _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
+            
+
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
             var jobTitles = new List<JobTitle>();
@@ -125,6 +127,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     jobTitles.Add(jobTitle);
                 }
             }
+
 
             var newCource = new Courses
             {
@@ -406,7 +409,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
             try
             {
-                await _loggingService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggingService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
 

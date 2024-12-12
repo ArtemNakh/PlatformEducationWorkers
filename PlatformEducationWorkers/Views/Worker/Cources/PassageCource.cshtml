@@ -40,21 +40,38 @@
                     <div class="mb-4">
                         <h4 class="text-primary">Питання @i + 1: @ViewBag.Questions[i].Text</h4>
                         <input type="hidden" name="Questions[@i].Text" value="@ViewBag.Questions[i].Text" />
+                        <input type="hidden" name="Questions[@i].PhotoQuestionBase64" value="@ViewBag.Questions[i].PhotoQuestionBase64" />
+
+                        <!-- Display Question Image if Available -->
+                        @if (!string.IsNullOrEmpty(ViewBag.Questions[i].PhotoQuestionBase64))
+                        {
+                            <div class="mb-3">
+                                <img src="data:image/jpeg;base64,@ViewBag.Questions[i].PhotoQuestionBase64" alt="Фото питання" class="img-fluid" style="max-height: 200px;" />
+                            </div>
+                        }
 
                         @for (int j = 0; j < ViewBag.Questions[i].Answers.Count; j++)
                         {
                             <div class="form-check">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    name="Questions[@i].Answers[@j].IsSelected" 
-                                    value="true" 
-                                    id="answer-@i-@j" />
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="Questions[@i].Answers[@j].IsSelected"
+                                       value="true"
+                                       id="answer-@i-@j" />
                                 <label class="form-check-label" for="answer-@i-@j">
                                     @ViewBag.Questions[i].Answers[j].Text
                                 </label>
                                 <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@ViewBag.Questions[i].Answers[j].Text" />
                                 <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(ViewBag.Questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
+                                <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@(ViewBag.Questions[i].Answers[j].PhotoAnswerBase64)" />
+
+                                <!-- Display Answer Image if Available -->
+                                @if (!string.IsNullOrEmpty(ViewBag.Questions[i].Answers[j].PhotoAnswerBase64))
+                                {
+                                    <div class="mb-3">
+                                        <img src="data:image/jpeg;base64,@ViewBag.Questions[i].Answers[j].PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid" style="max-height: 150px;" />
+                                    </div>
+                                }
                             </div>
                         }
                     </div>

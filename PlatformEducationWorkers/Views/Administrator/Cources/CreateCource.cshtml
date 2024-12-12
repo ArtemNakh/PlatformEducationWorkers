@@ -13,7 +13,7 @@
             <h2>Create Course</h2>
         </div>
         <div class="card-body">
-            <form asp-action="CreateCourse" method="post">
+            <form asp-action="CreateCourse" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="All" class="alert alert-danger"></div> 
 
                 <div class="mb-3">
@@ -105,8 +105,13 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = "border p-3 rounded mt-3";
         questionDiv.innerHTML = `
-                <h4 class="text-secondary">Question ${questionIndex }</h4>
+                <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
                 <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
+                <div class="mb-3">
+                    <label><strong>Question Image</strong></label>
+                        <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
+                        <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
+                </div>
                 <div class="answers-container">
                     <h5>Answers</h5>
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
@@ -127,14 +132,21 @@
         const answerIndex = answerContainer.childElementCount;
 
         const answerDiv = document.createElement('div');
-        answerDiv.className = "d-flex align-items-center gap-2 mt-2";
+        answerDiv.className = "border p-2 rounded mt-2";
         answerDiv.innerHTML = `
-                <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-75" placeholder="Enter answer" />
-                <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
-                <label>Correct</label>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
-                    <i class="bi bi-trash"></i> Remove Answer
-                </button>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-50" placeholder="Enter answer" />
+                    <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
+                    <label>Correct</label>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
+                        <i class="bi bi-trash"></i> Remove Answer
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <label><strong>Answer Image</strong></label>
+                        <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
+                        <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
+                </div>
             `;
         answerContainer.appendChild(answerDiv);
     }
@@ -145,16 +157,31 @@
     }
 
     function removeAnswer(button) {
-        const answerDiv = button.parentElement;
+        const answerDiv = button.parentElement.parentElement;
         answerDiv.remove();
+    }
+
+    function convertFileToBase64(input, targetName) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const base64String = e.target.result.split(',')[1]; // Отримуємо лише Base64 без "data:image/jpeg;base64,"
+            const hiddenInput = input.nextElementSibling; // Знаходимо прихований input для Base64
+            hiddenInput.value = base64String;
+        };
+
+        if (file) {
+            reader.readAsDataURL(file); // Читаємо файл
+        }
     }
 
     document.querySelector('form').onsubmit = function () {
         const checkboxes = document.querySelectorAll('input[type="checkbox"][name*="IsCorrect"]');
         checkboxes.forEach(function (checkbox) {
             if (!checkbox.checked) {
-                checkbox.checked = true; 
-                checkbox.value = "false"; 
+                checkbox.checked = true;
+                checkbox.value = "false";
             }
         });
     };

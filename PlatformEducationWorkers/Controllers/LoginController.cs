@@ -89,7 +89,7 @@ namespace PlatformEducationWorkers.Controllers
 
                     string userRole = HttpContext.Session.GetString("UserRole");
 
-                   await  _loggingService.LogAsync(Logger.LogType.Info, $"User {request.Login} logged in with role: {userRole}");
+                   //await  _loggingService.LogAsync(Logger.LogType.Info, $"User {request.Login} logged in with role: {userRole}");
 
                     if (userRole == Role.Admin.ToString())
                     {

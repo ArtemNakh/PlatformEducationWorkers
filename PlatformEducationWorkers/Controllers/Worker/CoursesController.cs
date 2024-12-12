@@ -111,7 +111,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
                 var courseResult = await _userResultService.SearchUserResult(id);//await _coursesService.GetCourcesById(id);
                 if (courseResult == null)
@@ -247,7 +247,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 if (!ModelState.IsValid)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Модель UserResultRequest недійсна: {ModelState}", HttpContext.Session.GetInt32("UserId").Value);
+                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Модель UserResultRequest недійсна: {ModelState}", HttpContext.Session.GetInt32("UserId").Value);
 
 
                     return BadRequest(ModelState);
@@ -256,7 +256,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
                 if (course == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
 
                     return NotFound();
                 }
@@ -271,7 +271,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Користувача з ID {HttpContext.Session.GetString("UserId")} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
+                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Користувача з ID {HttpContext.Session.GetString("UserId")} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
 
                     return RedirectToAction("Login", "Login");
                 }
@@ -290,14 +290,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 };
 
                 await _userResultService.AddResult(userResult);
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Результат курсу з ID {userResultRequest.CourseId} успішно збережено.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Info, $"Результат курсу з ID {userResultRequest.CourseId} успішно збережено.", HttpContext.Session.GetInt32("UserId").Value);
 
 
                 return RedirectToAction("UncompleteCourses");
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час збереження результату курсу з ID {userResultRequest.CourseId}.", HttpContext.Session.GetInt32("UserId").Value);
+                //await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час збереження результату курсу з ID {userResultRequest.CourseId}.", HttpContext.Session.GetInt32("UserId").Value);
 
 
                 return StatusCode(500, "Сталася помилка.");

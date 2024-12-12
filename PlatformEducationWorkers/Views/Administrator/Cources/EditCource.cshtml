@@ -5,6 +5,184 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Редагувати курс";
 }
+<!-- непрацює дії над фото -->
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Редагувати курс</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="EditCourse" asp-controller="Courses" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Existing Fields (Title, Description, ContentCourse) -->
+
+                <div class="mb-4">
+                    <label asp-for="TitleCource" class="form-label">Назва курсу</label>
+                    <input asp-for="TitleCource" class="form-control" />
+                    <span asp-validation-for="TitleCource" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label">Опис</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ContentCourse" class="form-label">Вміст курсу </label>
+                    <textarea asp-for="ContentCourse" class="form-control" rows="6"></textarea>
+                    <span asp-validation-for="ContentCourse" class="text-danger"></span>
+                </div>
+
+                <h3 class="text-secondary">Питання та відповіді</h3>
+                <div id="questions-container" class="mt-3">
+                    @for (int i = 0; i < Model.Questions.Count; i++)
+                    {
+                        <div class="question mb-4 p-3 border rounded bg-light" data-index="@i">
+                            <label class="form-label">Питання @i</label>
+                            <input asp-for="Questions[i].Text" class="form-control mb-3" />
+                            <button type="button" class="btn btn-danger btn-sm mb-3 remove-question">Видалити питання</button>
+
+                            <!-- Display current photo for question if available -->
+                            @if (!string.IsNullOrEmpty(Model.Questions[i].PhotoQuestionBase64))
+                            {
+                                <div class="mb-4">
+                                    <label class="form-label">Фото питання</label>
+                                    <img src="data:image/jpeg;base64,@Model.Questions[i].PhotoQuestionBase64" alt="Фото питання" class="img-fluid mb-2" style="max-height: 200px;" />
+                                    <button type="button" class="btn btn-danger btn-sm mb-2 remove-photo">Видалити фото</button>
+                                </div>
+                            }
+
+                            <div class="mb-4">
+                                <label class="form-label">Завантажити нове фото</label>
+                                <input type="file" name="Questions[@i].PhotoQuestionBase64" class="form-control" />
+                            </div>
+
+                            <h4 class="text-secondary">Відповіді:</h4>
+                            <div class="answers-container">
+                                @for (int j = 0; j < Model.Questions[i].Answers.Count; j++)
+                                {
+                                    <div class="input-group mb-2 answer" data-index="@j">
+                                        <input asp-for="Questions[i].Answers[j].Text" class="form-control" placeholder="Відповідь" />
+                                        <div class="input-group-text">
+                                            <input asp-for="Questions[i].Answers[j].IsCorrect" type="checkbox" class="form-check-input" />
+                                            <label class="form-check-label ms-2">Правильна</label>
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm remove-answer">X</button>
+                                        <br />
+                                        <!-- Display current photo for answer if available -->
+                                        @if (!string.IsNullOrEmpty(Model.Questions[i].Answers[j].PhotoAnswerBase64))
+                                        {
+                                            <div class="mb-4">
+                                                <br />
+                                                <label class="form-label">Фото відповіді</label>
+                                                <br />
+                                                <img src="data:image/jpeg;base64,@Model.Questions[i].Answers[j].PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid mb-2" style="max-height: 100px;" />
+                                                <button type="button" class="btn btn-danger btn-sm mb-2 remove-answer-photo">Видалити фото</button>
+                                            </div>
+                                        }
+                                        <br />
+                                        <div class="mb-4">
+                                            <label class="form-label">Завантажити нове фото для відповіді</label>
+                                            <input type="file" name="Questions[@i].Answers[@j].PhotoAnswerBase64" class="form-control" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm add-answer">Додати відповідь</button>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success add-question">Додати питання</button>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-save"></i> Зберегти зміни
+                    </button>
+
+                    <a asp-action="DetailCourse" asp-controller="Courses" asp-route-id="@Model.Id" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let questionIndex = @Model.Questions.Count;
+
+            // Add new question
+            $(".add-question").click(function () {
+                const questionHtml = `
+                    <div class="question mb-4 p-3 border rounded bg-light" data-index="${questionIndex}">
+                        <label class="form-label">Питання ${questionIndex}</label>
+                        <input name="Questions[${questionIndex}].Text" class="form-control mb-3" placeholder="Текст питання" />
+                        <button type="button" class="btn btn-danger btn-sm mb-3 remove-question">Видалити питання</button>
+
+                        <!-- Photo Upload for Question -->
+                        <div class="mb-4">
+                            <label class="form-label">Завантажити фото</label>
+                            <input type="file" name="Questions[${questionIndex}].PhotoQuestionBase64" class="form-control" />
+                        </div>
+
+                        <h4 class="text-secondary">Відповіді:</h4>
+                        <div class="answers-container"></div>
+                        <button type="button" class="btn btn-primary btn-sm add-answer">Додати відповідь</button>
+                    </div>`;
+                $("#questions-container").append(questionHtml);
+                questionIndex++;
+            });
+
+            // Remove question
+            $(document).on("click", ".remove-question", function () {
+                $(this).closest(".question").remove();
+            });
+
+            // Add answer
+            $(document).on("click", ".add-answer", function () {
+                const question = $(this).closest(".question");
+                const questionIndex = question.data("index");
+                const answersContainer = question.find(".answers-container");
+                const answerIndex = answersContainer.find(".answer").length;
+
+                const answerHtml = `
+                    <div class="input-group mb-2 answer" data-index="${answerIndex}">
+                        <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
+                        <div class="input-group-text">
+                            <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" type="checkbox" class="form-check-input" />
+                            <label class="form-check-label ms-2">Правильна</label>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm remove-answer">X</button>
+
+                        <!-- Photo Upload for Answer -->
+                        <div class="mb-4">
+                            <label class="form-label">Завантажити фото</label>
+                            <input type="file" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" class="form-control" />
+                        </div>
+                    </div>`;
+                answersContainer.append(answerHtml);
+            });
+
+            // Remove answer
+            $(document).on("click", ".remove-answer", function () {
+                $(this).closest(".answer").remove();
+            });
+        });
+    </script>
+}
+
+@* @using PlatformEducationWorkers.Request.CourceRequest
+@model EditCourceRequest
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Редагувати курс";
+}
 
 
 <div class="container mt-5">
@@ -129,3 +307,4 @@
         });
     </script>
 }
+ *@
