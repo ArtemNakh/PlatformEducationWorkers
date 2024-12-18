@@ -120,7 +120,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
         }
 
-        [Route("Main")]
+        [Route("MainAdmin")]
         [UserExists]
         public async Task<IActionResult> MainAdmin()
         {

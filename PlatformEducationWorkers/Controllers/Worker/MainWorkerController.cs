@@ -21,7 +21,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         }
 
         [HttpGet]
-        [Route("Main")]
+        [Route("MainWorker")]
         [Area("Worker")]
         [UserExists]
         public async Task<IActionResult> MainWorker()
