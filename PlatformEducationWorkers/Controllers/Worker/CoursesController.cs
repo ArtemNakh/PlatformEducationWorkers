@@ -1,27 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Runtime.Internal;
+using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Models.Questions;
+using PlatformEducationWorkers.Models.Results;
 using PlatformEducationWorkers.Request.PassageCource;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
-    [Route("Workers")]
     [Area("Worker")]
     public class CoursesController : Controller
     {
-        public readonly ICoursesService _coursesService;
-        public readonly IUserResultService _userResultService;
-        public readonly IEnterpriseService _enterpriseService;
-        public readonly IUserService _userService;
-        public readonly ILoggerService _loggerService;
+        private readonly ICoursesService _coursesService;
+        private readonly IUserResultService _userResultService;
+        private readonly IEnterpriseService _enterpriseService;
+        private readonly IUserService _userService;
+        private readonly ILoggerService _loggerService;
+        private readonly AzureBlobCourseOperation AzureOperation;
 
-
-        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService,IEnterpriseService enterpriseService, ILoggerService loggerService)
+        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService, ILoggerService loggerService, AzureBlobCourseOperation azureOperation)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;
@@ -29,6 +32,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
             _enterpriseService = enterpriseService;
             _loggerService = loggerService;
+            AzureOperation = azureOperation;
         }
 
         // Метод для показу всіх непройдених курсів
@@ -45,7 +49,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                var uncompletedCourses = await _coursesService.GetUncompletedCoursesForUser(userId, enterpriseId);
+                IEnumerable<Courses> uncompletedCourses = await _coursesService.GetUncompletedCoursesForUser(userId, enterpriseId);
+                
 
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -111,12 +116,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
-                var courseResult = await _userResultService.SearchUserResult(id);//await _coursesService.GetCourcesById(id);
+                
+                var courseResult = await _userResultService.SearchUserResult(id);
                 if (courseResult == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {id} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
 
 
                     return NotFound();
@@ -131,6 +134,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     try
                     {
                         content = JsonConvert.DeserializeObject<string>(courseResult.Course.ContentCourse);
+                        
                     }
                     catch (JsonException ex)
                     {
@@ -145,6 +149,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     try
                     {
                         questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseResult.answerJson);
+                        questions=await AzureOperation.UnloadFileFromBlobAsync(questions);
                     }
                     catch (JsonException ex)
                     {
@@ -194,8 +199,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
-
+                    
 
                     return NotFound();
                 }
@@ -207,6 +211,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     {
                         //questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(course.Questions);
                         questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                        questions = await AzureOperation.UnloadFileFromBlobAsync(questions);
                     }
                     catch (JsonException ex)
                     {
@@ -247,17 +252,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
                 if (!ModelState.IsValid)
                 {
-                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Модель UserResultRequest недійсна: {ModelState}", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                   
                     return BadRequest(ModelState);
                 }
 
                 var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
                 if (course == null)
                 {
-                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {userResultRequest.CourseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
-
+                   
                     return NotFound();
                 }
 
@@ -271,10 +273,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
-                    //await _loggerService.LogAsync(Logger.LogType.Warning, $"Користувача з ID {HttpContext.Session.GetString("UserId")} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
-
+                    
                     return RedirectToAction("Login", "Login");
                 }
+                userResultRequest.Questions = await AzureOperation.UploadFileToBlobAsync(userResultRequest.Questions);
                 string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
 
 
@@ -290,16 +292,13 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 };
 
                 await _userResultService.AddResult(userResult);
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Результат курсу з ID {userResultRequest.CourseId} успішно збережено.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
 
                 return RedirectToAction("UncompleteCourses");
             }
             catch (Exception ex)
             {
-                //await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час збереження результату курсу з ID {userResultRequest.CourseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -319,8 +318,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Курс з ID {courseId} не знайдено.", HttpContext.Session.GetInt32("UserId").Value);
-
+                    
 
                     return NotFound();
                 }
@@ -341,8 +339,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час теорії  курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
 
                 return StatusCode(500, "Сталася помилка.");
             }

@@ -1,4 +1,5 @@
 ﻿using Amazon.Runtime.Internal;
+using Amazon.S3.Model;
 using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -9,13 +10,14 @@ using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using PlatformEducationWorkers.Request.Login_RegisterRequest;
+using System.IO;
 
 namespace PlatformEducationWorkers.Controllers
 {
 
-    [Route("Login")]
     public class LoginController : Controller
     {
         private readonly IUserService _userService;
@@ -23,20 +25,25 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IJobTitleService _jobTitleService;
         private readonly ICreateEnterpriseService _createEnterpriseService;
         private readonly ILoggerService  _loggingService;
-        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILoggerService loggingService)
+        private readonly AzureBlobAvatarOperation AzureOperation;
+
+        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILoggerService loggingService, AzureBlobAvatarOperation azureOperation, EmailService emailService)
         {
             _userService = userService;
             _enterpriseService = enterpriceService;
             _jobTitleService = jobTitleService;
             _createEnterpriseService = createEnterpriseService;
-             _loggingService = loggingService;
+            _loggingService = loggingService;
+            AzureOperation = azureOperation;
+           // _emailService = emailService;
+
+
         }
 
         [HttpGet]
         [Route("Login")]
         public async Task<IActionResult> Login()
         {
-           await  _loggingService.LogAsync(Logger.LogType.Info, "Displaying login page.");
             return View();
         }
 
@@ -46,13 +53,11 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-               await  _loggingService.LogAsync(Logger.LogType.Warning, "Invalid login request: {Login}");
-                return BadRequest(ModelState);
+               return BadRequest(ModelState);
             }
 
             try
             {
-               //await  _loggingService.LogAsync(Logger.LogType.Info, $"Attempting to login user: {request.Login}");
                
                 var user = await _userService.Login(request.Login, request.Password);
                 if (user != null)
@@ -66,12 +71,13 @@ namespace PlatformEducationWorkers.Controllers
                     {
                         try
                         {
-                            // Десеріалізуємо JSON, що містить аватарку
-                            var avatarJson = JsonConvert.DeserializeObject<string>(user.ProfileAvatar);
-                            if (avatarJson != null && !string.IsNullOrEmpty(avatarJson))
+                          
+                            if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                             {
+                               
+
                                 // Декодуємо базу64 зображення в byte[]
-                                byte[] avatarBytes = Convert.FromBase64String(avatarJson);
+                                byte[] avatarBytes = await AzureOperation.UnloadAvatarFromBlobAsync(user.ProfileAvatar); ;
                                 HttpContext.Session.Set("UserAvatar", avatarBytes);
                             }
                         }
@@ -89,15 +95,14 @@ namespace PlatformEducationWorkers.Controllers
 
                     string userRole = HttpContext.Session.GetString("UserRole");
 
-                   //await  _loggingService.LogAsync(Logger.LogType.Info, $"User {request.Login} logged in with role: {userRole}");
-
                     if (userRole == Role.Admin.ToString())
                     {
-                        return RedirectToAction("Main", "Main", new { area = "Administrator" });
+                        return RedirectToAction("MainAdmin", "MainAdmin", new { area = "Administrator" });
                     }
+                    
                     else if (userRole == Role.Workers.ToString())
                     {
-                        return RedirectToAction("Main", "Main", new { area = "Worker" });
+                        return RedirectToAction("MainWorker", "MainWorker", new { area = "Worker" });
                     }
                     else
                     {
@@ -138,8 +143,7 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register()
         {
-           await  _loggingService.LogAsync(Logger.LogType.Info, $"Rendering registration page.");
-
+         
             return View();
         }
 
@@ -149,24 +153,25 @@ namespace PlatformEducationWorkers.Controllers
         {
             if (!ModelState.IsValid)
             {
-               await  _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid registration form submission for enterprise: {model.Title}");
-
+              
                 return View(model);
             }
-
+            string avatar = "";
             try
             {
-               await  _loggingService.LogAsync(Logger.LogType.Info, $"Registering new enterprise: {model.Title} with owner: {model.OwnerName}");
-
+              
                 var enterprise = new Enterprise
                 {
                     Title = model.Title,
                     DateCreate = DateTime.UtcNow,
                     Email = model.Email,
                     Users = new List<User>(),
-                    Courses = new List<Courses>()
+                    Courses = new List<Courses>(),
+                    PasswordEmail=model.PasswordEmail,
+
                 };
                 string photoAvatar = "";
+
                 // Обробка аватарки
                 if (model.ProfileAvatar != null && model.ProfileAvatar.Length > 0)
                 {
@@ -175,10 +180,8 @@ namespace PlatformEducationWorkers.Controllers
                     {
                         await model.ProfileAvatar.CopyToAsync(memoryStream);
                         byte[] fileBytes = memoryStream.ToArray();
-                        string base64Image = Convert.ToBase64String(fileBytes);
-
-                        // Збереження Base64 рядка в базу даних
-                        photoAvatar = base64Image;
+                        photoAvatar=await AzureOperation.UploadAvatarToBlobAsync(fileBytes);
+                        avatar = photoAvatar;
                     }
                 }
                 var owner = new User
@@ -195,15 +198,14 @@ namespace PlatformEducationWorkers.Controllers
                 };
 
                 await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
-               //await  _loggingService.LogAsync(Logger.LogType.Info, $"Enterprise {model.Title} successfully registered.");
 
+              
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
-               await  _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred while registering new enterprise: {model.Title}");
-
                 ModelState.AddModelError(string.Empty, ex.Message);
+                await AzureOperation.DeleteAvatarFromBlobAsync(avatar);
                 return View(model);
             }
         }

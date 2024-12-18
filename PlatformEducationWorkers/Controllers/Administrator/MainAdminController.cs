@@ -1,15 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models.Azure;
+using PlatformEducationWorkers.Models.Questions;
+using PlatformEducationWorkers.Models.Results;
+using System.Text.Json.Serialization;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
-    [Route("Admin")]
     [Area("Administrator")]
-    public class MainController : Controller
+    public class MainAdminController : Controller
     {
         private readonly IEnterpriseService  _enterpriseService;
         private readonly IUserService _userService;
@@ -17,16 +22,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IUserResultService _userResultService;
         private readonly ILoggerService _loggerService;
         private readonly ICoursesService _courseService;
+        private readonly AzureBlobAvatarOperation _azureAvatarOperation;
+        private readonly AzureBlobCourseOperation _azureCoursesOperation;
 
-
-        public MainController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, ILoggerService loggerService)
+        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, ILoggerService loggerService, AzureBlobAvatarOperation azureAvatarOperation, AzureBlobCourseOperation azureZoursesOperation)
         {
-             _enterpriseService = enterpriceService;
+            _enterpriseService = enterpriceService;
             _userService = userService;
-          
+
             _userResultService = userResultService;
             _courseService = courceService;
             _loggerService = loggerService;
+            _azureAvatarOperation = azureAvatarOperation;
+            _azureCoursesOperation = azureZoursesOperation;
         }
 
         [HttpPost]
@@ -37,18 +45,17 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             try
             {
 
-                await _loggerService.LogAsync(Logger.LogType.Info, $"DeleteEnterprice action started.", HttpContext.Session.GetInt32("UserId").Value);
-
+                
                 int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
+                
 
-
-                Enterprise enterprice =await  _enterpriseService.GetEnterprise(enterpriceId);
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching user with ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
-
+                Enterprise enterprice =await _enterpriseService.GetEnterprise(enterpriceId);
+                enterprice.Owner = null;
+                await _enterpriseService.UpdateEnterprise(enterprice);
+                enterprice = await _enterpriseService.GetEnterprise(enterpriceId);
 
                 User user = await _userService.GetUser(userId);
 
@@ -56,8 +63,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     string errorMessage = $"Enterprise with ID {enterpriceId} not found.";
                    
-                    await _loggerService.LogAsync(Logger.LogType.Error, $"Enterprise with ID {enterpriceId} not found.", HttpContext.Session.GetInt32("UserId").Value);
-
                     throw new Exception(errorMessage);
 
                 }
@@ -65,32 +70,48 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 if (user == null)
                 {
                     string errorMessage = $"User with ID {userId} not found.";
-                    await _loggerService.LogAsync(Logger.LogType.Error, errorMessage, HttpContext.Session.GetInt32("UserId").Value);
-                    
+                   
                     throw new Exception(errorMessage);
                 }
 
 
-                if (enterprice.Owner != null && enterprice.Owner.Id == user.Id)
+                if (enterprice.Owner != null && enterprice.Owner.Id != user.Id)
                 {
                     string errorMessage = $"User with ID {userId} cannot delete enterprise because they are not the owner.";
                     
-                    await _loggerService.LogAsync(Logger.LogType.Error, errorMessage, HttpContext.Session.GetInt32("UserId").Value);
-
+                   
                     throw new Exception(errorMessage);
                 }
-                await _loggerService.LogAsync(Logger.LogType.Info, "Deleting enterprise with ID: {enterpriceId}", HttpContext.Session.GetInt32("UserId").Value);
+
+                IEnumerable<Courses> courses = await _courseService.GetAllCoursesEnterprise(enterpriceId);
+                foreach (var course in courses)
+                {
+                    List<QuestionContext> questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                    await _azureCoursesOperation.DeleteFilesFromBlobAsync(questions);
+                }
+
+                IEnumerable<UserResults> coursesRes = await _userResultService.GetAllResultEnterprice(enterpriceId);
+                foreach (var resCourse in coursesRes)
+                {
+                   List< UserQuestionRequest> userAnswerts=JsonConvert.DeserializeObject<List<UserQuestionRequest>>(resCourse.answerJson);
+                    await _azureCoursesOperation.DeleteFilesFromBlobAsync(userAnswerts);
+                }
+
+                IEnumerable<User> users = await _userService.GetAllUsersEnterprise(enterpriceId);
+                foreach (var curUser in users)
+                {
+                    await _azureAvatarOperation.DeleteAvatarFromBlobAsync(curUser.ProfileAvatar);
+                }
+               
 
                 await  _enterpriseService.DeleteingEnterprise(enterpriceId);
-                await _loggerService.LogAsync(Logger.LogType.Info, "Enterprise deleted successfully. Redirecting to Main.", HttpContext.Session.GetInt32("UserId").Value);
+                
 
-
-                return RedirectToAction("Main", "Main");
+                return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, "Error occurred while deleting enterprise.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
 
 
                 // Обробка помилки і повернення на попередню сторінку з повідомленням
@@ -101,7 +122,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         [Route("Main")]
         [UserExists]
-        public async Task<IActionResult> Main()
+        public async Task<IActionResult> MainAdmin()
         {
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;

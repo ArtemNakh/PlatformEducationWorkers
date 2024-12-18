@@ -39,6 +39,12 @@
                 </div>
 
                 <div class="form-group mb-3">
+                    <label asp-for="PasswordEmail" class="form-label">Пароль пошти</label>
+                    <input asp-for="PasswordEmail" class="form-control" type="password" placeholder="Введіть пароль" required />
+                    <span asp-validation-for="PasswordEmail" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
                     <label asp-for="OwnerName" class="form-label">Ім'я власника</label>
                     <input asp-for="OwnerName" class="form-control" placeholder="Введіть ім'я власника" required />
                     <span asp-validation-for="OwnerName" class="text-danger"></span>

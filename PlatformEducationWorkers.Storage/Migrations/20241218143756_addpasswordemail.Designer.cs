@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlatformEducationWorkers.Storage;
 
@@ -11,9 +12,11 @@ using PlatformEducationWorkers.Storage;
 namespace PlatformEducationWorkers.Storage.Migrations
 {
     [DbContext(typeof(PlatformEducationContex))]
-    partial class PlatformEducationContexModelSnapshot : ModelSnapshot
+    [Migration("20241218143756_addpasswordemail")]
+    partial class addpasswordemail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,10 +104,14 @@ namespace PlatformEducationWorkers.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("HashPasswordEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PasswordEmail")
+                    b.Property<string>("SaltPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

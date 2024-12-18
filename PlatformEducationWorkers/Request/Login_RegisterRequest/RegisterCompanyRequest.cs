@@ -28,6 +28,9 @@ namespace PlatformEducationWorkers.Request.Login_RegisterRequest
         [MinLength(6, ErrorMessage = "Пароль має містити щонайменше 6 символів")]
         public string Password { get; set; }
 
+        [Required(ErrorMessage = "Пароль пошти є обов'язковим")]
+        public string PasswordEmail { get; set; }
+
         public IFormFile? ProfileAvatar {  get; set; }
     }
 

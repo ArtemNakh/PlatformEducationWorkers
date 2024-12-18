@@ -5,16 +5,15 @@ using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
-    [Route("Worker")]
     [Area("Worker")]
-    public class MainController : Controller
+    public class MainWorkerController : Controller
     {
-        private readonly ILogger<MainController> _logger;
+        private readonly ILogger<MainWorkerController> _logger;
         private readonly IEnterpriseService _enterpriseService;
         private readonly ICoursesService _courseService;
 
 
-        public MainController(ILogger<MainController> logger, IEnterpriseService enterpriseService, ICoursesService courceService)
+        public MainWorkerController(ILogger<MainWorkerController> logger, IEnterpriseService enterpriseService, ICoursesService courceService)
         {
             _logger = logger;
             _enterpriseService = enterpriseService;
@@ -23,8 +22,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
         [HttpGet]
         [Route("Main")]
+        [Area("Worker")]
         [UserExists]
-        public async Task<IActionResult> Main()
+        public async Task<IActionResult> MainWorker()
         {
            // _logger.LogInformation("User accessed the Main page of the Worker area.");
 

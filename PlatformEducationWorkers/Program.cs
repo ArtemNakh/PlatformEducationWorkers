@@ -8,6 +8,8 @@ using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core.Services.Enterprises;
 using PlatformEducationWorkers.Logger;
+using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Storage;
 using PlatformEducationWorkers.Storage.Repositories;
 
@@ -39,6 +41,9 @@ builder.Services.AddTransient<ICoursesService,CourseService>();
 builder.Services.AddScoped<IRepository,GenericRepository>();
 builder.Services.AddScoped<IEnterpriseRepository,EnterpriseRepository>();
 builder.Services.AddTransient<ICreateEnterpriseService, CreateEnterpriseService>();
+builder.Services.AddSingleton<AzureBlobCourseOperation>();
+builder.Services.AddSingleton<AzureBlobAvatarOperation> ();
+builder.Services.AddSingleton<EmailService>();
 
 
 builder.Services.AddControllersWithViews();
@@ -64,7 +69,7 @@ app.Use(async (context, next) =>
 {
     if (string.IsNullOrEmpty(context.Request.Path.Value) || context.Request.Path == "/")
     {
-        context.Response.Redirect("/Login/Login");
+        context.Response.Redirect("/Login");
         return;
     }
     await next();

@@ -1,7 +1,6 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
-
 using System.Net.Http.Json;
 
 
@@ -10,7 +9,6 @@ namespace PlatformEducationWorkers.Core.Services
     public class CourseService : ICoursesService
     {
         private readonly IRepository _repository;
-
         public CourseService(IRepository repository)
         {
             _repository = repository;

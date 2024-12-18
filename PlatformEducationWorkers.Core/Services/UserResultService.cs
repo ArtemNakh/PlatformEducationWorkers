@@ -1,25 +1,37 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Models;
 
 namespace PlatformEducationWorkers.Core.Services
 {
     public class UserResultService : IUserResultService
     {
         private readonly IRepository _repository;
+        private readonly EmailService _emailService;
 
-        public UserResultService(IRepository repository)
+        public UserResultService(IRepository repository, EmailService emailService)
         {
             _repository = repository;
+            _emailService = emailService;
         }
 
-        public Task<UserResults> AddResult(UserResults userResults)
+        public async Task<UserResults> AddResult(UserResults userResults)
         {
             try
             {
                 if (userResults == null)
                     throw new Exception("$Error adding results,userResults is null");
-                return _repository.Add(userResults);
+                UserResults userResult=await  _repository.Add(userResults);
+                var enterpriseEmail = userResults.User.Enterprise.Email;
+                var subject = "Проходження курсу";
+                var body = $"<p>Шановний {userResults.User.Name} {userResults.User.Surname},</p>" +
+                     $"<p>Ви пройшли курс: {userResults.Course.TitleCource}</p>" +
+                           $"<p>З найкращими побажаннями,<br>Команда {userResults.User.Enterprise.Title}</p>";
+
+                await _emailService.SendEmailAsync(userResults.User.Enterprise.Email, userResults.User.Enterprise.PasswordEmail, userResults.User.Email, subject, body);
+
+                return userResult;
             }
             catch (Exception)
             {

@@ -6,25 +6,27 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
-    [Route("Admin")]
     [Area("Administrator")]
     public class WorkersController : Controller
     {
         private readonly IJobTitleService _jobTitleService;
         private readonly IUserService _userService;
         private readonly IEnterpriseService  _enterpriseService;
+        private readonly AzureBlobAvatarOperation _azureAvatarOperation;
         private readonly ILoggerService _loggerService;
-        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService,ILoggerService loggerService)
+        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService, ILoggerService loggerService, AzureBlobAvatarOperation azureAvatarOperation)
         {
             _userService = userService;
             _jobTitleService = jobTitleService;
-             _enterpriseService = enterpriceService;
+            _enterpriseService = enterpriceService;
             _loggerService = loggerService;
+            _azureAvatarOperation = azureAvatarOperation;
         }
 
         [HttpGet]
@@ -175,10 +177,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         {
                             await request.ProfileAvatar.CopyToAsync(memoryStream);
                             byte[] fileBytes = memoryStream.ToArray();
-                            string base64Image = Convert.ToBase64String(fileBytes);
-
-                            // Збереження Base64 рядка в базу даних
-                            user.ProfileAvatar = base64Image;
+                            user.ProfileAvatar= await  _azureAvatarOperation.UploadAvatarToBlobAsync(fileBytes);
                         }
                     }
                     await _userService.AddUser(user);
@@ -195,8 +194,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            await _loggerService.LogAsync(Logger.LogType.Info, $"Model state is invalid while creating a worker.", HttpContext.Session.GetInt32("UserId").Value);
-
+           
             ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 

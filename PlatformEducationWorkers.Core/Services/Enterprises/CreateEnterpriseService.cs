@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
+using PlatformEducationWorkers.Models;
 
 namespace PlatformEducationWorkers.Core.Services.Enterprises
 {
@@ -13,11 +14,13 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
     {
         private readonly IEnterpriseRepository _repository;
         private readonly IRepository _repositoryGeneral;
+        private readonly EmailService _emailService;
 
-        public CreateEnterpriseService(IEnterpriseRepository repository, IRepository repositoryGeneral)
+        public CreateEnterpriseService(IEnterpriseRepository repository, IRepository repositoryGeneral, EmailService emailService)
         {
             _repository = repository;
             _repositoryGeneral = repositoryGeneral;
+            _emailService = emailService;
         }
 
         public async Task AddEnterpriseWithOwnerAsync(Enterprise enterprise, string jobTitleName, User owner)
@@ -28,7 +31,7 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                 // Починаємо транзакцію
                 await _repository.BeginTransactionAsync();
 
-                // Додаємо фірму
+
                 await _repository.AddEnterpriseAsync(enterprise);
                 await _repository.SaveChangesAsync();
 
@@ -56,11 +59,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                     owner.Salt = salt;
                     owner.Password = HashHelper.ComputeHash(owner.Password, salt);
                     owner.Login = HashHelper.ComputeHash(owner.Login, salt);
+                    
                     // Додавання аватарки у вигляді JSON-рядка
-                    if (owner.ProfileAvatar != null && !string.IsNullOrEmpty(owner.ProfileAvatar))
-                    {
-                        owner.ProfileAvatar = System.Text.Json.JsonSerializer.Serialize(owner.ProfileAvatar);
-                    }
+                    //if (owner.ProfileAvatar != null && !string.IsNullOrEmpty(owner.ProfileAvatar))
+                    //{
+                    //    owner.ProfileAvatar = System.Text.Json.JsonSerializer.Serialize(owner.ProfileAvatar);
+                    //}
 
 
                 }
@@ -73,6 +77,13 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                 enterprise.Owner = owner;
                 await _repository.AddUserAsync(owner);
                 await _repository.SaveChangesAsync();
+                var enterpriseEmail = owner.Enterprise.Email;
+                var subject = "Вітаємо з реєстрацією!";
+                var body = $"<p>Шановний {owner.Name} {owner.Surname},</p>" +
+                           $"<p>Ви успішно зареєструвалися в системі.</p>" +
+                           $"<p>З найкращими побажаннями,<br>Команда {owner.Enterprise.Title}</p>";
+
+                await _emailService.SendEmailAsync(enterprise.Email, enterprise.PasswordEmail, owner.Email, subject, body);
 
                 // Завершуємо транзакцію
                 await _repository.CommitTransactionAsync();

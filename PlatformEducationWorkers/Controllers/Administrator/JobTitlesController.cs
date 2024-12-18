@@ -12,7 +12,6 @@ using PlatformEducationWorkers.Request.JobTitlesRequest;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
-    [Route("Workers")]
     [Area("Administrator")]
 
     public class JobTitlesController : Controller

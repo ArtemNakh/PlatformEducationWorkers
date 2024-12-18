@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Request.PassageCource
+﻿namespace PlatformEducationWorkers.Models.Results
 {
     public class UserAnswerRequest
     {

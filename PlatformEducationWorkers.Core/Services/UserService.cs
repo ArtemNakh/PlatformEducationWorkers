@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Amazon.S3.Model;
+using Newtonsoft.Json;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
+using PlatformEducationWorkers.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +17,11 @@ namespace PlatformEducationWorkers.Core.Services
     {
         private readonly IRepository _repository;
 
-        public UserService(IRepository repository)
+        private readonly EmailService _emailService;
+        public UserService(IRepository repository, EmailService emailService)
         {
             _repository = repository;
+            this._emailService = emailService;
         }
 
 
@@ -47,11 +51,19 @@ namespace PlatformEducationWorkers.Core.Services
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
 
-                // Додавання аватарки у вигляді JSON-рядка
-                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
-                {
-                    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
-                }
+                //// Додавання аватарки у вигляді JSON-рядка
+                //if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                //{
+                //    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
+                //}
+
+                var enterpriseEmail = user.Enterprise.Email;
+                var subject = "Вітаємо вас було додано до на платформу навчання працівників";
+                var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
+                     $"<p>Вітаємо вас було додано до на платформу навчання працівників від вашої фірми</p>" +
+                           $"<p>З найкращими побажаннями,<br>Команда {user.Enterprise.Title}</p>";
+
+                await _emailService.SendEmailAsync(user.Enterprise.Email, user.Enterprise.PasswordEmail, user.Email, subject, body);
 
                 return await _repository.Add(user);
             }
@@ -62,12 +74,24 @@ namespace PlatformEducationWorkers.Core.Services
         }
 
 
-        public Task DeleteUser(int userId)
+        public async Task DeleteUser(int userId)
         {
             try
             {
-                //додати перевірку на існування Id
-                return _repository.Delete<User>(userId);
+                User user = await _repository.GetById<User>(userId);
+                var subject = "Видалення облікового запису";
+                var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
+                     $"<p>Ваш обліковий запис був видалений зі пратформи для навчання співробітників</p>" +
+                           $"<p>З найкращими побажаннями,<br>Команда {user.Enterprise.Title}</p>";
+                string EnterpriseEmail=user.Enterprise.Email;
+                string UserEmail=user.Email;
+                string EnterprisePassword=user.Enterprise.PasswordEmail;
+
+               await _repository.Delete<User>(userId);
+               
+                await _emailService.SendEmailAsync(EnterpriseEmail, EnterprisePassword, UserEmail, subject, body);
+
+              
             }
             catch (Exception ex)
             {
@@ -234,7 +258,17 @@ namespace PlatformEducationWorkers.Core.Services
 
                 }
 
-                return await _repository.Update(olduser);
+                user=await _repository.Update(olduser);
+
+                var enterpriseEmail = user.Enterprise.Email;
+                var subject = "Оновлення облікового запису";
+                var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
+                     $"<p>Ваш обліковий запис був успішно оновлений</p>" +
+                           $"<p>З найкращими побажаннями,<br>Команда {user.Enterprise.Title}</p>";
+
+                await _emailService.SendEmailAsync(user.Enterprise.Email, user.Enterprise.PasswordEmail, user.Email, subject, body);
+
+                return user;
             }
             catch (Exception ex)
             {
