@@ -13,6 +13,7 @@ using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using PlatformEducationWorkers.Request.Login_RegisterRequest;
+using Serilog;
 using System.IO;
 
 namespace PlatformEducationWorkers.Controllers
@@ -94,6 +95,7 @@ namespace PlatformEducationWorkers.Controllers
 
 
                     string userRole = HttpContext.Session.GetString("UserRole");
+                    Log.Information($"login worker  ,user Id :{user.Id}");
 
                     if (userRole == Role.Admin.ToString())
                     {

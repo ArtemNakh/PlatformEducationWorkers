@@ -8,6 +8,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
+using Serilog;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
@@ -19,13 +20,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IUserService _userService;
         private readonly IEnterpriseService  _enterpriseService;
         private readonly AzureBlobAvatarOperation _azureAvatarOperation;
-        private readonly ILoggerService _loggerService;
-        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService, ILoggerService loggerService, AzureBlobAvatarOperation azureAvatarOperation)
+        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService, AzureBlobAvatarOperation azureAvatarOperation)
         {
             _userService = userService;
             _jobTitleService = jobTitleService;
             _enterpriseService = enterpriceService;
-            _loggerService = loggerService;
             _azureAvatarOperation = azureAvatarOperation;
         }
 
@@ -58,7 +57,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Fetching all users for enterprise ID {"An error occurred while fetching workers."}.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"workers enterprise ,error:{ex}");
 
 
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
@@ -75,8 +74,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
                 // Отримуємо всіх користувачів для підприємства
                 var users = await _userService.GetAllUsersEnterprise(enterpriseId);
 
@@ -106,7 +104,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
             catch (Exception ex)
             {
-                //await _loggerService.LogAsync(Logger.LogType.Error, $"An error occurred while fetching workers.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"search workers enterprise, error:{ex}");
 
 
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
@@ -120,8 +118,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async  Task<IActionResult> CreateWorker()
         {
-            //await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Create Worker' page.", HttpContext.Session.GetInt32("UserId").Value);
-
+            
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -135,8 +132,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-           // await _loggerService.LogAsync(Logger.LogType.Info, $"Open page Create Worker", HttpContext.Session.GetInt32("UserId").Value);
-
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
@@ -146,8 +141,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("CreateWorker")]
         public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
-            //await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to create a new worker.", HttpContext.Session.GetInt32("UserId").Value);
-
 
             if (ModelState.IsValid)
             {
@@ -182,19 +175,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     }
                     await _userService.AddUser(user);
 
-                    //await _loggerService.LogAsync(Logger.LogType.Info, $"Worker created successfully.", HttpContext.Session.GetInt32("UserId").Value);
 
                     return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Error, $"Error while creating a worker.", HttpContext.Session.GetInt32("UserId").Value);
+                    Log.Error($"create worker enterprise , error:{ex}");
                     return BadRequest(ex.Message);
                 }
             }
 
 
-           
+            Log.Warning($"create worker enterprise ,request is not valid ,request:{request}");
+
             ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
@@ -208,13 +201,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> DetailWorker(int id)
         {
 
-            //await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching details for worker ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             var user = await _userService.GetUser(id);
             if (user == null)
             {
-
-                await _loggerService.LogAsync(Logger.LogType.Warning, $"Worker with ID {id} not found.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"detail worker  ,user is null,find for id :{id}");
 
                 return NotFound();
             }
@@ -239,13 +230,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditWorker(int id)
         {
-          //  await _loggerService.LogAsync(Logger.LogType.Info, $"Opening 'Edit Worker' page for ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
 
             var user = await _userService.GetUser(id);
             if (user == null)
             {
-
-                await _loggerService.LogAsync(Logger.LogType.Warning, $"Worker with ID {id} not found.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"edit worker  ,user is null,find for id :{id}");
 
                 return NotFound();
             }
@@ -284,9 +273,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditWorker(int id, UpdateUserRequest request)
         {
-
-           // await _loggerService.LogAsync(Logger.LogType.Info, $"Updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
             if (ModelState.IsValid)
             {
                 try
@@ -294,7 +280,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     var user = await _userService.GetUser(id);
                     if (user == null)
                     {
-                        await _loggerService.LogAsync(Logger.LogType.Warning, $"Worker with ID {id} not found.", HttpContext.Session.GetInt32("UserId").Value);
+                        Log.Error($"detail worker  ,user is null,find for id :{id}");
 
                         return NotFound();
                     }
@@ -331,19 +317,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     }
 
                     await _userService.UpdateUser(user); 
-                    //await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} updated successfully.", HttpContext.Session.GetInt32("UserId").Value);
+                    
 
 
                     return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
                 {
-                   // await _loggerService.LogAsync(Logger.LogType.Error, $"Error while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+                    Log.Error($"edit worker  ,error:{ex}");
+
                     return BadRequest(ex.Message);
                 }
             }
-
-           // await _loggerService.LogAsync(Logger.LogType.Warning, $"Model state is invalid while updating worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
+            Log.Warning($"edit worker  ,request is not valid, request{request}");
 
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
@@ -355,12 +341,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DeleteWorker/{id}")]
         public async Task<IActionResult> DeleteWorker(int id)
         {
-          //  await _loggerService.LogAsync(Logger.LogType.Info, $"Attempting to delete worker with ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
             if (id == null)
             {
-                await _loggerService.LogAsync(Logger.LogType.Warning, $"Invalid worker ID provided for deletion.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"delete  worker  ,id is null");
 
 
                 return NotFound();
@@ -374,27 +357,27 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 if (user == null)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Worker with ID {id} not found.", HttpContext.Session.GetInt32("UserId").Value);
+                    Log.Error($"delete worker  ,user is null,find for id :{id}");
 
                     return NotFound();
                 }
 
                 if (user.Id == enterprice.Owner.Id)
                 {
-                    await _loggerService.LogAsync(Logger.LogType.Warning, $"Cannot delete the owner of the enterprise.", HttpContext.Session.GetInt32("UserId").Value);
+                    Log.Error($"edit worker  ,user is a owner enterprise,find for id :{id}");
 
 
                     return BadRequest("Delete worker impossible because he is the owner.");
                 }
 
                 await _userService.DeleteUser(id);
-                await _loggerService.LogAsync(Logger.LogType.Info, $"Worker with ID {id} deleted successfully.", HttpContext.Session.GetInt32("UserId").Value);
+               
 
                 return RedirectToAction("Workers");
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Error while deleting worker with ID { id}.", HttpContext.Session.GetInt32("UserId").Value);
+                Log.Error($"delete worker  ,error :{ex}");
 
 
                 return RedirectToAction("Workers");

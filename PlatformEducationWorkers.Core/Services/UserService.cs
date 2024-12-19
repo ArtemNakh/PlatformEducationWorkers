@@ -83,15 +83,15 @@ namespace PlatformEducationWorkers.Core.Services
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
                      $"<p>Ваш обліковий запис був видалений зі пратформи для навчання співробітників</p>" +
                            $"<p>З найкращими побажаннями,<br>Команда {user.Enterprise.Title}</p>";
-                string EnterpriseEmail=user.Enterprise.Email;
-                string UserEmail=user.Email;
-                string EnterprisePassword=user.Enterprise.PasswordEmail;
+                string EnterpriseEmail = user.Enterprise.Email;
+                string UserEmail = user.Email;
+                string EnterprisePassword = user.Enterprise.PasswordEmail;
 
-               await _repository.Delete<User>(userId);
-               
+                await _repository.Delete<User>(userId);
+
                 await _emailService.SendEmailAsync(EnterpriseEmail, EnterprisePassword, UserEmail, subject, body);
 
-              
+
             }
             catch (Exception ex)
             {
@@ -218,7 +218,7 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
 
-                User olduser =await  _repository.GetById<User>(user.Id);
+                User olduser = await _repository.GetById<User>(user.Id);
                 if (user.Surname != user.Surname)
                 {
                     olduser.Surname = user.Surname;
@@ -241,14 +241,13 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
 
-                    var salt = HashHelper.GenerateSalt();
+                var salt = HashHelper.GenerateSalt();
                 olduser.Salt = salt;
                 olduser.Login = user.Login;
                 olduser.Password = user.Password;
-                     olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
-               
-                    olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
-                
+                olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
+                olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
+
 
 
                 // Додавання аватарки у вигляді JSON-рядка
@@ -258,7 +257,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 }
 
-                user=await _repository.Update(olduser);
+                user = await _repository.Update(olduser);
 
                 var enterpriseEmail = user.Enterprise.Email;
                 var subject = "Оновлення облікового запису";

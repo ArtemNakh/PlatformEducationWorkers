@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors.Infrastructure;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
@@ -9,6 +10,7 @@ using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Models.Results;
+using Serilog;
 using System.Text.Json.Serialization;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
@@ -20,19 +22,17 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IUserService _userService;
 
         private readonly IUserResultService _userResultService;
-        private readonly ILoggerService _loggerService;
         private readonly ICoursesService _courseService;
         private readonly AzureBlobAvatarOperation _azureAvatarOperation;
         private readonly AzureBlobCourseOperation _azureCoursesOperation;
 
-        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, ILoggerService loggerService, AzureBlobAvatarOperation azureAvatarOperation, AzureBlobCourseOperation azureZoursesOperation)
+        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, AzureBlobAvatarOperation azureAvatarOperation, AzureBlobCourseOperation azureZoursesOperation)
         {
             _enterpriseService = enterpriceService;
             _userService = userService;
 
             _userResultService = userResultService;
             _courseService = courceService;
-            _loggerService = loggerService;
             _azureAvatarOperation = azureAvatarOperation;
             _azureCoursesOperation = azureZoursesOperation;
         }
@@ -46,23 +46,24 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
 
                 
-                int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 
 
-                Enterprise enterprice =await _enterpriseService.GetEnterprise(enterpriceId);
+                Enterprise enterprice =await _enterpriseService.GetEnterprise(enterpriseId);
                 enterprice.Owner = null;
                 await _enterpriseService.UpdateEnterprise(enterprice);
-                enterprice = await _enterpriseService.GetEnterprise(enterpriceId);
+                enterprice = await _enterpriseService.GetEnterprise(enterpriseId);
 
                 User user = await _userService.GetUser(userId);
 
                 if (enterprice == null)
                 {
-                    string errorMessage = $"Enterprise with ID {enterpriceId} not found.";
-                   
+                    string errorMessage = $"Enterprise with ID {enterpriseId} not found.";
+                    Log.Error($"delete enterprise ,enterprise is null,enterprise id:{enterpriseId}, error:{errorMessage}");
+
                     throw new Exception(errorMessage);
 
                 }
@@ -70,7 +71,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 if (user == null)
                 {
                     string errorMessage = $"User with ID {userId} not found.";
-                   
+                    Log.Error($"delete enterprise ,user is null,user id:{userId}, error:{errorMessage}");
+
                     throw new Exception(errorMessage);
                 }
 
@@ -78,40 +80,42 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 if (enterprice.Owner != null && enterprice.Owner.Id != user.Id)
                 {
                     string errorMessage = $"User with ID {userId} cannot delete enterprise because they are not the owner.";
-                    
-                   
+                    Log.Error($"delete enterprise ,enterprise owner is not null and owner is not current user, error:{errorMessage}");
+
+
                     throw new Exception(errorMessage);
                 }
 
-                IEnumerable<Courses> courses = await _courseService.GetAllCoursesEnterprise(enterpriceId);
+                IEnumerable<Courses> courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
                 foreach (var course in courses)
                 {
                     List<QuestionContext> questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                     await _azureCoursesOperation.DeleteFilesFromBlobAsync(questions);
                 }
 
-                IEnumerable<UserResults> coursesRes = await _userResultService.GetAllResultEnterprice(enterpriceId);
+                IEnumerable<UserResults> coursesRes = await _userResultService.GetAllResultEnterprice(enterpriseId);
                 foreach (var resCourse in coursesRes)
                 {
                    List< UserQuestionRequest> userAnswerts=JsonConvert.DeserializeObject<List<UserQuestionRequest>>(resCourse.answerJson);
                     await _azureCoursesOperation.DeleteFilesFromBlobAsync(userAnswerts);
                 }
 
-                IEnumerable<User> users = await _userService.GetAllUsersEnterprise(enterpriceId);
+                IEnumerable<User> users = await _userService.GetAllUsersEnterprise(enterpriseId);
                 foreach (var curUser in users)
                 {
                     await _azureAvatarOperation.DeleteAvatarFromBlobAsync(curUser.ProfileAvatar);
                 }
                
 
-                await  _enterpriseService.DeleteingEnterprise(enterpriceId);
+                await  _enterpriseService.DeleteingEnterprise(enterpriseId);
                 
 
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
-               
+
+                Log.Error($"delete enterprise ,error:{ex}");
 
 
                 // Обробка помилки і повернення на попередню сторінку з повідомленням
