@@ -37,8 +37,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-               // await _loggerService.LogAsync(Logger.LogType.Info, $"Fetching all users for enterprise ID {enterpriseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
+               
 
                 var users = await _userService.GetAllUsersEnterprise(enterpriseId);
               var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);

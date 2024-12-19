@@ -78,7 +78,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-            return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
+            return RedirectToAction("CreateWorker", "Workers");
         }
 
         [UserExists]

@@ -250,7 +250,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
 
-                // Додавання аватарки у вигляді JSON-рядка
+
                 if (user.ProfileAvatar != null)
                 {
                     olduser.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
