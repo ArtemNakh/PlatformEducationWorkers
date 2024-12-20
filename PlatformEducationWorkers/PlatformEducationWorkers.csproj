@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logging\PlatformEducationWorkers.Logging.csproj" />
     <ProjectReference Include="..\PlatformEducationWorkers.Core\PlatformEducationWorkers.Core.csproj" />
     <ProjectReference Include="..\PlatformEducationWorkers.Storage\PlatformEducationWorkers.Storage.csproj" />
   </ItemGroup>

@@ -33,6 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> CreateJobTitle(CreateJobTitleRequest request)
         {
 
+            Log.Information($"post Create jobtitle");
             if (!ModelState.IsValid)
             {
                 Log.Warning($"Create Job title. request is not valid");
@@ -75,6 +76,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
+
+            Log.Information($"jobTitle was succesfully created");
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
@@ -87,6 +90,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> JobTitles()
         {
 
+            Log.Information($"open the page job titles");
             var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
             var jobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
@@ -111,6 +115,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         public async Task<ActionResult> FindJobTitles(string searchTerm)
         {
+
+            Log.Information($"find jobTitle for title");
             IEnumerable<JobTitle> jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             if (!string.IsNullOrEmpty(searchTerm))
@@ -133,6 +139,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> DetailJobTitle(int id)
         {
 
+            Log.Information($"open the page detailJobTitle");
 
             var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
@@ -160,6 +167,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditJobTitle(int id)
         {
 
+            Log.Information($"open the page edit job title");
             var jobTitle = await _jobTitleService.GetJobTitle(id);
             if (jobTitle == null)
             {
@@ -193,6 +201,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditJobTitle(EditJobTitleRequest request)
         {
 
+            Log.Information($"post edit job title ");
             if (!ModelState.IsValid)
             {
 
@@ -211,6 +220,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
+            Log.Information($"jobTitle was succesfully update");
             return RedirectToAction("JobTitles");
         }
 
@@ -223,6 +233,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> AddJobTitle()
         {
 
+            Log.Information($"open the page CreateCourse");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -241,6 +252,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> AddJobTitle(CreateJobTitleRequest request)
         {
 
+            Log.Information($"post adding new jobTitle");
             if (!ModelState.IsValid)
             {
                 Log.Warning($"add job title, request is not valid,request :{request}");
@@ -267,6 +279,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
+            Log.Information($"jobTitle was succesfully created");
             return RedirectToAction("JobTitles");
         }
 
@@ -274,8 +287,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteJobTitle(int id)
         {
+            Log.Information($"deleting jobTitle with Id:({id})");
             await _jobTitleService.DeleteJobTitle(id);
 
+            Log.Information($"jobTitle with id:({id})was succesfully deleted");
             return RedirectToAction("JobTitles");
         }
     }

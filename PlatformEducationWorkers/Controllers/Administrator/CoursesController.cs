@@ -47,6 +47,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> Courses()
         {
+            Log.Information($"open the page courses");
             var cources = await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -57,7 +58,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
-            }
+            };
+
             ViewData["CompanyName"] = companyName;
             ViewBag.Cources = cources.ToList();
             return View("~/Views/Administrator/Cources/Courses.cshtml");
@@ -69,6 +71,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateCourse()
         {
+            Log.Information($"open the page CreateCourse");
+
             var jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
             if (jobTitles == null || !jobTitles.Any())
             {
@@ -98,6 +102,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> CreateCourse(CreateCourceRequest request)
         {
+            Log.Information($" Page CreateCourse (Post)");
             if (!ModelState.IsValid)
             {
 
@@ -159,7 +164,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DetailCourse(int id)
         {
-           
+
+            Log.Information($"open the page detail Course");
             var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
             {
@@ -167,7 +173,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
-            // Десеріалізація JSON у відповідні об'єкти
             List<QuestionContext> questions = null;
             string contentCourse = null;
 
@@ -191,8 +196,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
+
             ViewData["CompanyName"] = companyName;
-            // Передача розпарсених даних окремо у ViewBag
             ViewBag.Questions = questions;
             ViewBag.ContentCourse = contentCourse;
             ViewBag.Cource = cource;
@@ -205,7 +210,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> HistoryPassage(int id)
         {
 
-              int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            Log.Information($"open the page historyPassage");
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var historyPassages = await _userResultService.GetAllResultEnterprice(enterpriseId);
             var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
             if (historyPassages == null)
@@ -234,6 +240,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> FindHistoryPassage(int? courseId)
         {
+            Log.Information($"find history passage on the page history passage");
             if (courseId == null)
             {
                 Log.Error($"Find history passages is null, history passage course with id{courseId}");
@@ -264,6 +271,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> DeleteCourse(int id)
         {
 
+            Log.Information($"post request on delete course with id:({id})");
 
             var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
@@ -290,6 +298,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             await _courseService.DeleteCourse(cource.Id);
 
 
+            Log.Information($"course with id:({id}) was succesfull deleted");
             return RedirectToAction("Courses");
 
         }
@@ -305,6 +314,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditCourse(int id)
         {
+            Log.Information($"open the page edit course");
             var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
             {
@@ -329,7 +339,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
             ViewData["CompanyName"] = companyName;
-
             return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
 
         }
@@ -339,6 +348,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditCourse(EditCourceRequest request)
         {
+            Log.Information($"post page CreateCourse");
             if (!ModelState.IsValid)
             {
                 Log.Warning($"request  is no valid, edit course request{request}");
@@ -350,9 +360,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 Log.Error($"course  is null, edit course request{course}");
 
-
                 return NotFound();
             }
+
             //не видаляються старі фото які були
             request.Questions = await AzureOperation.UploadFileToBlobAsync(request.Questions);
 
@@ -366,6 +376,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
+            Log.Information($"course with id:({request.Id}) was succesfully update ");
             return RedirectToAction("DetailCource", course.Id);
         }
 
@@ -375,6 +386,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> SearchCourses(string searchTerm)
         {
+            Log.Information($"find courses");
             // Отримати всі курси
             var allCourses = await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
@@ -391,9 +403,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
 
-            // Передати відфільтровані курси у ViewBag
-            ViewBag.Cources = allCourses;
 
+            ViewBag.Cources = allCourses;
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 
@@ -403,6 +414,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DetailPassageCourse(int id)
         {
+            Log.Information($"open the page detail passage course");
             try
             {
                

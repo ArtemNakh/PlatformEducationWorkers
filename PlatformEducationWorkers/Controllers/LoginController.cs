@@ -25,19 +25,15 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IEnterpriseService _enterpriseService;
         private readonly IJobTitleService _jobTitleService;
         private readonly ICreateEnterpriseService _createEnterpriseService;
-        private readonly ILoggerService  _loggingService;
         private readonly AzureBlobAvatarOperation AzureOperation;
 
-        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, ILoggerService loggingService, AzureBlobAvatarOperation azureOperation, EmailService emailService)
+        public LoginController(IUserService userService, IEnterpriseService enterpriceService, IJobTitleService jobTitleService, ICreateEnterpriseService createEnterpriseService, AzureBlobAvatarOperation azureOperation, EmailService emailService)
         {
             _userService = userService;
             _enterpriseService = enterpriceService;
             _jobTitleService = jobTitleService;
             _createEnterpriseService = createEnterpriseService;
-            _loggingService = loggingService;
             AzureOperation = azureOperation;
-           // _emailService = emailService;
-
 
         }
 
@@ -45,6 +41,7 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login()
         {
+            Log.Information($"Open the page Login");
             return View();
         }
 
@@ -52,9 +49,11 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login( LoginRequest request)
         {
+            Log.Information($"post request the page Login ");
             if (!ModelState.IsValid)
             {
-               return BadRequest(ModelState);
+                Log.Warning($"models is not valid,request:{request} ");
+                return BadRequest(ModelState);
             }
 
             try
@@ -101,23 +100,20 @@ namespace PlatformEducationWorkers.Controllers
                     {
                         return RedirectToAction("MainAdmin", "MainAdmin", new { area = "Administrator" });
                     }
-                    
                     else if (userRole == Role.Workers.ToString())
                     {
                         return RedirectToAction("MainWorker", "MainWorker", new { area = "Worker" });
                     }
                     else
                     {
-                       await  _loggingService.LogAsync(Logger.LogType.Warning, $"Invalid role for user: {request.Login}");
-
+                        Log.Error($"Role for users is not correct,user id:{user.Id} ");
                         TempData["Error"] = "Invalid login or password";
                         return RedirectToAction("Login", "Login");
                     }
                 }
                 else
                 {
-                   await  _loggingService.LogAsync(Logger.LogType.Error, $"Invalid login attempt for user: {request.Login}");
-
+                    Log.Error($"Error login on page Login ");
 
                     TempData["Error"] = "Invalid login or password";
                     return RedirectToAction("Login", "Login");
@@ -125,8 +121,7 @@ namespace PlatformEducationWorkers.Controllers
             }
             catch (Exception ex)
             {
-               await  _loggingService.LogAsync(Logger.LogType.Error, $"Error occurred during login attempt for user: {request.Login}");
-
+                Log.Error($"Error login on page Login ");
                 TempData["Error"] = "Invalid login or password";
                 return RedirectToAction("Login", "Login");
             }
@@ -135,8 +130,7 @@ namespace PlatformEducationWorkers.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-           //await  _loggingService.LogAsync(Logger.LogType.Info, $"User logging out.");
-
+            Log.Information($"Logout  from account ");
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
@@ -145,7 +139,7 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register()
         {
-         
+            Log.Information($"Open the page registration ");
             return View();
         }
 
@@ -153,9 +147,12 @@ namespace PlatformEducationWorkers.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register( RegisterCompanyRequest model)
         {
+            Log.Information($"post request the page registration ");
+
             if (!ModelState.IsValid)
             {
-              
+                Log.Warning($"model is not valid,model:{model} ");
+
                 return View(model);
             }
             string avatar = "";
@@ -201,11 +198,14 @@ namespace PlatformEducationWorkers.Controllers
 
                 await _createEnterpriseService.AddEnterpriseWithOwnerAsync(enterprise, "Owner", owner);
 
-              
+                Log.Information($"enterprise was succesfully created ");
+
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
+                Log.Error($"Error adding enterprise ");
+
                 ModelState.AddModelError(string.Empty, ex.Message);
                 await AzureOperation.DeleteAvatarFromBlobAsync(avatar);
                 return View(model);

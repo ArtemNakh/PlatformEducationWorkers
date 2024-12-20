@@ -2,6 +2,7 @@
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
+using Serilog;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
@@ -24,6 +25,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> MainWorker()
         {
+            Log.Information($"open the main worker page ");
+
             try
             {
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -44,7 +47,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while trying to render the Main page.");
+                Log.Error($"Error open the main worker page ");
+
                 return StatusCode(500, "Internal Server Error");
             }
         }

@@ -33,6 +33,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> Workers()
         {
+
+            Log.Information($"open the page Workers");
             try
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -57,8 +59,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             catch (Exception ex)
             {
                 Log.Error($"workers enterprise ,error:{ex}");
-
-
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
                 return RedirectToAction("Login", "Login");
             }
@@ -69,6 +69,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> SearchWorkers(string name, string jobTitle)
         {
+
+            Log.Information($"Find workers for name and/or jobTitle");
             try
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -104,8 +106,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             catch (Exception ex)
             {
                 Log.Error($"search workers enterprise, error:{ex}");
-
-
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
                 return RedirectToAction("Workers");
             }
@@ -117,7 +117,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async  Task<IActionResult> CreateWorker()
         {
-            
+
+            Log.Information($"open the page CreateWorkers");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -141,6 +142,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
 
+            Log.Information($"Post request Create Worker");
             if (ModelState.IsValid)
             {
                 try
@@ -161,7 +163,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         Enterprise = enterprice
 
                     };
-                    // Обробка аватарки
+
                     if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
                     {
                         // Конвертуємо аватарку у Base64
@@ -174,6 +176,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     }
                     await _userService.AddUser(user);
 
+                    Log.Information($"workers was succesfully created");
 
                     return RedirectToAction("Workers");
                 }
@@ -185,7 +188,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            Log.Warning($"create worker enterprise ,request is not valid ,request:{request}");
+            Log.Warning($"create worker  ,request is not valid ,request:{request}");
 
             ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
@@ -200,6 +203,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> DetailWorker(int id)
         {
 
+            Log.Information($"open the page DetailWorker");
 
             var user = await _userService.GetUser(id);
             if (user == null)
@@ -230,6 +234,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditWorker(int id)
         {
 
+            Log.Information($"open the page editWorker");
             var user = await _userService.GetUser(id);
             if (user == null)
             {
@@ -272,6 +277,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditWorker(int id, UpdateUserRequest request)
         {
+            Log.Information($"post reqeust edit workers");
             if (ModelState.IsValid)
             {
                 try
@@ -315,10 +321,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         }
                     }
 
-                    await _userService.UpdateUser(user); 
-                    
+                    await _userService.UpdateUser(user);
 
 
+
+                    Log.Information($"workers was successfully update");
                     return RedirectToAction("Workers");
                 }
                 catch (Exception ex)
@@ -340,6 +347,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [Route("DeleteWorker/{id}")]
         public async Task<IActionResult> DeleteWorker(int id)
         {
+            Log.Information($"post request on delete worker with id:({id})");
             if (id == null)
             {
                 Log.Error($"delete  worker  ,id is null");
@@ -370,15 +378,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
 
                 await _userService.DeleteUser(id);
-               
+
+                Log.Information($"worker with id:({id}) was succesfully deleted");
 
                 return RedirectToAction("Workers");
             }
             catch (Exception ex)
             {
                 Log.Error($"delete worker  ,error :{ex}");
-
-
                 return RedirectToAction("Workers");
             }
         }

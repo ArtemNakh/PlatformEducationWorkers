@@ -6,6 +6,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
+using Serilog;
 
 namespace PlatformEducationWorkers.Controllers
 {
@@ -14,12 +15,10 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IUserService _userService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly AzureBlobAvatarOperation AzureOperation;
-        private readonly ILoggerService _loggingService;
-        public AccountController(IUserService userService, ILogger<AccountController> logger, IEnterpriseService enterpriceService, ILoggerService loggingService, AzureBlobAvatarOperation azureOperation)
+        public AccountController(IUserService userService,  IEnterpriseService enterpriceService, ILoggerService loggingService, AzureBlobAvatarOperation azureOperation)
         {
             _userService = userService;
             _enterpriseService = enterpriceService;
-            _loggingService = loggingService;
             AzureOperation = azureOperation;
         }
 
@@ -28,6 +27,8 @@ namespace PlatformEducationWorkers.Controllers
         [UserExists]
         public async Task<IActionResult> Credentials()
         {
+            Log.Information($"open the page Credentials ");
+
             try
             {
                 
@@ -53,7 +54,8 @@ namespace PlatformEducationWorkers.Controllers
             }
             catch (Exception ex)
             {
-               
+                Log.Error($"Error open the main worker page ");
+
 
                 TempData["Error"] = "Помилка завантаження даних користувача.";
                 return RedirectToAction("Login","Login");
@@ -65,6 +67,8 @@ namespace PlatformEducationWorkers.Controllers
         [UserExists]
         public async Task<IActionResult> EditCredentials()
         {
+            Log.Information($"open the page Edit Credentials ");
+
             try
             {
                 
@@ -75,7 +79,7 @@ namespace PlatformEducationWorkers.Controllers
 
                 if (user == null)
                 {
-                    await _loggingService.LogAsync(Logger.LogType.Warning, $"User not found. User ID: {userId}", HttpContext.Session.GetInt32("UserId").Value);
+                    Log.Error($"user is null,userId({userId}) ");
 
 
                     TempData["Error"] = "Користувача не знайдено.";
@@ -101,7 +105,8 @@ namespace PlatformEducationWorkers.Controllers
             }
             catch (Exception ex)
             {
-                
+                Log.Error($"Error open the page Edit Credentials ");
+
 
                 TempData["Error"] = "Помилка завантаження форми редагування.";
                 return RedirectToAction("Credentials");
@@ -113,9 +118,10 @@ namespace PlatformEducationWorkers.Controllers
         [UserExists]
         public async Task<IActionResult> EditCredentials(UpdateUserCredentialsRequest request)
         {
+            Log.Information($"post request the page Edit Credentials ");
             if (!ModelState.IsValid)
             {
-               
+                Log.Warning($"models is not valid, request:{request} ");
                 return RedirectToAction("Credentials");
             }
 
@@ -127,7 +133,7 @@ namespace PlatformEducationWorkers.Controllers
 
                 if (userId == null)
                 {
-                                       
+                    Log.Error($"userId is null ");
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
@@ -155,14 +161,14 @@ namespace PlatformEducationWorkers.Controllers
 
 
                 await _userService.UpdateUser(user);
-                
+                Log.Information($"Edit credentials was succesffuly ");
 
                 TempData["Success"] = "Дані успішно оновлено.";
                 return RedirectToAction("Credentials");
             }
             catch (Exception ex)
             {
-                
+                Log.Error($"post request the page Edit Credentials ");
                 ModelState.AddModelError(string.Empty, "Помилка оновлення даних.");
                 return RedirectToAction("Credentials");
             }

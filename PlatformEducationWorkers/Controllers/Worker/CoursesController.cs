@@ -11,6 +11,7 @@ using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Models.Results;
 using PlatformEducationWorkers.Request.PassageCource;
+using Serilog;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
@@ -21,17 +22,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
         private readonly IUserResultService _userResultService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
-        private readonly ILoggerService _loggerService;
         private readonly AzureBlobCourseOperation AzureOperation;
 
-        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService, ILoggerService loggerService, AzureBlobCourseOperation azureOperation)
+        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService, AzureBlobCourseOperation azureOperation)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
 
             _enterpriseService = enterpriseService;
-            _loggerService = loggerService;
             AzureOperation = azureOperation;
         }
 
@@ -41,11 +40,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> UncompleteCourses()
         {
+            Log.Information($"open the page UncompleteCourses");
             try
             {
-
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
-
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
@@ -65,8 +62,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження непройдених курсів.", HttpContext.Session.GetInt32("UserId").Value);
-               
+                Log.Error($"ERROR open the page UncompleteCourses");
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -76,11 +72,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> StatisticCourses()
         {
+            Log.Information($"open the page StatisticCourses");
             try
             {
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
-
-
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
 
@@ -100,9 +94,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження статистики курсів.", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                Log.Error($"ERROR open the page StatisticCourses");
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -113,6 +105,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> ResultCourse(int id)
         {
+            Log.Information($"open the page result course");
             try
             {
 
@@ -138,9 +131,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації ContentCourse для курсу {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                        Log.Error($"Error json deserialize contentCourse, error({ex}) ");
                     }
                 }
 
@@ -153,9 +144,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації Questions для курсу {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
-                        
+                        Log.Error($"Error json deserialize user result(answerJson), error({ex}) ");
                     }
                 }
 
@@ -177,9 +166,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час завантаження деталей курсу з ID {id}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                Log.Error($"Error open the page ResultCourse");
                 return StatusCode(500, "Сталася помилка.");
             }
 
@@ -191,6 +178,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> PassageCourse(int courseId)
         {
+            Log.Information($"open the page PassageCource");
             try
             {
 
@@ -198,7 +186,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
-                    
+                    Log.Error($"course is null, course id:({courseId})");
 
                     return NotFound();
                 }
@@ -213,9 +201,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     }
                     catch (JsonException ex)
                     {
-                        await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка десеріалізації питань для курсу {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
+                        Log.Error($"Error json deserialize questions, error({ex}) ");
                     }
                 }
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -234,8 +220,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                await _loggerService.LogAsync(Logger.LogType.Error, $"Помилка під час проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
+                Log.Error($"Error open the page passage course");
 
                 return StatusCode(500, "Сталася помилка.");
             }
@@ -246,18 +231,19 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> SaveResultCourse(UserResultRequest userResultRequest)
         {
+            Log.Information($"post request page PassageCource");
             try
             {
                 if (!ModelState.IsValid)
                 {
-                   
+                    Log.Warning($"models is not valid, models: {userResultRequest}");
                     return BadRequest(ModelState);
                 }
 
                 var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
                 if (course == null)
                 {
-                   
+                    Log.Error($"course is null, courseId:({userResultRequest.CourseId})");
                     return NotFound();
                 }
 
@@ -271,7 +257,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
-                    
+                    Log.Error($"user is null, courseId:({HttpContext.Session.GetInt32("UserId").Value})");
+
                     return RedirectToAction("Login", "Login");
                 }
                 userResultRequest.Questions = await AzureOperation.UploadFileToBlobAsync(userResultRequest.Questions);
@@ -290,13 +277,14 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 };
 
                 await _userResultService.AddResult(userResult);
-               
+                Log.Information($"passage course was succesfully added for user(id):{user.Id}/ course(id):{course.Id}");
 
                 return RedirectToAction("UncompleteCourses");
             }
             catch (Exception ex)
             {
-                
+                Log.Error($"Error post request passage course");
+
                 return StatusCode(500, "Сталася помилка.");
             }
         }
@@ -307,16 +295,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> TheoryCourse(int courseId)
         {
+            Log.Information($"open the page TheoryCourse");
+
             try
             {
-               // await _loggerService.LogAsync(Logger.LogType.Info, $"Теорія курса з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
-
 
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
-                    
+                    Log.Error($"Course is null, courseId({courseId})");
 
                     return NotFound();
                 }
@@ -337,7 +324,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-               
+                Log.Information($"Error open the page TheoryCourse");
+
 
                 return StatusCode(500, "Сталася помилка.");
             }

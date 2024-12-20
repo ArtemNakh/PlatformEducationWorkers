@@ -42,6 +42,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteEnterprice()
         {
+
+            Log.Information($"post deleting enterprise");
             try
             {
 
@@ -108,17 +110,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                
 
                 await  _enterpriseService.DeleteingEnterprise(enterpriseId);
-                
+
+                Log.Information($"deleting enerprise with id({enterpriseId}) was succesfully");
 
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
             {
-
                 Log.Error($"delete enterprise ,error:{ex}");
-
-
-                // Обробка помилки і повернення на попередню сторінку з повідомленням
                 TempData["ErrorMessage"] = $"Error deleting Enterprice: {ex.Message}";
                 return RedirectToAction("Main", "Main");
             }
@@ -129,6 +128,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> MainAdmin()
         {
 
+            Log.Information($"open the  Main administration page");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             int numbersLastPassage = 5;
             var lastPassages = await _userResultService.GetLastPassages(enterpriseId, numbersLastPassage);
@@ -136,7 +136,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var newCources= await _courseService.GetNewCourses(enterpriseId);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
-            // Отримуємо аватарку з сесії (якщо вона є)
+           
+
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
 
             ViewData["CompanyName"] = companyName; 
