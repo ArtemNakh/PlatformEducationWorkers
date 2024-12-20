@@ -97,6 +97,13 @@ namespace PlatformEducationWorkers.Controllers
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
                 }
+                else
+                {
+                    string defaultAvatarPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Sourses", "DefaultAvatar.png");
+                    byte[] defaultAvatarBytes = System.IO.File.ReadAllBytes(defaultAvatarPath);
+                    string base64DefaultAvatar = Convert.ToBase64String(defaultAvatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/png;base64,{base64DefaultAvatar}";
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 

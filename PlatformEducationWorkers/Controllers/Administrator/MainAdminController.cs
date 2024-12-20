@@ -7,6 +7,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Models.Results;
@@ -153,7 +154,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
             else
             {
-                ViewData["UserAvatar"] = "/images/default-avatar.png";
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
 
 

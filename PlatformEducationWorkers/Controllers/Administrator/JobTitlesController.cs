@@ -7,6 +7,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Request;
 using PlatformEducationWorkers.Request.JobTitlesRequest;
 using Serilog;
@@ -102,6 +103,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = jobTitles;
 
@@ -129,6 +134,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
             return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles.ToList());
         }
 
@@ -155,6 +164,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             ViewData["CompanyName"] = companyName;
 
@@ -190,6 +203,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/EditJobTitle.cshtml", request);
@@ -241,6 +258,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/AddJobTitle.cshtml");

@@ -7,6 +7,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Models.Results;
@@ -56,6 +57,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
                 }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
                 return View("~/Views/Worker/Cources/UncompleteCourses.cshtml");
@@ -87,6 +92,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.CoursesStatistics = coursesStatistics;
@@ -156,6 +165,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
                 }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = courseResult.Course;
                 ViewBag.Result = courseResult;
@@ -211,6 +224,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
@@ -316,6 +333,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;

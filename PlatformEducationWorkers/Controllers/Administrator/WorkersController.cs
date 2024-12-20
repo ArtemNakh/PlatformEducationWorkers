@@ -6,6 +6,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
+using PlatformEducationWorkers.Models;
 using PlatformEducationWorkers.Models.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using Serilog;
@@ -50,6 +51,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
@@ -97,6 +102,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
                 }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users;
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -126,6 +135,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             ViewData["CompanyName"] = companyName;
 
@@ -222,6 +235,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
             ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
 
@@ -268,6 +285,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
                 ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             return View("~/Views/Administrator/Workers/EditWorker.cshtml", updateUserRequest);
         }

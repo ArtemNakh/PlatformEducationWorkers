@@ -2,6 +2,7 @@
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
+using PlatformEducationWorkers.Models;
 using Serilog;
 
 namespace PlatformEducationWorkers.Controllers.Worker
@@ -41,6 +42,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
                 }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                }
+
                 ViewData["CompanyName"] = companyName;
                 ViewData["UnfinishedCourses"] = unfinishedCourses.OrderBy(c=>c.DateCreate);
                 return View("~/Views/Worker/Main/Main.cshtml");
