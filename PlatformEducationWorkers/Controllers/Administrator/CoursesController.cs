@@ -33,7 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly AzureBlobCourseOperation AzureOperation;
 
 
-        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, ILoggerService loggingService, IConfiguration configuration, AzureBlobCourseOperation azureOperation)
+        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration, AzureBlobCourseOperation azureOperation)
         {
             _courseService = courceService;
             _jobTitleService = jobTitleService;
@@ -352,6 +352,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ContentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse),
                 Questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions)
             };
+
+           request.Questions=await  AzureOperation.UnloadFileFromBlobAsync(request.Questions);
+            
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -390,12 +393,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             //не видаляються старі фото які були
+            List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+            await AzureOperation.DeleteFilesFromBlobAsync(questionContexts);
             request.Questions = await AzureOperation.UploadFileToBlobAsync(request.Questions);
 
             // Оновлюємо дані курсу
             course.TitleCource = request.TitleCource;
             course.Description = request.Description;
-            course.ContentCourse = request.ContentCourse;
+            course.ContentCourse = JsonConvert.SerializeObject(request.ContentCourse);
             course.Questions = JsonConvert.SerializeObject(request.Questions);
 
             await _courseService.UpdateCourse(course);
@@ -403,7 +408,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
             Log.Information($"course with id:({request.Id}) was succesfully update ");
-            return RedirectToAction("DetailCource", course.Id);
+            return RedirectToAction("DetailCourse", new { id = request.Id });
+
+
         }
 
 
