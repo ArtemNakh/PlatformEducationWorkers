@@ -8,14 +8,12 @@ namespace PlatformEducationWorkers.Controllers.Worker
     [Area("Worker")]
     public class MainWorkerController : Controller
     {
-        private readonly ILogger<MainWorkerController> _logger;
         private readonly IEnterpriseService _enterpriseService;
         private readonly ICoursesService _courseService;
 
 
-        public MainWorkerController(ILogger<MainWorkerController> logger, IEnterpriseService enterpriseService, ICoursesService courceService)
+        public MainWorkerController( IEnterpriseService enterpriseService, ICoursesService courceService)
         {
-            _logger = logger;
             _enterpriseService = enterpriseService;
             _courseService = courceService;
         }
@@ -26,8 +24,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
         [UserExists]
         public async Task<IActionResult> MainWorker()
         {
-           // _logger.LogInformation("User accessed the Main page of the Worker area.");
-
             try
             {
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;

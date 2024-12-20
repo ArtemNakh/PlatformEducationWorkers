@@ -65,7 +65,7 @@ namespace PlatformEducationWorkers.Controllers
                 {
                     HttpContext.Session.SetInt32("UserId", user.Id);
                     HttpContext.Session.SetString("UserRole", user.Role.ToString());
-                    HttpContext.Session.SetInt32("EnterpriseId", user.Enterprise.Id);
+                    HttpContext.Session.SetInt32("EnterpriseId", (int)user.Enterprise.Id);
 
                     // Якщо є аватарка, перетворити її у byte[] і зберегти в сесії
                     if (!string.IsNullOrEmpty(user.ProfileAvatar))

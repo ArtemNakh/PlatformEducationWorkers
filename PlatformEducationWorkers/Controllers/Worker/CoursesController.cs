@@ -194,8 +194,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                //await _loggerService.LogAsync(Logger.LogType.Info, $"Початок проходження курсу з ID {courseId}.", HttpContext.Session.GetInt32("UserId").Value);
-
+                
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
@@ -209,8 +208,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     try
                     {
-                        //questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(course.Questions);
-                        questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                         questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                         questions = await AzureOperation.UnloadFileFromBlobAsync(questions);
                     }
                     catch (JsonException ex)

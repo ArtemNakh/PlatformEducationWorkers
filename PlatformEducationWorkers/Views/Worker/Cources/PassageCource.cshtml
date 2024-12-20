@@ -6,6 +6,7 @@
     ViewBag.Title = "Проходження курсу";
 
     var course = ViewBag.Course as Courses;
+    var questions = ViewBag.Questions as List<QuestionContext>;
 }
 
 <div class="container mt-5">
@@ -50,30 +51,68 @@
                             </div>
                         }
 
-                        @for (int j = 0; j < ViewBag.Questions[i].Answers.Count; j++)
-                        {
-                            <div class="form-check">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       name="Questions[@i].Answers[@j].IsSelected"
-                                       value="true"
-                                       id="answer-@i-@j" />
-                                <label class="form-check-label" for="answer-@i-@j">
-                                    @ViewBag.Questions[i].Answers[j].Text
-                                </label>
-                                <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@ViewBag.Questions[i].Answers[j].Text" />
-                                <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(ViewBag.Questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
-                                <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@(ViewBag.Questions[i].Answers[j].PhotoAnswerBase64)" />
 
-                                <!-- Display Answer Image if Available -->
-                                @if (!string.IsNullOrEmpty(ViewBag.Questions[i].Answers[j].PhotoAnswerBase64))
-                                {
-                                    <div class="mb-3">
-                                        <img src="data:image/jpeg;base64,@ViewBag.Questions[i].Answers[j].PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid" style="max-height: 150px;" />
-                                    </div>
-                                }
-                            </div>
+                        <!-- Check if more than one correct answer -->
+                        @if (questions[i].Answers.Count(a => a.IsCorrect) > 1)
+                        {
+                            <!-- Checkbox for multiple correct answers -->
+                            @for (int j = 0; j < questions[i].Answers.Count; j++)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="Questions[@i].Answers[@j].IsSelected"
+                                           value="true"
+                                           id="answer-@i-@j"
+                                           data-correct="@(questions[i].Answers[j].IsCorrect.ToString().ToLower())"
+                                           data-question-index="@i"
+                                           onclick="updateSelectedCheckboxes(@i);" />
+                                    <label class="form-check-label" for="answer-@i-@j">
+                                        @questions[i].Answers[j].Text
+                                    </label>
+                                    <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@questions[i].Answers[j].Text" />
+                                    <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
+                                    <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@(questions[i].Answers[j].PhotoAnswerBase64)" />
+
+                                    <!-- Display Answer Image if Available -->
+                                    @if (!string.IsNullOrEmpty(questions[i].Answers[j].PhotoAnswerBase64))
+                                    {
+                                        <div class="mb-3">
+                                            <img src="data:image/jpeg;base64,@questions[i].Answers[j].PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid" style="max-height: 150px;" />
+                                        </div>
+                                    }
+                                </div>
+                            }
                         }
+                        else
+                        {
+                            <!-- Radio buttons for single correct answer -->
+                            @for (int j = 0; j < questions[i].Answers.Count; j++)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="Questions[@i].Answers[@j].IsSelected"
+                                           value="true"
+                                           id="answer-@i-@j" />
+                                    <label class="form-check-label" for="answer-@i-@j">
+                                        @questions[i].Answers[j].Text
+                                    </label>
+                                    <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@questions[i].Answers[@j].Text" />
+                                    <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
+                                    <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@(questions[i].Answers[j].PhotoAnswerBase64)" />
+
+                                    <!-- Display Answer Image if Available -->
+                                    @if (!string.IsNullOrEmpty(questions[i].Answers[j].PhotoAnswerBase64))
+                                    {
+                                        <div class="mb-3">
+                                            <img src="data:image/jpeg;base64,@questions[i].Answers[j].PhotoAnswerBase64" alt="Фото відповіді" class="img-fluid" style="max-height: 150px;" />
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                       
                     </div>
                 }
 
@@ -84,3 +123,39 @@
         </div>
     </div>
 </div>
+
+<script>
+    function updateSelectedCheckboxes(questionIndex) {
+        // Get all checkboxes for this question
+        const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-question-index="${questionIndex}"]`);
+        const correctCount = [...checkboxes].filter(checkbox => checkbox.dataset.correct === 'true').length;
+
+        // Count how many checkboxes are selected
+        const selectedCheckboxes = [...checkboxes].filter(checkbox => checkbox.checked);
+        const selectedCount = selectedCheckboxes.length;
+
+        // Enable or disable checkboxes based on selected count
+        checkboxes.forEach(checkbox => {
+            const isCorrect = checkbox.dataset.correct === 'true';
+
+            // Disable unchecked checkboxes if the maximum limit is reached
+            if (!checkbox.checked && selectedCount >= correctCount) {
+                checkbox.disabled = true;
+            } else {
+                checkbox.disabled = false; // Enable unchecked checkboxes if the limit is not reached
+            }
+        });
+
+        // Ensure the last clicked checkbox remains checked
+        if (selectedCount > correctCount) {
+            // Uncheck the first checkbox in the selected list to maintain the limit
+            const lastChecked = selectedCheckboxes[selectedCheckboxes.length - 1];
+            const firstChecked = selectedCheckboxes.find(cb => cb !== lastChecked);
+            if (firstChecked) {
+                firstChecked.checked = false;
+                firstChecked.disabled = false; // Re-enable the unselected checkbox
+            }
+        }
+    }
+
+</script>
