@@ -43,8 +43,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddScoped<ILoggerService, LoggerService>();
-builder.Services.AddScoped<ILogRepository, LogsRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IUserResultService, UserResultService>();
 builder.Services.AddTransient<IEnterpriseService, EnterpriceService>();

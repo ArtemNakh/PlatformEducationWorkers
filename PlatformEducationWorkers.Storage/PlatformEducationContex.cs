@@ -30,7 +30,6 @@ namespace PlatformEducationWorkers.Storage
 
 
 
-        public DbSet<LogEntry> Logs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Enterprise> Enterprises { get; set; }
         public DbSet<Courses> Cources { get; set; }
