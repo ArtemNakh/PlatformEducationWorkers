@@ -15,5 +15,6 @@ namespace PlatformEducationWorkers.Core.Interfaces.Enterprises
         Task<Enterprise> GetEnterprise(int enterpriseId);
         Task<Enterprise> GetEnterpriseByUser(int userId);
         Task<Enterprise> GetEnterprise(string title);
+        Task<bool> HasEnterprise(int enterpriseId);
     }
 }

@@ -16,6 +16,23 @@
             <h4 class="text-secondary">Вміст курсу:</h4>
             <p class="bg-light p-3 rounded">@ViewBag.ContentCourse</p>
 
+            <h4 class="text-secondary">Ролі з доступом:</h4>
+            @if (ViewBag.Cource.AccessRoles != null && ViewBag.Cource.AccessRoles.Count > 0)
+            {
+                <ul class="list-group mb-4">
+                    @foreach (var role in ViewBag.Cource.AccessRoles)
+                    {
+                        <li class="list-group-item">
+                            <h5 class="mb-1">@role.Name</h5>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Немає ролей з доступом.</p>
+            }
+
             <h4 class="text-secondary">Показ правильних відповідей:</h4>
             <p class="text-muted">
                 @if (ViewBag.Cource.ShowCorrectAnswers)

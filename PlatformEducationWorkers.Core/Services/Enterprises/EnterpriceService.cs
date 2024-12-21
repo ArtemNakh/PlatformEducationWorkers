@@ -1,4 +1,5 @@
-﻿using PlatformEducationWorkers.Core.Interfaces.Enterprises;
+﻿using Amazon.S3.Model;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using System.ComponentModel.DataAnnotations;
@@ -143,7 +144,21 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
+        public async Task<bool> HasEnterprise(int enterpriseId)
+        {
+            try
+            {
+                if (enterpriseId == null || enterpriseId == 0) throw new Exception("enterpriseId is null or less than 0");
 
+
+                return _repository.GetById<Enterprise>(enterpriseId).IsCompleted;
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+        }
 
     }
 }

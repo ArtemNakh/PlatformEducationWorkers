@@ -210,8 +210,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
-
-            ViewData["CompanyName"] = companyName;
+            
+           ViewData["CompanyName"] = companyName;
             ViewBag.Questions = questions;
             ViewBag.ContentCourse = contentCourse;
             ViewBag.Cource = cource;
@@ -349,10 +349,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Id = cource.Id,
                 TitleCource = cource.TitleCource,
                 Description = cource.Description,
+               
                 ContentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse),
                 Questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions)
             };
 
+           
            request.Questions=await  AzureOperation.UnloadFileFromBlobAsync(request.Questions);
             
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -367,6 +369,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
+            
+            ViewBag.ChooseJobTitle = cource.AccessRoles.ToList();
+            ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
 
@@ -378,6 +383,45 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditCourse(EditCourceRequest request)
         {
             Log.Information($"post page CreateCourse");
+
+            //Видалення пустих питань та відповідей 
+            List<QuestionContext> questionContext=new List<QuestionContext>();
+            foreach (var question in request.Questions)
+            {
+                
+                if(question.Text !=null)
+                {
+                    QuestionContext questionCurrent = new QuestionContext();
+                    questionCurrent.Text = question.Text;
+                    if(question.PhotoQuestionBase64!=null)
+                    {
+                        questionCurrent.PhotoQuestionBase64=question.PhotoQuestionBase64;
+                    }
+
+                    foreach (var answer in question.Answers)
+                    {
+                       
+                        if(answer.Text!=null)
+                        {
+                            AnswerContext answerCurrent = new AnswerContext();
+                            answerCurrent.Text = answer.Text;
+                            answerCurrent.IsCorrect=answer.IsCorrect;
+                            answerCurrent.PhotoAnswerBase64 = answer.PhotoAnswerBase64;
+                            
+                            questionCurrent.Answers.Add(answerCurrent);
+                        }
+                    }
+                    questionContext.Add(questionCurrent);
+                }
+            }
+            request.Questions = questionContext;
+
+
+
+
+
+
+
             if (!ModelState.IsValid)
             {
                 Log.Warning($"request  is no valid, edit course request{request}");
@@ -392,6 +436,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
+            List<JobTitle> jobTitles = new List<JobTitle>();
+            foreach (var IdJobTitle in request.AccessRoles)
+            {
+                jobTitles.Add(await _jobTitleService.GetJobTitle(IdJobTitle));
+            }
+
+
             //не видаляються старі фото які були
             List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
             await AzureOperation.DeleteFilesFromBlobAsync(questionContexts);
@@ -400,8 +451,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             // Оновлюємо дані курсу
             course.TitleCource = request.TitleCource;
             course.Description = request.Description;
+            course.AccessRoles = jobTitles;
             course.ContentCourse = JsonConvert.SerializeObject(request.ContentCourse);
             course.Questions = JsonConvert.SerializeObject(request.Questions);
+
+            //додати видалення проходжень курсів(так як курс був змінено
 
             await _courseService.UpdateCourse(course);
 

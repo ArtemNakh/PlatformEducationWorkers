@@ -1,4 +1,5 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
+using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 
@@ -7,10 +8,12 @@ namespace PlatformEducationWorkers.Core.Services
     public class JobTitleService : IJobTitleService
     {
         private readonly IRepository _repository;
+        private readonly IEnterpriseService _enterpriseService;
 
-        public JobTitleService(IRepository repository)
+        public JobTitleService(IRepository repository, IEnterpriseService enterpriseService)
         {
             _repository = repository;
+            _enterpriseService = enterpriseService;
         }
 
         public Task<JobTitle> AddingRole(JobTitle jobTitle)
@@ -119,6 +122,29 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 throw new Exception($"Error update job Title, error:{ex}");
             }
+        }
+
+        public async Task<IEnumerable<JobTitle>> GetAvaliableRoles(int enterpriseId)
+        {
+            try
+            {
+                if (enterpriseId == null || enterpriseId < 0)
+                {
+                    throw new Exception($"Error get avaliable job Title, error:enterpriseId null or less than 0");
+                }
+                if(!await _enterpriseService.HasEnterprise(enterpriseId))
+                {
+                    throw new Exception($"Enterprise with Id {enterpriseId} is not found");
+                }
+
+
+                return (await _repository.GetQueryAsync<JobTitle>(n=>n.Enterprise.Id == enterpriseId)).Skip(1);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error get avaliable job Title, error:{ex}");
+            }
+
         }
     }
 }

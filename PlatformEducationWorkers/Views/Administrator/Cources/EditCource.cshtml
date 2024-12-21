@@ -1,9 +1,12 @@
-﻿@using PlatformEducationWorkers.Request.CourceRequest
+﻿@using PlatformEducationWorkers.Core.Models
+@using PlatformEducationWorkers.Request.CourceRequest
 @model EditCourceRequest
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["Title"] = "Редагувати курс";
+
+    var choosedJobTitle = ViewBag.ChooseJobTitle as List<JobTitle>;
 }
 
 <div class="container mt-5">
@@ -33,6 +36,24 @@
                     <textarea asp-for="ContentCourse" class="form-control" rows="6"></textarea>
                     <span asp-validation-for="ContentCourse" class="text-danger"></span>
                 </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Доступні ролі</label>
+                    <div class="form-check">
+                        @foreach (var role in ViewBag.AvaliableJobTitle as List<JobTitle>)
+                        {
+                            <div>
+                                <input type="checkbox" name="AccessRoles[]" value="@role.Id" class="form-check-input"
+                                @(choosedJobTitle != null && choosedJobTitle.Any(r => r == role) ? "checked" : "") />
+
+                                <label>@role.Name</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+
+
 
                 <h3 class="text-secondary">Питання та відповіді</h3>
                 <div id="questions-container" class="mt-3">
@@ -130,7 +151,7 @@
         $(document).ready(function () {
             let questionIndex = @Model.Questions.Count; // Початковий індекс питань
             let answerIndexes = @Html.Raw(Json.Serialize(Model.Questions.Select(q => q.Answers.Count))); // Початкові індекси відповідей
-          
+            let 
 
             // Відображення нових фотографій після вибору файлу
             $(document).on("change", ".question-photo-input, .answer-photo-input", function () {
@@ -156,20 +177,20 @@
             // Додати нове питання
             $(".add-question").on("click", function () {
                 const questionHtml = `
-                                        <div class="question mb-4 p-3 border rounded bg-light" data-index="${questionIndex}">
-                                            <label class="form-label">Питання ${questionIndex}</label>
-                                            <input name="Questions[${questionIndex}].Text" class="form-control mb-3" />
-                                            <div class="mb-4">
-                                                <img id="question-photo-${questionIndex}" src="#" alt="Фото питання" class="img-fluid mb-2 d-none" style="max-height: 200px;" />
-                                                <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" id="question-base64-${questionIndex}" value="" />
-                                                <label class="form-label">Завантажити нове фото</label>
-                                                <input type="file" class="form-control question-photo-input" data-photo-target="#question-photo-${questionIndex}" data-base64-target="#question-base64-${questionIndex}" />
-                                            </div>
-                                            <h4 class="text-secondary">Відповіді:</h4>
-                                            <div class="answers-container"></div>
-                                            <button type="button" class="btn btn-primary btn-sm add-answer" data-question-index="${questionIndex}">Додати відповідь</button>
-                                            <button type="button" class="btn btn-danger btn-sm remove-question">Видалити питання</button>
-                                        </div>`;
+                                                                                                        <div class="question mb-4 p-3 border rounded bg-light" data-index="${questionIndex}">
+                                                                                                            <label class="form-label">Питання ${questionIndex}</label>
+                                                                                                            <input name="Questions[${questionIndex}].Text" class="form-control mb-3" />
+                                                                                                            <div class="mb-4">
+                                                                                                                <img id="question-photo-${questionIndex}" src="#" alt="Фото питання" class="img-fluid mb-2 d-none" style="max-height: 200px;" />
+                                                                                                                <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" id="question-base64-${questionIndex}" value="" />
+                                                                                                                <label class="form-label">Завантажити нове фото</label>
+                                                                                                                <input type="file" class="form-control question-photo-input" data-photo-target="#question-photo-${questionIndex}" data-base64-target="#question-base64-${questionIndex}" />
+                                                                                                            </div>
+                                                                                                            <h4 class="text-secondary">Відповіді:</h4>
+                                                                                                            <div class="answers-container"></div>
+                                                                                                            <button type="button" class="btn btn-primary btn-sm add-answer" data-question-index="${questionIndex}">Додати відповідь</button>
+                                                                                                            <button type="button" class="btn btn-danger btn-sm remove-question">Видалити питання</button>
+                                                                                                        </div>`;
                 $("#questions-container").append(questionHtml);
                 answerIndexes[questionIndex] = 0; // Ініціалізуємо індекс відповідей для цього питання
                 questionIndex++;
@@ -181,20 +202,20 @@
                 const answerIndex = answerIndexes[questionIndex] || 0;
 
                 const answerHtml = `
-                                        <div class="input-group mb-2 answer" data-index="${answerIndex}">
-                                            <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
-                                            <div class="input-group-text">
-                                                        <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" type="checkbox" class="form-check-input" />
-                                                <label class="form-check-label ms-2">Правильна</label>
-                                            </div>
-                                            <div class="mb-4">
-                                                <img id="answer-photo-${questionIndex}-${answerIndex}" src="#" alt="Фото відповіді" class="img-fluid mb-2 d-none" style="max-height: 100px;" />
-                                                <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" id="answer-base64-${questionIndex}-${answerIndex}" value="" />
-                                                <label class="form-label">Завантажити нове фото</label>
-                                                <input type="file" class="form-control answer-photo-input" data-photo-target="#answer-photo-${questionIndex}-${answerIndex}" data-base64-target="#answer-base64-${questionIndex}-${answerIndex}" />
-                                            </div>
-                                            <button type="button" class="btn btn-danger btn-sm remove-answer">Видалити відповідь</button>
-                                        </div>`;
+                                                                                                        <div class="input-group mb-2 answer" data-index="${answerIndex}">
+                                                                                                            <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
+                                                                                                            <div class="input-group-text">
+                                                                                                                        <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" type="checkbox" class="form-check-input" />
+                                                                                                                <label class="form-check-label ms-2">Правильна</label>
+                                                                                                            </div>
+                                                                                                            <div class="mb-4">
+                                                                                                                <img id="answer-photo-${questionIndex}-${answerIndex}" src="#" alt="Фото відповіді" class="img-fluid mb-2 d-none" style="max-height: 100px;" />
+                                                                                                                <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" id="answer-base64-${questionIndex}-${answerIndex}" value="" />
+                                                                                                                <label class="form-label">Завантажити нове фото</label>
+                                                                                                                <input type="file" class="form-control answer-photo-input" data-photo-target="#answer-photo-${questionIndex}-${answerIndex}" data-base64-target="#answer-base64-${questionIndex}-${answerIndex}" />
+                                                                                                            </div>
+                                                                                                            <button type="button" class="btn btn-danger btn-sm remove-answer">Видалити відповідь</button>
+                                                                                                        </div>`;
                 $(this).siblings(".answers-container").append(answerHtml);
                 answerIndexes[questionIndex]++;
             });
@@ -209,7 +230,83 @@
                 $(this).closest(".answer").remove();
             });
 
-          
+
+
+            // Видалення питання
+            $(document).on("click", ".remove-existing-question", function () {
+                const questionElement = $(this).closest(".question");
+                questionElement.remove();
+                updateQuestionIndexes();
+            });
+
+            // Видалення відповіді
+            $(document).on("click", ".remove-existing-answer", function () {
+                const questionElement = $(this).closest(".question");
+                const questionIndex = questionElement.data("index");
+                const answerElement = $(this).closest(".answer");
+                answerElement.remove();
+                updateAnswerIndexes(questionElement, questionIndex);
+            });
+
+            // Оновлення індексів питань
+            function updateQuestionIndexes() {
+                $("#questions-container .question").each(function (newIndex) {
+                    const questionElement = $(this);
+                    questionElement.attr("data-index", newIndex); // Оновлення data-атрибутів
+                    questionElement.find("label.form-label:first").text(`Питання ${newIndex}`);
+
+                    // Оновлення імен ідентифікаторів у питання
+                    questionElement.find("[name]").each(function () {
+                        const name = $(this).attr("name");
+                        if (name) {
+                            $(this).attr("name", name.replace(/Questions\[\d+\]/, `Questions[${newIndex}]`));
+                        }
+                    });
+
+                    questionElement.find("[id]").each(function () {
+                        const id = $(this).attr("id");
+                        if (id) {
+                            $(this).attr("id", id.replace(/question-base64-\d+/, `question-base64-${newIndex}`));
+                        }
+                    });
+
+                    // Оновлення відповідей
+                    updateAnswerIndexes(questionElement, newIndex);
+                });
+
+                // Оновити загальний індекс питань
+                questionIndex = $("#questions-container .question").length;
+            }
+
+            // Оновлення індексів відповідей
+            function updateAnswerIndexes(questionElement, questionIndex) {
+                const answersContainer = questionElement.find(".answers-container");
+                answersContainer.find(".answer").each(function (newIndex) {
+                    const answerElement = $(this);
+                    answerElement.attr("data-index", newIndex);
+
+                    // Оновлення імен у відповідях
+                    answerElement.find("[name]").each(function () {
+                        const name = $(this).attr("name");
+                        if (name) {
+                            $(this).attr("name", name.replace(/Questions\[\d+\]\.Answers\[\d+\]/, `Questions[${questionIndex}].Answers[${newIndex}]`));
+                        }
+                    });
+
+                    // Оновлення ідентифікаторів у відповідях
+                    answerElement.find("[id]").each(function () {
+                        const id = $(this).attr("id");
+                        if (id) {
+                            $(this).attr("id", id.replace(/answer-base64-\d+-\d+/, `answer-base64-${questionIndex}-${newIndex}`));
+                        }
+                    });
+                });
+
+                // Оновити кількість відповідей для цього питання
+                answerIndexes[questionIndex] = answersContainer.find(".answer").length;
+            }
+
+           
         });
     </script>
 }

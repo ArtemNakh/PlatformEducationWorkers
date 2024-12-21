@@ -14,6 +14,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task DeleteJobTitle(int idRole);
         Task<JobTitle> AddingRole(JobTitle role);
         Task<JobTitle> UpdateJobTitle(JobTitle role);
+        Task<IEnumerable<JobTitle>> GetAvaliableRoles(int enterpriseId);
 
     }
 }

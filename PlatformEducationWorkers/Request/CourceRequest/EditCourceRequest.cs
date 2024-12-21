@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Models.Questions;
 namespace PlatformEducationWorkers.Request.CourceRequest
 {
@@ -19,6 +20,9 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 
         [Required(ErrorMessage = "Course content is required.")]
         public string ContentCourse { get; set; } // JSON рядок із вмістом курсу
+
+        [Required(ErrorMessage = "Access Roles must be required.")]
+        public List<int> AccessRoles { get; set; }
 
         [Required(ErrorMessage = "Questions are required.")]
         [MinLength(1, ErrorMessage = "At least one question is required.")]
