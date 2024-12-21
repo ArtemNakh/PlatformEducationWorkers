@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Models.ContestCourses
+﻿namespace PlatformEducationWorkers.Core.ContestCourses
 {
     public class ContentCourseContext
     {

@@ -4,7 +4,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models.Azure;
+using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using Serilog;
 
@@ -14,12 +14,12 @@ namespace PlatformEducationWorkers.Controllers
     {
         private readonly IUserService _userService;
         private readonly IEnterpriseService _enterpriseService;
-        private readonly AzureBlobAvatarOperation AzureOperation;
-        public AccountController(IUserService userService,  IEnterpriseService enterpriceService, ILoggerService loggingService, AzureBlobAvatarOperation azureOperation)
+
+        public AccountController(IUserService userService,  IEnterpriseService enterpriceService, ILoggerService loggingService)
         {
             _userService = userService;
             _enterpriseService = enterpriceService;
-            AzureOperation = azureOperation;
+
         }
 
         [HttpGet]
@@ -161,9 +161,10 @@ namespace PlatformEducationWorkers.Controllers
                     using (var memoryStream = new MemoryStream())
                     {
                         await request.ProfileAvatar.CopyToAsync(memoryStream);
-                        string photo = await AzureOperation.UploadAvatarToBlobAsync(memoryStream.ToArray());
-                        user.ProfileAvatar = photo;
+                        
+                        user.ProfileAvatar = Convert.ToBase64String(memoryStream.ToArray());
                     }
+                   
                 }
 
 

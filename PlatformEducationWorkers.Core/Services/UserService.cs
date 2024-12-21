@@ -3,25 +3,23 @@ using Newtonsoft.Json;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+
+using PlatformEducationWorkers.Core.Azure;
+using Azure.Core;
+
 
 namespace PlatformEducationWorkers.Core.Services
 {
     public class UserService : IUserService
     {
         private readonly IRepository _repository;
-
+        private readonly AzureBlobAvatarOperation AzureAvatarService;
         private readonly EmailService _emailService;
-        public UserService(IRepository repository, EmailService emailService)
+        public UserService(IRepository repository, EmailService emailService, AzureBlobAvatarOperation azureAvatarService)
         {
             _repository = repository;
-            this._emailService = emailService;
+            _emailService = emailService;
+            AzureAvatarService = azureAvatarService;
         }
 
 
@@ -51,11 +49,17 @@ namespace PlatformEducationWorkers.Core.Services
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
 
-                //// Додавання аватарки у вигляді JSON-рядка
-                //if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
-                //{
-                //    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
-                //}
+                // Додавання аватарки у вигляді JSON-рядка
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+
+                    // Конвертуємо аватарку у Base64
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
+                        user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+                    }
+                }
 
                 var enterpriseEmail = user.Enterprise.Email;
                 var subject = "Вітаємо вас було додано до на платформу навчання працівників";
@@ -79,6 +83,11 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
                 User user = await _repository.GetById<User>(userId);
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    await AzureAvatarService.DeleteAvatarFromBlobAsync(user.ProfileAvatar);
+
+                }
                 var subject = "Видалення облікового запису";
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
                      $"<p>Ваш обліковий запис був видалений зі пратформи для навчання співробітників</p>" +
@@ -86,6 +95,8 @@ namespace PlatformEducationWorkers.Core.Services
                 string EnterpriseEmail = user.Enterprise.Email;
                 string UserEmail = user.Email;
                 string EnterprisePassword = user.Enterprise.PasswordEmail;
+
+
 
                 await _repository.Delete<User>(userId);
 
@@ -99,12 +110,24 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<User>> GetAllUsersEnterprise(int enterpriseId)
+        public async Task<IEnumerable<User>> GetAllUsersEnterprise(int enterpriseId)
         {
             try
             {
-                //додати перевірку на вірність полів
-                return _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriseId);
+                IEnumerable<User> usersEnterprise = await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriseId);
+
+                foreach (var user in usersEnterprise)
+                {
+                    if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                    }
+                }
+
+
+                return usersEnterprise;
             }
             catch (Exception ex)
             {
@@ -112,12 +135,19 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<User> GetUser(int userId)
+        public async Task<User> GetUser(int userId)
         {
             try
             {
+                User user = await _repository.GetById<User>(userId);
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                }
                 //додати валіадцію
-                return _repository.GetById<User>(userId);
+                return user;
             }
             catch (Exception ex)
             {
@@ -125,12 +155,22 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId)
+        public async Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId)
         {
             try
             {
+                IEnumerable<User> users = await _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitleId);
+                foreach (var user in users)
+                {
+                    if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                    }
+                }
                 //додати валідацію
-                return _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitleId);
+                return users;
             }
             catch (Exception ex)
             {
@@ -153,6 +193,12 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user.Password != hashedPassword)
                     throw new Exception("Invalid login or password");
 
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                }
                 return user;
             }
             catch (Exception ex)
@@ -167,9 +213,6 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user == null)
                     throw new ArgumentNullException(nameof(user), "User object is null");
 
-
-                //if (_repository.GetQuery<User>(u => HashHelper.ComputeHash(u.Login, u.Salt) == user.Login).Result.Any())
-                //    throw new Exception("A user with this login already exists");
                 //додати перевірку захешованого паролю
                 //Todo(hash only password)
                 var allusers = _repository.GetAll<User>().ToList();
@@ -189,7 +232,9 @@ namespace PlatformEducationWorkers.Core.Services
                 // Додавання аватарки у вигляді JSON-рядка
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    user.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
+                    byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
+                    user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+
                 }
                 return await _repository.Add(user);
             }
@@ -205,7 +250,15 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-                return _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday).Result.FirstOrDefault();
+               User user=(await _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday)).FirstOrDefault();
+                if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                {
+                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                }
+
+                return user;
             }
             catch (Exception ex)
             {
@@ -248,13 +301,17 @@ namespace PlatformEducationWorkers.Core.Services
                 olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
                 olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
 
+                //видалення старої фотографії
+                if (olduser.ProfileAvatar != null)
+                {
+                    await AzureAvatarService.DeleteAvatarFromBlobAsync(olduser.ProfileAvatar);
+                }
 
-
-
+                //додавання нової фотографії
                 if (user.ProfileAvatar != null)
                 {
-                    olduser.ProfileAvatar = JsonConvert.SerializeObject(user.ProfileAvatar);
-
+                    byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
+                    user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
                 }
 
                 user = await _repository.Update(olduser);
@@ -283,6 +340,16 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
                 var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
+                foreach (var user in users)
+                {
+                    if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                    }
+                }
+               
                 return users.OrderByDescending(user => user.DateCreate).Take(5);
             }
             catch (Exception ex)

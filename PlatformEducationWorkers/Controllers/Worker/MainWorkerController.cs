@@ -2,7 +2,7 @@
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Core;
 using Serilog;
 
 namespace PlatformEducationWorkers.Controllers.Worker

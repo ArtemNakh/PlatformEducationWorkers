@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Core;
 
 namespace PlatformEducationWorkers.Core.Services.Enterprises
 {

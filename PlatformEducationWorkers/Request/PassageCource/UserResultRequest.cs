@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using PlatformEducationWorkers.Models.Results;
+using PlatformEducationWorkers.Core.Results;
 
 namespace PlatformEducationWorkers.Request.PassageCource
 {

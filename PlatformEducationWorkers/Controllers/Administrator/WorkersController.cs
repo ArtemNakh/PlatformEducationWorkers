@@ -6,11 +6,11 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Models.Azure;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using Serilog;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
@@ -20,13 +20,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IJobTitleService _jobTitleService;
         private readonly IUserService _userService;
         private readonly IEnterpriseService  _enterpriseService;
-        private readonly AzureBlobAvatarOperation _azureAvatarOperation;
-        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService, AzureBlobAvatarOperation azureAvatarOperation)
+
+        public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService)
         {
             _userService = userService;
             _jobTitleService = jobTitleService;
             _enterpriseService = enterpriceService;
-            _azureAvatarOperation = azureAvatarOperation;
         }
 
         [HttpGet]
@@ -184,7 +183,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         {
                             await request.ProfileAvatar.CopyToAsync(memoryStream);
                             byte[] fileBytes = memoryStream.ToArray();
-                            user.ProfileAvatar= await  _azureAvatarOperation.UploadAvatarToBlobAsync(fileBytes);
+                            user.ProfileAvatar= Convert.ToBase64String(fileBytes);
                         }
                     }
                     await _userService.AddUser(user);

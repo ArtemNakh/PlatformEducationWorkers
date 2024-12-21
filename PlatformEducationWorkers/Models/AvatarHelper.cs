@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Models
+﻿namespace PlatformEducationWorkers.Core
 {
     public static class AvatarHelper
     {

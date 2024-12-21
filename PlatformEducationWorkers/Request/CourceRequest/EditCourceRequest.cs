@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Models.Questions;
+using PlatformEducationWorkers.Core.Questions;
 namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class EditCourceRequest

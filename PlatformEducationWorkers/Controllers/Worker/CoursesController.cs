@@ -7,10 +7,10 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Models.Azure;
-using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Models.Results;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
+using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Core.Results;
 using PlatformEducationWorkers.Request.PassageCource;
 using Serilog;
 
@@ -23,16 +23,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
         private readonly IUserResultService _userResultService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
-        private readonly AzureBlobCourseOperation AzureOperation;
 
-        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService, AzureBlobCourseOperation azureOperation)
+
+        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
 
             _enterpriseService = enterpriseService;
-            AzureOperation = azureOperation;
         }
 
         // Метод для показу всіх непройдених курсів
@@ -149,7 +148,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     try
                     {
                         questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseResult.answerJson);
-                        questions=await AzureOperation.UnloadFileFromBlobAsync(questions);
+                       
                     }
                     catch (JsonException ex)
                     {
@@ -210,7 +209,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     try
                     {
                          questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                        questions = await AzureOperation.UnloadFileFromBlobAsync(questions);
+                        
                     }
                     catch (JsonException ex)
                     {
@@ -278,7 +277,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                     return RedirectToAction("Login", "Login");
                 }
-                userResultRequest.Questions = await AzureOperation.UploadFileToBlobAsync(userResultRequest.Questions);
+
+
                 string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
 
 

@@ -7,7 +7,7 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Request;
 using PlatformEducationWorkers.Request.JobTitlesRequest;
 using Serilog;

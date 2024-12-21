@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Core.Questions
+﻿namespace PlatformEducationWorkers.Core.AddingModels.Questions
 {
     public class AnswerContext
     {

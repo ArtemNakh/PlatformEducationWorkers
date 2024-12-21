@@ -9,8 +9,8 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Models.Azure;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using PlatformEducationWorkers.Request.Login_RegisterRequest;
 using Serilog;
@@ -77,7 +77,7 @@ namespace PlatformEducationWorkers.Controllers
                                
 
                                 // Декодуємо базу64 зображення в byte[]
-                                byte[] avatarBytes = await AzureOperation.UnloadAvatarFromBlobAsync(user.ProfileAvatar); ;
+                                byte[] avatarBytes = Convert.FromBase64String(user.ProfileAvatar);
                                 HttpContext.Session.Set("UserAvatar", avatarBytes);
                             }
                         }
@@ -179,8 +179,7 @@ namespace PlatformEducationWorkers.Controllers
                     {
                         await model.ProfileAvatar.CopyToAsync(memoryStream);
                         byte[] fileBytes = memoryStream.ToArray();
-                        photoAvatar=await AzureOperation.UploadAvatarToBlobAsync(fileBytes);
-                        avatar = photoAvatar;
+                        avatar = Convert.ToBase64String(fileBytes); 
                     }
                 }
                 var owner = new User
@@ -207,7 +206,6 @@ namespace PlatformEducationWorkers.Controllers
                 Log.Error($"Error adding enterprise ");
 
                 ModelState.AddModelError(string.Empty, ex.Message);
-                await AzureOperation.DeleteAvatarFromBlobAsync(avatar);
                 return View(model);
             }
         }

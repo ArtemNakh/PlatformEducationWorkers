@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Core.Results
+﻿namespace PlatformEducationWorkers.Core.AddingModels.UserResults
 {
     public class UserAnswerRequest
     {

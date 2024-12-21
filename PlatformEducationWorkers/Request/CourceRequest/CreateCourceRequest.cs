@@ -1,4 +1,4 @@
-﻿using PlatformEducationWorkers.Models.Questions;
+﻿using PlatformEducationWorkers.Core.Questions;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlatformEducationWorkers.Request.CourceRequest

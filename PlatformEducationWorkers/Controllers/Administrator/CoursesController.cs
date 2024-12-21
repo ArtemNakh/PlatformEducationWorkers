@@ -10,10 +10,10 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Models.Azure;
-using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Models.Results;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
+using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Core.Results;
 using PlatformEducationWorkers.Request.CourceRequest;
 using Serilog;
 using System.Collections.Generic;
@@ -30,17 +30,16 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IJobTitleService _jobTitleService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
-        private readonly AzureBlobCourseOperation AzureOperation;
 
 
-        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration, AzureBlobCourseOperation azureOperation)
+
+        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration)
         {
             _courseService = courceService;
             _jobTitleService = jobTitleService;
             _userResultService = userResultService;
             _enterpriseService = enterpriceService;
             _userService = userService;
-            AzureOperation = azureOperation;
         }
 
         [HttpGet]
@@ -132,8 +131,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             Enterprise enterprice = await _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
-            request.Questions = await AzureOperation.UploadFileToBlobAsync(request.Questions);
-
+            
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
             var jobTitles = new List<JobTitle>();
@@ -189,7 +187,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             if (!string.IsNullOrEmpty(cource.Questions))
             {
                 questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions);
-                questions = await AzureOperation.UnloadFileFromBlobAsync(questions);
+               
             }
 
             if (!string.IsNullOrEmpty(cource.ContentCourse))
@@ -308,15 +306,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 if (courcePassages != null)
                 {
-                    List<UserQuestionRequest> answers = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(cource.Questions);
-                    await AzureOperation.DeleteFilesFromBlobAsync(answers);
                     await _userResultService.DeleteResult(courcePassage.Id);
 
                 }
             }
             
-            List<QuestionContext> questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions);
-           await AzureOperation.DeleteFilesFromBlobAsync(questions);
+
             await _courseService.DeleteCourse(cource.Id);
 
 
@@ -355,7 +350,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             };
 
            
-           request.Questions=await  AzureOperation.UnloadFileFromBlobAsync(request.Questions);
+
             
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -443,10 +438,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            //не видаляються старі фото які були
-            List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-            await AzureOperation.DeleteFilesFromBlobAsync(questionContexts);
-            request.Questions = await AzureOperation.UploadFileToBlobAsync(request.Questions);
+            
+
 
             // Оновлюємо дані курсу
             course.TitleCource = request.TitleCource;
@@ -541,7 +534,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     try
                     {
                         questions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(courseResult.answerJson);
-                        questions= await AzureOperation.UnloadFileFromBlobAsync(questions);
+                      
+
                     }
                     catch (JsonException ex)
                     {

@@ -7,10 +7,10 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Models;
-using PlatformEducationWorkers.Models.Azure;
-using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Models.Results;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
+using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Core.Results;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -24,18 +24,16 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         private readonly IUserResultService _userResultService;
         private readonly ICoursesService _courseService;
-        private readonly AzureBlobAvatarOperation _azureAvatarOperation;
-        private readonly AzureBlobCourseOperation _azureCoursesOperation;
 
-        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService, AzureBlobAvatarOperation azureAvatarOperation, AzureBlobCourseOperation azureZoursesOperation)
+
+        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService)
         {
             _enterpriseService = enterpriceService;
             _userService = userService;
 
             _userResultService = userResultService;
             _courseService = courceService;
-            _azureAvatarOperation = azureAvatarOperation;
-            _azureCoursesOperation = azureZoursesOperation;
+
         }
 
         [HttpPost]
@@ -89,25 +87,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     throw new Exception(errorMessage);
                 }
 
-                IEnumerable<Courses> courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
-                foreach (var course in courses)
-                {
-                    List<QuestionContext> questions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    await _azureCoursesOperation.DeleteFilesFromBlobAsync(questions);
-                }
+               
 
-                IEnumerable<UserResults> coursesRes = await _userResultService.GetAllResultEnterprice(enterpriseId);
-                foreach (var resCourse in coursesRes)
-                {
-                   List< UserQuestionRequest> userAnswerts=JsonConvert.DeserializeObject<List<UserQuestionRequest>>(resCourse.answerJson);
-                    await _azureCoursesOperation.DeleteFilesFromBlobAsync(userAnswerts);
-                }
 
-                IEnumerable<User> users = await _userService.GetAllUsersEnterprise(enterpriseId);
-                foreach (var curUser in users)
-                {
-                    await _azureAvatarOperation.DeleteAvatarFromBlobAsync(curUser.ProfileAvatar);
-                }
+               
+
+
+               
+
                
 
                 await  _enterpriseService.DeleteingEnterprise(enterpriseId);

@@ -1,10 +1,10 @@
 ﻿using System.Net.Mail;
 using System.Net;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Core;
 using Microsoft.Extensions.Configuration;
 
-namespace PlatformEducationWorkers.Models
+namespace PlatformEducationWorkers.Core
 {
     public class EmailService
     {

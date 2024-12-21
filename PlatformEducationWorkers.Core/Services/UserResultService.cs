@@ -1,7 +1,12 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Models;
+using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
+using PlatformEducationWorkers.Core.AddingModels.UserResults;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using PlatformEducationWorkers.Core.AddingModels.Questions;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -9,11 +14,13 @@ namespace PlatformEducationWorkers.Core.Services
     {
         private readonly IRepository _repository;
         private readonly EmailService _emailService;
+        private readonly AzureBlobCourseOperation AzureCourseOperation;
 
-        public UserResultService(IRepository repository, EmailService emailService)
+        public UserResultService(IRepository repository, EmailService emailService, AzureBlobCourseOperation azureCourseOperation)
         {
             _repository = repository;
             _emailService = emailService;
+            AzureCourseOperation = azureCourseOperation;
         }
 
         public async Task<UserResults> AddResult(UserResults userResults)
@@ -22,7 +29,15 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (userResults == null)
                     throw new Exception("$Error adding results,userResults is null");
-                UserResults userResult=await  _repository.Add(userResults);
+
+                List<UserQuestionRequest> userQuestions = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResults.answerJson);
+                userQuestions = await AzureCourseOperation.UploadFileToBlobAsync(userQuestions);
+
+                userResults.answerJson = JsonConvert.SerializeObject(userQuestions);
+
+                UserResults userResult = await _repository.Add(userResults);
+
+
                 var enterpriseEmail = userResults.User.Enterprise.Email;
                 var subject = "Проходження курсу";
                 var body = $"<p>Шановний {userResults.User.Name} {userResults.User.Surname},</p>" +
@@ -45,6 +60,11 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (resultId == null)
                     throw new Exception("$Error delete results,resultId is null");
+                UserResults userResult=await _repository.GetById<UserResults>(resultId);
+                List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+
+                await AzureCourseOperation.DeleteFilesFromBlobAsync(questionContexts);
+
 
                 await _repository.Delete<UserResults>(resultId);
             }
@@ -54,13 +74,21 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId)
+        public async Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriseId)
         {
             try
             {
-                if (enterpriceId == null)
+                if (enterpriseId == null)
                     throw new Exception("$Error  get all user results by entyerprice,enterpriceId is null");
-                return await _repository.GetQueryAsync<UserResults>(u => u.Course.Enterprise.Id == enterpriceId);
+
+                IEnumerable<UserResults> resultsEnterprise = (await _repository.GetQuery<UserResults>(u => u.Course.Enterprise.Id == enterpriseId));
+                foreach (UserResults userResult in resultsEnterprise)
+                {
+                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+                }
+                return resultsEnterprise;
             }
             catch (Exception ex)
             {
@@ -78,6 +106,12 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("$Error  get  user  all results,userId is null");
                 // Виконання запиту для отримання результатів користувача
                 var results = await _repository.GetQueryAsync<UserResults>(u => u.User.Id == userId);
+                foreach (UserResults userResult in results)
+                {
+                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+                }
                 return results;
             }
             catch (Exception)
@@ -92,7 +126,15 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (courceId == null)
                     throw new Exception("$Error  get user  results,courceId is null");
-                return (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
+              
+                UserResults userResult=(await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
+
+
+                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+
+                return userResult;
             }
             catch (Exception)
             {
@@ -106,7 +148,7 @@ namespace PlatformEducationWorkers.Core.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId,int numbersPassage)
+        public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId, int numbersPassage)
         {
 
             try
@@ -121,6 +163,13 @@ namespace PlatformEducationWorkers.Core.Services
                     u => u.Course.Enterprise.Id == enterpriceId
                 );
 
+
+                foreach (UserResults userResult in results)
+                {
+                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+                }
                 // Сортуємо за датою завершення та беремо останні 5 записів
                 return results
                     .OrderByDescending(u => u.DateCompilation)
@@ -159,9 +208,16 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (CourseId == null)
                     throw new Exception("$Error  get  user  all results,userId is null");
-                
+
 
                 var results = await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == CourseId);
+
+                foreach (UserResults userResult in results)
+                {
+                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+                }
                 return results;
             }
             catch (Exception)
