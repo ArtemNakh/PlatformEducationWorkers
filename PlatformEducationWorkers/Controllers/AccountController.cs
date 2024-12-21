@@ -15,7 +15,7 @@ namespace PlatformEducationWorkers.Controllers
         private readonly IUserService _userService;
         private readonly IEnterpriseService _enterpriseService;
 
-        public AccountController(IUserService userService,  IEnterpriseService enterpriceService, ILoggerService loggingService)
+        public AccountController(IUserService userService,  IEnterpriseService enterpriceService)
         {
             _userService = userService;
             _enterpriseService = enterpriceService;

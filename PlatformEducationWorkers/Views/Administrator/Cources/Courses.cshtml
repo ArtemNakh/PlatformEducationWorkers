@@ -43,7 +43,7 @@
                                             <i class="bi bi-eye"></i> Деталі
                                         </a>
                                         <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви дійсно бажаєте видалити цей курс?');">
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-course-id="@course.Id">
                                                 <i class="bi bi-trash"></i> Видалити
                                             </button>
                                         </form>
@@ -68,3 +68,40 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+<!-- Модальне вікно підтвердження видалення -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+            <div class="modal-body">
+                Ви дійсно бажаєте видалити цей курс?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <form id="deleteCourseForm" method="post">
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипт для відкриття модального вікна та налаштування форми видалення -->
+<script>
+    var deleteButtons = document.querySelectorAll('button[data-bs-toggle="modal"]');
+    deleteButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var courseId = this.getAttribute('data-course-id');
+            var deleteForm = document.getElementById('deleteCourseForm');
+            deleteForm.action = '/Administrator/Courses/DeleteCourse/' + courseId; // Заміна шляху для вашої дії
+        });
+    });
+</script>
