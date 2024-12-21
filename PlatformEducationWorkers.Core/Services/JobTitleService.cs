@@ -9,11 +9,18 @@ namespace PlatformEducationWorkers.Core.Services
     {
         private readonly IRepository _repository;
         private readonly IEnterpriseService _enterpriseService;
+        private readonly IUserService _userService;
+        private readonly IUserResultService _userResultService;
+        private readonly ICourseService _courseService;
 
-        public JobTitleService(IRepository repository, IEnterpriseService enterpriseService)
+
+        public JobTitleService(IRepository repository, IEnterpriseService enterpriseService, IUserService userService, IUserResultService userResultService, ICourseService courseService)
         {
             _repository = repository;
             _enterpriseService = enterpriseService;
+            _userService = userService;
+            _userResultService = userResultService;
+            _courseService = courseService;
         }
 
         public Task<JobTitle> AddingRole(JobTitle jobTitle)
@@ -52,27 +59,28 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
                 //видалення усіх користувач 
-                IEnumerable<User> users = await _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitle.Id);
+                IEnumerable<User> users = await _userService.GetUsersByJobTitle(idJobTitle);
                 foreach (User user in users)
                 {
                     //видаляємоо усі результати курсів користувача
-                    IEnumerable<UserResults> userResults = await _repository.GetQuery<UserResults>(ur => ur.User.Id == user.Id);
+                    IEnumerable<UserResults> userResults = await _userResultService.GetAllUserResult(user.Id);
+
 
                     foreach (var result in userResults)
                     {
-                        await _repository.Delete<UserResults>(result.Id);
+                        await _userResultService.DeleteResult(result.Id);
                     }
 
-                    await _repository.Delete<User>(user.Id);
+                   await _userService.DeleteUser(user.Id);
                 }
 
 
                 // Видаляємо вибрану роль зі списку доступних ролей курса
-                IEnumerable<Courses> courses = await _repository.GetQuery<Courses>(c => c.AccessRoles.Any(jt => jt.Id == jobTitle.Id));
+                IEnumerable<Courses> courses = await _courseService.GetCoursesByJobTitle(idJobTitle);
                 foreach (var course in courses)
                 {
                     course.AccessRoles.Remove(jobTitle);
-                    await _repository.Update(course);
+                    await _courseService.UpdateCourse(course);
                 }
 
                 await _repository.Delete<JobTitle>(idJobTitle);

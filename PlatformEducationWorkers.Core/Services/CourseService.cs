@@ -9,14 +9,21 @@ using PlatformEducationWorkers.Core.AddingModels.Questions;
 
 namespace PlatformEducationWorkers.Core.Services
 {
-    public class CourseService : ICoursesService
+    public class CourseService : ICourseService
     {
         private readonly IRepository _repository;
+        private readonly IUserService _userService;
+        //private readonly IJobTitleService _jobTitleService;
+        private readonly IUserResultService _userResultService;
+
         private readonly AzureBlobCourseOperation AzureCourseOperation;
-        public CourseService(IRepository repository, AzureBlobCourseOperation azureCourseOperation)
+        public CourseService(IRepository repository, AzureBlobCourseOperation azureCourseOperation, IUserService userService,  IUserResultService userResultService)
         {
             _repository = repository;
             AzureCourseOperation = azureCourseOperation;
+            _userService = userService;
+            //_jobTitleService = jobTitleService;
+            _userResultService = userResultService;
         }
 
         public async Task<Courses> AddCourse(Courses courses)
@@ -95,8 +102,7 @@ namespace PlatformEducationWorkers.Core.Services
                 //додати валідацію
                 if (userId == null)
                     throw new Exception("user is null");
-
-                User user = await _repository.GetById<User>(userId);
+                User user = await _userService.GetUser(userId);
                 if (user == null)
                     throw new Exception("User not found");
 
@@ -142,18 +148,15 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId, int enterpriseId)
+        public async Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId)
         {
             try
             {
                 if (jobTitleId == null)
                     throw new Exception("jobTitleId is null");
-                if (enterpriseId == null)
-                    throw new Exception("enterpriceId is null");
 
-                JobTitle jobtitile = _repository.GetById<JobTitle>(jobTitleId).Result;
-
-                IEnumerable<Courses> courcesJobTitle =await  _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobtitile) && n.Enterprise.Id == enterpriseId);
+                JobTitle jobTitle = await _repository.GetByIdAsync<JobTitle>(jobTitleId); 
+                IEnumerable<Courses> courcesJobTitle =await  _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobTitle) );
 
                 foreach (Courses course in courcesJobTitle)
                 {
@@ -225,13 +228,13 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("enterprice is null");
 
                 // Асинхронно отримуємо результати користувача
-                var userCourses = await _repository.GetQueryAsync<UserResults>(uc => uc.User.Id == userId);
+                var userCourses = await _userResultService.GetAllUserResult(userId);
 
                 // Асинхронно отримуємо всі курси для підприємства
                 var allCourses = await _repository.GetQueryAsync<Courses>(u => u.Enterprise.Id == enterpriceId);
 
                 // Асинхронно отримуємо користувача
-                var user = await _repository.GetByIdAsync<User>(userId);
+                var user = await _userService.GetUser(userId);
 
                 // Список для зберігання непройдених курсів
                 List<Courses> uncompletedCourses = new List<Courses>();
@@ -290,5 +293,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+
+       
     }
 }

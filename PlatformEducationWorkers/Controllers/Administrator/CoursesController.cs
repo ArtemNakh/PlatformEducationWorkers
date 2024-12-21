@@ -25,7 +25,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     [Area("Administrator")]
     public class CoursesController : Controller
     {
-        private readonly ICoursesService _courseService;
+        private readonly ICourseService _courseService;
         private readonly IUserResultService _userResultService;
         private readonly IJobTitleService _jobTitleService;
         private readonly IEnterpriseService _enterpriseService;
@@ -33,7 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
-        public CoursesController(ICoursesService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration)
+        public CoursesController(ICourseService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration)
         {
             _courseService = courceService;
             _jobTitleService = jobTitleService;

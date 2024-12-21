@@ -60,7 +60,7 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (resultId == null)
                     throw new Exception("$Error delete results,resultId is null");
-                UserResults userResult=await _repository.GetById<UserResults>(resultId);
+                UserResults userResult = await _repository.GetById<UserResults>(resultId);
                 List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
 
                 await AzureCourseOperation.DeleteFilesFromBlobAsync(questionContexts);
@@ -126,13 +126,13 @@ namespace PlatformEducationWorkers.Core.Services
             {
                 if (courceId == null)
                     throw new Exception("$Error  get user  results,courceId is null");
-              
-                UserResults userResult=(await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
+
+                UserResults userResult = (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
 
 
-                    List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+                List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
 
                 return userResult;
             }
@@ -226,5 +226,26 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        public async Task DeleteAllResultsUser(int userId)
+        {
+            if (userId == null || userId < 0)
+            {
+                throw new Exception("userId is null or less than 0");
+            }
+
+            IEnumerable<UserResults> userResults = await _repository.GetQueryAsync<UserResults>(u => u.User.Id == userId);
+
+            foreach (UserResults userResult in userResults)
+            {
+                if (userResult.answerJson != null)
+                {
+                    List<UserQuestionRequest> userQuestions=JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
+                    
+                    await AzureCourseOperation.DeleteFilesFromBlobAsync(userQuestions);
+
+                }
+                await _repository.Delete<UserResults>(userResult.Id);
+            }
+        }
     }
 }

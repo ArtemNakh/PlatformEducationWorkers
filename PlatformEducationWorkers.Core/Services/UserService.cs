@@ -13,13 +13,15 @@ namespace PlatformEducationWorkers.Core.Services
     public class UserService : IUserService
     {
         private readonly IRepository _repository;
+        private readonly IUserResultService _userResultService;
         private readonly AzureBlobAvatarOperation AzureAvatarService;
         private readonly EmailService _emailService;
-        public UserService(IRepository repository, EmailService emailService, AzureBlobAvatarOperation azureAvatarService)
+        public UserService(IRepository repository, EmailService emailService, AzureBlobAvatarOperation azureAvatarService, IUserResultService userResultServuce)
         {
             _repository = repository;
             _emailService = emailService;
             AzureAvatarService = azureAvatarService;
+            _userResultService = userResultServuce;
         }
 
 
@@ -88,6 +90,12 @@ namespace PlatformEducationWorkers.Core.Services
                     await AzureAvatarService.DeleteAvatarFromBlobAsync(user.ProfileAvatar);
 
                 }
+
+                await _userResultService.DeleteAllResultsUser(userId);
+
+                await _repository.Delete<User>(userId);
+
+
                 var subject = "Видалення облікового запису";
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
                      $"<p>Ваш обліковий запис був видалений зі пратформи для навчання співробітників</p>" +
@@ -95,10 +103,6 @@ namespace PlatformEducationWorkers.Core.Services
                 string EnterpriseEmail = user.Enterprise.Email;
                 string UserEmail = user.Email;
                 string EnterprisePassword = user.Enterprise.PasswordEmail;
-
-
-
-                await _repository.Delete<User>(userId);
 
                 await _emailService.SendEmailAsync(EnterpriseEmail, EnterprisePassword, UserEmail, subject, body);
 
@@ -114,6 +118,10 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+                if(enterpriseId==null||enterpriseId < 0)
+                {
+                    throw new Exception("EnterpriseId is null or less than 0");
+                }
                 IEnumerable<User> usersEnterprise = await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriseId);
 
                 foreach (var user in usersEnterprise)
@@ -139,6 +147,11 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+                if (userId == null || userId < 0)
+                {
+                    throw new Exception("userId is null or less than 0");
+                }
+
                 User user = await _repository.GetById<User>(userId);
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
@@ -146,7 +159,6 @@ namespace PlatformEducationWorkers.Core.Services
                     user.ProfileAvatar = Convert.ToBase64String(fileBytes);
 
                 }
-                //додати валіадцію
                 return user;
             }
             catch (Exception ex)
@@ -159,6 +171,10 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+                if (jobTitleId == null || jobTitleId < 0)
+                {
+                    throw new Exception("jobTitleId is null or less than 0");
+                }
                 IEnumerable<User> users = await _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitleId);
                 foreach (var user in users)
                 {
@@ -169,7 +185,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                     }
                 }
-                //додати валідацію
+
                 return users;
             }
             catch (Exception ex)
@@ -183,6 +199,11 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+                if (login == null || password ==null|| login==""||password=="")
+                {
+                    throw new Exception("loginor password is null or empty");
+                }
+
                 var user = (await _repository.GetQuery<User>(u => true))
                            .FirstOrDefault(u => u.Login == HashHelper.ComputeHash(login, u.Salt));
 
@@ -270,7 +291,10 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-
+                if(user==null)
+                {
+                    throw new Exception("User is null");
+                }
                 User olduser = await _repository.GetById<User>(user.Id);
                 if (user.Surname != user.Surname)
                 {
@@ -339,6 +363,10 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
+                if (enterpriseId == null|| enterpriseId<0)
+                {
+                    throw new Exception("enterpriseId is null or less than 0");
+                }
                 var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
                 foreach (var user in users)
                 {

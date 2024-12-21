@@ -23,10 +23,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IUserService _userService;
 
         private readonly IUserResultService _userResultService;
-        private readonly ICoursesService _courseService;
+        private readonly ICourseService _courseService;
 
 
-        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICoursesService courceService)
+        public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICourseService courceService)
         {
             _enterpriseService = enterpriceService;
             _userService = userService;

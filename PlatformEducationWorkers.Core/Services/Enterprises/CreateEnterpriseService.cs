@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core;
+using PlatformEducationWorkers.Core.Azure;
 
 namespace PlatformEducationWorkers.Core.Services.Enterprises
 {
@@ -15,12 +16,14 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
         private readonly IEnterpriseRepository _repository;
         private readonly IRepository _repositoryGeneral;
         private readonly EmailService _emailService;
+        private readonly AzureBlobAvatarOperation _AzureAvatarService;
 
-        public CreateEnterpriseService(IEnterpriseRepository repository, IRepository repositoryGeneral, EmailService emailService)
+        public CreateEnterpriseService(IEnterpriseRepository repository, IRepository repositoryGeneral, EmailService emailService, AzureBlobAvatarOperation azureAvatarService)
         {
             _repository = repository;
             _repositoryGeneral = repositoryGeneral;
             _emailService = emailService;
+            _AzureAvatarService = azureAvatarService;
         }
 
         public async Task AddEnterpriseWithOwnerAsync(Enterprise enterprise, string jobTitleName, User owner)
@@ -52,19 +55,19 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
 
                     if (_repositoryGeneral.GetQuery<User>(e => e.Name == owner.Name && e.Surname == owner.Surname && e.Birthday == owner.Birthday).Result.Any())
                         throw new Exception($"Error adding user, such user already exists");
-                    // if (_repositoryGeneral.GetQuery<User>(e => HashHelper.ComputeHash(e.Login, e.Salt) == owner.Login && HashHelper.ComputeHash(e.Password, e.Salt) == owner.Password).Result.Count() > 0)
-                    //    throw new Exception($"Error adding user,Please choose other password or login");
+                    
                     ////додати перевірку захешованого паролю
                     var salt = HashHelper.GenerateSalt();
                     owner.Salt = salt;
                     owner.Password = HashHelper.ComputeHash(owner.Password, salt);
                     owner.Login = HashHelper.ComputeHash(owner.Login, salt);
-                    
+
                     // Додавання аватарки у вигляді JSON-рядка
-                    //if (owner.ProfileAvatar != null && !string.IsNullOrEmpty(owner.ProfileAvatar))
-                    //{
-                    //    owner.ProfileAvatar = System.Text.Json.JsonSerializer.Serialize(owner.ProfileAvatar);
-                    //}
+                    if (owner.ProfileAvatar != null && !string.IsNullOrEmpty(owner.ProfileAvatar))
+                    {
+                        byte[] imageBytes = Convert.FromBase64String(owner.ProfileAvatar);
+                        owner.ProfileAvatar = await _AzureAvatarService.UploadAvatarToBlobAsync(imageBytes);
+                    }
 
 
                 }

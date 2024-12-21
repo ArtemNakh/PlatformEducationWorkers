@@ -11,10 +11,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
     public class MainWorkerController : Controller
     {
         private readonly IEnterpriseService _enterpriseService;
-        private readonly ICoursesService _courseService;
+        private readonly ICourseService _courseService;
 
 
-        public MainWorkerController( IEnterpriseService enterpriseService, ICoursesService courceService)
+        public MainWorkerController( IEnterpriseService enterpriseService, ICourseService courceService)
         {
             _enterpriseService = enterpriseService;
             _courseService = courceService;

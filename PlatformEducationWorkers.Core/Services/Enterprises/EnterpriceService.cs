@@ -1,4 +1,5 @@
 ﻿using Amazon.S3.Model;
+using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
@@ -9,10 +10,14 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
     public class EnterpriceService : IEnterpriseService
     {
         private readonly IRepository _repository;
-        public EnterpriceService(IRepository repository)
+        private readonly ICourseService _courseService;
+        private readonly IUserService _userService;
+        public EnterpriceService(IRepository repository, ICourseService courseService, IUserService userService)
         {
             _repository = repository;
-        }
+            _courseService = courseService;
+            _userService = userService;
+            }
 
         public Task<Enterprise> AddingEnterprise(Enterprise enterprice)
         {
@@ -46,14 +51,14 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                 if (enterprice == null)
                     throw new Exception($"Enterprice with id {enterpriceId} not found");
 
+                var courses=(await _courseService.GetAllCoursesEnterprise(enterpriceId)).ToList();
 
-                var courses = (await _repository.GetQuery<Courses>(c => c.Enterprise.Id == enterpriceId)).ToList();
                 foreach (var course in courses)
                 {
-                    await _repository.Delete<Courses>(course.Id);
+                    await _courseService.DeleteCourse(course.Id);
                 }
-
-                var users = (await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriceId)).ToList();
+                
+                var users = (await _userService.GetAllUsersEnterprise(enterpriceId)).ToList();
                 foreach (var user in users)
                 {
                     if (enterprice.Owner != null && user.Id == enterprice.Owner.Id)
@@ -61,11 +66,11 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                         enterprice.Owner = null;
                         await _repository.Update(enterprice);
                     }
-                    await _repository.Delete<User>(user.Id);
+                    await _userService.DeleteUser(user.Id);
                 }
 
-
-                var jobTitles = (await _repository.GetQuery<JobTitle>(j => j.Enterprise.Id == enterpriceId)).ToList();
+               
+                var jobTitles = (await _repository.GetQueryAsync<JobTitle>(e=>e.Enterprise.Id== enterpriceId)).ToList();
                 foreach (var job in jobTitles)
                 {
                     await _repository.Delete<JobTitle>(job.Id);
@@ -85,7 +90,11 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
         {
             try
             {
-                //додати валідацію
+                if(enterpriceId == null||enterpriceId == 0 )
+                {
+                    throw new Exception("enterprise is null or less than 0");
+                }
+
                 return _repository.GetById<Enterprise>(enterpriceId);
             }
             catch (Exception ex)
@@ -95,12 +104,16 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprise> GetEnterprise(string title)
+        public async Task<Enterprise> GetEnterprise(string title)
         {
             try
             {
+                if (title == null|| title=="")
+                {
+                    throw new Exception("title is null or empty");
+                }
                 //додати валідацію
-                return Task.FromResult(_repository.GetQuery<Enterprise>(e => e.Title == title).Result.FirstOrDefault());
+                return (await _repository.GetQueryAsync<Enterprise>(e => e.Title == title)).FirstOrDefault();
 
             }
             catch (Exception ex)
@@ -110,13 +123,17 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public Task<Enterprise> GetEnterpriseByUser(int userId)
+        public async  Task<Enterprise> GetEnterpriseByUser(int userId)
         {
             try
             {
-                User user = _repository.GetById<User>(userId).Result;
+                if(userId==null|| userId==0)
+                {
+                    throw new Exception("user Id is null or less than 0");
+                }
+                User user = await _userService.GetUser(userId);
                 //додати валідацію
-                return Task.FromResult(_repository.GetQuery<Enterprise>(u => u.Id == user.Enterprise.Id).Result.FirstOrDefault());
+                return (await _repository.GetQuery<Enterprise>(u => u.Id == user.Enterprise.Id)).FirstOrDefault();
             }
             catch (Exception ex)
             {

@@ -19,13 +19,13 @@ namespace PlatformEducationWorkers.Controllers.Worker
     [Area("Worker")]
     public class CoursesController : Controller
     {
-        private readonly ICoursesService _coursesService;
+        private readonly ICourseService _coursesService;
         private readonly IUserResultService _userResultService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
 
 
-        public CoursesController(ICoursesService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService)
+        public CoursesController(ICourseService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;

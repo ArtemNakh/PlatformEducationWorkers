@@ -47,7 +47,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IUserResultService, UserResultService>();
 builder.Services.AddTransient<IEnterpriseService, EnterpriceService>();
 builder.Services.AddTransient<IJobTitleService, JobTitleService>();
-builder.Services.AddTransient<ICoursesService, CourseService>();
+builder.Services.AddTransient<ICourseService, CourseService>();
 builder.Services.AddScoped<IRepository, GenericRepository>();
 builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 builder.Services.AddTransient<ICreateEnterpriseService, CreateEnterpriseService>();
