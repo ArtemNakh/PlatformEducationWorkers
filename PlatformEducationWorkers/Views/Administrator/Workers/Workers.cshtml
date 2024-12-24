@@ -55,11 +55,9 @@
                                 <td>
                                     <a href="@Url.Action("DetailWorker", "Workers", new { id = user.Id, area = "Administrator" })" class="btn btn-info btn-sm">Деталі</a>
 
-                                    <form action="@Url.Action("DeleteWorker", "Workers", new { id = user.Id, area = "Administrator" })" method="post" style="display:inline;">
-                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-user-id="@user.Id">
-                                            Видалити
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-user-id="@user.Id">
+                                        Видалити
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -77,7 +75,7 @@
 </div>
 
 
-<!-- Модальне вікно підтвердження видалення -->
+<!-- Модальне вікно для підтвердження видалення -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -91,6 +89,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                 <form id="deleteWorkerForm" method="post">
+                    @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">Видалити</button>
                 </form>
             </div>
@@ -98,13 +97,12 @@
     </div>
 </div>
 
-<!-- Скрипт для відкриття модального вікна та налаштування форми для видалення -->
 <script>
     var deleteModal = document.getElementById('confirmDeleteModal');
     deleteModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
         var userId = button.getAttribute('data-user-id');
         var form = deleteModal.querySelector('#deleteWorkerForm');
-        form.action = '@Url.Action("DeleteWorker", "Workers", new { area = "Administrator" })/' + userId;
+        form.action = '/DeleteWorker/' + userId;
     });
-</script>
+</script> 
