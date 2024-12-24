@@ -471,7 +471,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return NotFound();
             }
 
+           
             List<JobTitle> jobTitles = new List<JobTitle>();
+
             foreach (var IdJobTitle in request.AccessRoles)
             {
                 jobTitles.Add(await _jobTitleService.GetJobTitle(IdJobTitle));
@@ -484,6 +486,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             // Оновлюємо дані курсу
             course.TitleCource = request.TitleCource;
             course.Description = request.Description;
+            course.AccessRoles.Clear();
             course.AccessRoles = jobTitles;
             course.ContentCourse = JsonConvert.SerializeObject(request.ContentCourse);
             course.Questions = JsonConvert.SerializeObject(request.Questions);

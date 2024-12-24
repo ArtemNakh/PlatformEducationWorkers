@@ -75,7 +75,7 @@
                     {
                         <div class="question mb-4 p-3 border rounded bg-light" data-index="@i">
                             <label class="form-label">Питання @i</label>
-                            <input asp-for="Questions[i].Text" class="form-control mb-3" />
+                            <input name="Questions[@i].Text" class="form-control mb-3" value="@Model.Questions[i].Text" />
                             <span asp-validation-for="Questions[i].Text" class="text-danger"></span>
 
 
@@ -108,9 +108,9 @@
                                 @for (int j = 0; j < Model.Questions[i].Answers.Count; j++)
                                 {
                                     <div class="input-group mb-2 answer" data-index="@j">
-                                        <input asp-for="Questions[i].Answers[j].Text" class="form-control" placeholder="Відповідь" />
+                                        <input name="Questions[@i].Answers[@j].Text" class="form-control" value="@Model.Questions[i].Answers[j].Text" />
                                         <div class="input-group-text">
-                                            <input asp-for="Questions[i].Answers[j].IsCorrect" type="checkbox" class="form-check-input" />
+                                            <input name="Questions[@i].Answers[@j].IsCorrect" type="checkbox" value="true" class="form-check-input" @(Model.Questions[i].Answers[j].IsCorrect ? "checked" : "") />
                                             <label class="form-check-label ms-2">Правильна</label>
                                         </div>
 
@@ -137,7 +137,7 @@
                                     </div>
                                 }
                             </div>
-                            <button type="button" class="btn btn-primary btn-sm add-answer">Додати відповідь</button>
+                            <button type="button" class="btn btn-success add-answer" data-question-index="@i">Додати відповідь</button>
                             <button type="button" class="btn btn-danger btn-sm remove-existing-question" data-question-index="@i">Видалити питання</button>
 
                         </div>
@@ -211,53 +211,33 @@
             });
 
 
-            // // Додати нову відповідь
-            // $(document).on("click", ".add-answer", function () {
-            //     const questionIndex = $(this).data("question-index");
-            //     const answerIndex = answerIndexes[questionIndex] || 0;
 
-            //     const answerHtml = `
-            //                                                                                                                     <div class="input-group mb-2 answer" data-index="${answerIndex}">
-            //                                                                                                                         <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
-            //                                                                                                                         <div class="input-group-text">
-            //                                                                                                                                     <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" type="checkbox" class="form-check-input" />
-            //                                                                                                                             <label class="form-check-label ms-2">Правильна</label>
-            //                                                                                                                         </div>
-            //                                                                                                                         <div class="mb-4">
-            //                                                                                                                             <img id="answer-photo-${questionIndex}-${answerIndex}" src="#" alt="Фото відповіді" class="img-fluid mb-2 d-none" style="max-height: 100px;" />
-            //                                                                                                                             <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" id="answer-base64-${questionIndex}-${answerIndex}" value="" />
-            //                                                                                                                             <label class="form-label">Завантажити нове фото</label>
-            //                                                                                                                             <input type="file" class="form-control answer-photo-input" data-photo-target="#answer-photo-${questionIndex}-${answerIndex}" data-base64-target="#answer-base64-${questionIndex}-${answerIndex}" />
-            //                                                                                                                         </div>
-            //                                                                                                                         <button type="button" class="btn btn-danger btn-sm remove-answer">Видалити відповідь</button>
-            //                                                                                                                     </div>`;
-            //     $(this).siblings(".answers-container").append(answerHtml);
-            //     answerIndexes[questionIndex]++;
-            // });
-            // Додати нову відповідь
+
+
             $(document).on("click", ".add-answer", function () {
                 const questionIndex = $(this).data("question-index");
                 const answerIndex = answerIndexes[questionIndex] || 0;
 
                 const answerHtml = `
-                                                                                                                <div class="input-group mb-2 answer" data-index="${answerIndex}">
-                                                                                                                    <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
-                                                                                                                    <div class="input-group-text">
-                                                                                                                                <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" type="checkbox" class="form-check-input" />
-                                                                                                                        <label class="form-check-label ms-2">Правильна</label>
-                                                                                                                    </div>
-                                                                                                                    <div class="mb-4">
-                                                                                                                        <img id="answer-photo-${questionIndex}-${answerIndex}" src="#" alt="Фото відповіді" class="img-fluid mb-2 d-none" style="max-height: 100px;" />
-                                                                                                                        <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" id="answer-base64-${questionIndex}-${answerIndex}" value="" />
-                                                                                                                        <label class="form-label">Завантажити нове фото</label>
-                                                                                                                        <input type="file" class="form-control answer-photo-input" data-photo-target="#answer-photo-${questionIndex}-${answerIndex}" data-base64-target="#answer-base64-${questionIndex}-${answerIndex}" />
-                                                                                                                    </div>
-                                                                                                                    <button type="button" class="btn btn-danger btn-sm remove-answer">Видалити відповідь</button>
-                                                                                                                </div>`;
+                <div class="input-group mb-2 answer" data-index="${answerIndex}">
+                    <input name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control" placeholder="Відповідь" />
+                    <div class="input-group-text">
+                        <input name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" type="checkbox" class="form-check-input" />
+                        <label class="form-check-label ms-2">Правильна</label>
+                    </div>
+                    <div class="mb-4">
+                        <img id="answer-photo-${questionIndex}-${answerIndex}" src="#" alt="Фото відповіді" class="img-fluid mb-2 d-none" style="max-height: 100px;" />
+                        <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" id="answer-base64-${questionIndex}-${answerIndex}" value="" />
+                        <label class="form-label">Завантажити нове фото</label>
+                        <input type="file" class="form-control answer-photo-input" data-photo-target="#answer-photo-${questionIndex}-${answerIndex}" data-base64-target="#answer-base64-${questionIndex}-${answerIndex}" />
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-answer">Видалити відповідь</button>
+                </div>`;
                 $(this).siblings(".answers-container").append(answerHtml);
-                answerIndexes[questionIndex]++;
-            });
 
+                // Оновлюємо індекс для наступної відповіді
+                answerIndexes[questionIndex] = answerIndex + 1;
+            });
             // Видалити питання
             $(document).on("click", ".remove-question", function () {
                 $(this).closest(".question").remove();

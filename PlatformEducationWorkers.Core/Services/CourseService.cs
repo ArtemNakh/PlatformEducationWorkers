@@ -5,6 +5,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Azure;
 using System.Net.Http.Json;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace PlatformEducationWorkers.Core.Services
@@ -186,12 +187,64 @@ namespace PlatformEducationWorkers.Core.Services
                 if (course == null)
                     throw new Exception("cource is null");
 
-               
-                    
 
-                Courses oldCource =await  _repository.GetById<Courses>(course.Id);
+                
+
+               
+    //            var existingRelation = _dbContext.CoursesJobTitle
+    //.FirstOrDefault(c => c.CourseId == courseId && c.JobTitleId == jobTitleId);
+
+    //            if (existingRelation == null)
+    //            {
+    //                // Додати новий зв'язок
+    //                _dbContext.CoursesJobTitle.Add(new CoursesJobTitle { CourseId = courseId, JobTitleId = jobTitleId });
+    //                await _dbContext.SaveChangesAsync();
+    //            }
+
+
+
+
+
+                Courses oldCourse =await  _repository.GetById<Courses>(course.Id);
+
+                IEnumerable<JobTitle> currentJobTitles = oldCourse.AccessRoles;
+
+                // Знаходимо JobTitle для видалення (якщо вони більше не в списку)
+                var jobTitlesToRemove = currentJobTitles
+                    .Where(cjt => !course.AccessRoles.Any(jt => jt.Id == cjt.Id))
+                    .ToList();
+
+                // Видаляємо зайві зв'язки
+                if (jobTitlesToRemove.Any())
+                {
+                    foreach (var jobTitle in jobTitlesToRemove)
+                    {
+                        var relationToRemove = oldCourse.AccessRoles.FirstOrDefault(ar => ar.Id == jobTitle.Id);
+                        if (relationToRemove != null)
+                        {
+                            oldCourse.AccessRoles.Remove(relationToRemove);
+                        }
+                    }
+                }
+
+                // Додаємо нові JobTitle, яких ще немає в AccessRoles
+                var jobTitlesToAdd = course.AccessRoles
+                    .Where(jt => !currentJobTitles.Any(cjt => cjt.Id == jt.Id))
+                    .ToList();
+
+                // Додаємо нові зв'язки
+                if (jobTitlesToAdd.Any())
+                {
+                    foreach (var jobTitle in jobTitlesToAdd)
+                    {
+                        oldCourse.AccessRoles.Add(jobTitle);
+                    }
+                }
+
+
+
                 //Видалення фото з ажур(стара версія курса
-                List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCource.Questions);
+                List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
                 await AzureCourseOperation.DeleteFilesFromBlobAsync(OldquestionContexts);
                
                 //додавання фото до курса(оновлення)
@@ -201,11 +254,12 @@ namespace PlatformEducationWorkers.Core.Services
 
 
 
-                oldCource.TitleCource = course.TitleCource;
-                oldCource.AccessRoles = course.AccessRoles;
-                oldCource.Questions = course.Questions;
-                oldCource.ContentCourse = course.ContentCourse;
-                oldCource.Description = course.Description;
+
+                oldCourse.TitleCource = course.TitleCource;
+                oldCourse.AccessRoles = course.AccessRoles;
+                oldCourse.Questions = course.Questions;
+                oldCourse.ContentCourse = course.ContentCourse;
+                oldCourse.Description = course.Description;
 
                 return await  _repository.Update(course);
             }
