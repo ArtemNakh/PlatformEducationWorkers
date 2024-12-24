@@ -168,7 +168,8 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                 if (enterpriseId == null || enterpriseId == 0) throw new Exception("enterpriseId is null or less than 0");
 
 
-                return _repository.GetById<Enterprise>(enterpriseId).IsCompleted;
+                var enterprise = await _repository.GetByIdAsync<Enterprise>(enterpriseId);
+                return enterprise != null;
             }
             catch (Exception ex)
             {

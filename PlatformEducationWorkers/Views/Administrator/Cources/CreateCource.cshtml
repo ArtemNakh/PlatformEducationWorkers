@@ -14,7 +14,10 @@
         </div>
         <div class="card-body">
             <form asp-action="CreateCourse" method="post" enctype="multipart/form-data">
-                <div asp-validation-summary="All" class="alert alert-danger"></div> 
+                @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger"></div>
+                }
 
                 <div class="mb-3">
                     <label asp-for="TitleCource" class="form-label"><strong>Title of Course</strong></label>
@@ -34,25 +37,88 @@
                     <span asp-validation-for="ContentCourse" class="text-danger"></span>
                 </div>
 
+
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Access Roles</strong></label>
+                    <div class="border p-3 rounded">
+                        @if ((ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>)?.Count > 0)
+                        {
+                            @foreach (var jobTitle in (ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>))
+                            {
+                                <div class="form-check">
+                                    <input type="checkbox" name="AccessRoleIds[]" value="@jobTitle.Id" class="form-check-input" />
+                                    <label class="form-check-label">@jobTitle.Name</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">No access roles available.</p>
+                        }
+                        <span asp-validation-for="AccessRoleIds" class="text-danger"></span>
+                    </div>
+                </div>
+
+
                 <div id="questions-container" class="mb-4">
                     <h3 class="text-primary">Questions</h3>
                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="addQuestion()">
                         <i class="bi bi-plus-circle"></i> Add Question
                     </button>
-                </div>
+                    <span asp-validation-for="Questions" class="text-danger"></span>
 
-                <div class="mb-3">
-                    <label class="form-label"><strong>Access Roles</strong></label>
-                    <div class="border p-3 rounded">
-                        @foreach (var jobTitle in (ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>) ?? new List<PlatformEducationWorkers.Core.Models.JobTitle>())
+                    @if (Model != null && Model.Questions != null && Model.Questions.Count > 0)
+                    {
+                        @for (int i = 0; i < Model.Questions.Count; i++)
                         {
-                            <div class="form-check">
-                                <input type="checkbox" name="AccessRoleIds[]" value="@jobTitle.Id" class="form-check-input" />
-                                <label class="form-check-label">@jobTitle.Name</label>
+                            var question = Model.Questions[i];
+                            <div class="border p-3 rounded mt-3">
+                                <h4 class="text-secondary">Question @(i + 1)</h4>
+                                <input type="text" name="Questions[@i].Text" value="@question.Text" class="form-control mb-2" placeholder="Enter question" />
+                                <div class="mb-3">
+                                    <label><strong>Question Image</strong></label>
+                                    <input type="file" onchange="convertAlreadyFileToBase64(this, 'Questions[@i].PhotoQuestionBase64')" class="form-control" />
+                                    <input type="hidden" name="Questions[@i].PhotoQuestionBase64" value="@question.PhotoQuestionBase64" />
+                                </div>
+
+                                <div class="answers-container">
+                                    <h5>Answers</h5>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(@i)">
+                                        <i class="bi bi-plus-circle"></i> Add Answer
+                                    </button>
+
+                                    <div id="answers-@i" class="mt-2">
+                                        @for (int j = 0; j < question.Answers.Count; j++)
+                                        {
+                                            var answer = question.Answers[j];
+                                            <div class="border p-2 rounded mt-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <input type="text" name="Questions[@i].Answers[@j].Text" value="@answer.Text" class="form-control w-50" placeholder="Enter answer" />
+                                                    <input type="checkbox" name="Questions[@i].Answers[@j].IsCorrect" value="true" @(answer.IsCorrect ? "checked" : "") class="form-check-input" />
+                                                    <label>Correct</label>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
+                                                        <i class="bi bi-trash"></i> Remove Answer
+                                                    </button>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label><strong>Answer Image</strong></label>
+                                                    <input type="file" onchange="convertFileToBase64(this, 'Questions[@i].Answers[@j].PhotoAnswerBase64')" class="form-control" />
+                                                    <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@answer.PhotoAnswerBase64" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
+                                    <i class="bi bi-trash"></i> Remove Question
+                                </button>
                             </div>
                         }
-                    </div>
+                    }
                 </div>
+
 
                 <div class="mb-3">
                     <label asp-for="ShowCorrectAnswers" class="form-label"><strong>Show correct answers</strong></label>
@@ -63,7 +129,7 @@
                     <span asp-validation-for="ShowCorrectAnswers" class="text-danger"></span>
                 </div>
 
-                 <div class="mb-3">
+                <div class="mb-3">
                     <label asp-for="ShowUserAnswers" class="form-label"><strong>Show user answers?</strong></label>
                     <select asp-for="ShowUserAnswers" class="form-select border-primary">
                         <option value="true">True</option>
@@ -85,7 +151,7 @@
                     <button type="submit" class="btn btn-success btn-lg">
                         <i class="bi bi-save"></i> Create Course
                     </button>
-                    
+
                     <div class="text-center mt-4">
                         <a asp-action="Courses" asp-controller="Courses" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Назад
@@ -105,24 +171,24 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = "border p-3 rounded mt-3";
         questionDiv.innerHTML = `
-                <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
-                <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
-                <div class="mb-3">
-                    <label><strong>Question Image</strong></label>
-                        <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
-                        <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
-                </div>
-                <div class="answers-container">
-                    <h5>Answers</h5>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
-                        <i class="bi bi-plus-circle"></i> Add Answer
-                    </button>
-                    <div id="answers-${questionIndex}" class="mt-2"></div>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
-                    <i class="bi bi-trash"></i> Remove Question
-                </button>
-            `;
+                                        <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
+                                        <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
+                                        <div class="mb-3">
+                                            <label><strong>Question Image</strong></label>
+                                                <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
+                                                <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
+                                        </div>
+                                        <div class="answers-container">
+                                            <h5>Answers</h5>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
+                                                <i class="bi bi-plus-circle"></i> Add Answer
+                                            </button>
+                                            <div id="answers-${questionIndex}" class="mt-2"></div>
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
+                                            <i class="bi bi-trash"></i> Remove Question
+                                        </button>
+                                    `;
         container.appendChild(questionDiv);
         questionIndex++;
     }
@@ -134,20 +200,20 @@
         const answerDiv = document.createElement('div');
         answerDiv.className = "border p-2 rounded mt-2";
         answerDiv.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-50" placeholder="Enter answer" />
-                    <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
-                    <label>Correct</label>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
-                        <i class="bi bi-trash"></i> Remove Answer
-                    </button>
-                </div>
-                <div class="mt-2">
-                    <label><strong>Answer Image</strong></label>
-                        <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
-                        <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
-                </div>
-            `;
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-50" placeholder="Enter answer" />
+                                            <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
+                                            <label>Correct</label>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
+                                                <i class="bi bi-trash"></i> Remove Answer
+                                            </button>
+                                        </div>
+                                        <div class="mt-2">
+                                            <label><strong>Answer Image</strong></label>
+                                                <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
+                                                <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
+                                        </div>
+                                    `;
         answerContainer.appendChild(answerDiv);
     }
 
@@ -173,6 +239,23 @@
 
         if (file) {
             reader.readAsDataURL(file); // Читаємо файл
+        }
+    }
+
+    function convertAlreadyFileToBase64(input, targetName) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const base64String = e.target.result.split(',')[1]; // Видаляємо "data:image/jpeg;base64,"
+            const hiddenInput = document.querySelector(`input[name="${targetName}"]`);
+            if (hiddenInput) {
+                hiddenInput.value = base64String;
+            }
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
         }
     }
 

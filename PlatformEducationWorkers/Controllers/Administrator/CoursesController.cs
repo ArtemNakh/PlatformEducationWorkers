@@ -12,13 +12,13 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
-using PlatformEducationWorkers.Core.Questions;
 using PlatformEducationWorkers.Core.Results;
 using PlatformEducationWorkers.Request.CourceRequest;
 using Serilog;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using PlatformEducationWorkers.Models.Questions;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
 {
@@ -65,7 +65,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             ViewData["CompanyName"] = companyName;
-            ViewBag.Cources = cources.ToList();
+            ViewBag.Courses = cources.ToList();
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 
@@ -76,8 +76,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> CreateCourse()
         {
             Log.Information($"open the page CreateCourse");
-
-            var jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var jobTitles = await _jobTitleService.GetAvaliableRoles(enterpriseId);
             if (jobTitles == null || !jobTitles.Any())
             {
                 ViewBag.JobTitles = new List<JobTitle>();
@@ -87,7 +87,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewBag.JobTitles = jobTitles.ToList();
             }
 
-            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+           
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
             if (avatarBytes != null && avatarBytes.Length > 0)
@@ -115,7 +115,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             if (!ModelState.IsValid)
             {
 
-                var jobTitleslist = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+               var jobTitleslist = await _jobTitleService.GetAvaliableRoles(HttpContext.Session.GetInt32("EnterpriseId").Value);
                 Log.Warning($"request is not correct{request}");
                 if (jobTitleslist == null || !jobTitleslist.Any())
                 {
@@ -284,6 +284,34 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
         }
 
+        [HttpPost]
+        [Route("DeleteHistoryPassage")]
+        [UserExists]
+        public async Task<IActionResult> DeleteHistoryPassage(int passageId)
+        {
+            Log.Information($"Deleting history passage with id {passageId}");
+
+            try
+            {
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+
+                // Видаляємо запис про проходження курсу
+                 await _userResultService.DeleteResult(passageId); 
+
+               
+
+                Log.Information($"Successfully deleted history passage with id {passageId}");
+
+                // Перенаправлення на сторінку історії проходжень
+                return RedirectToAction("HistoryPassage", new { area = "Administrator" });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while deleting history passage with id {passageId}");
+                return StatusCode(500, "Виникла помилка під час видалення проходження курсу.");
+            }
+        }
+
 
         [HttpPost]
         [Route("DeleteCource")]
@@ -365,7 +393,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             
-            ViewBag.ChooseJobTitle = cource.AccessRoles.ToList();
+            ViewBag.ChooseJobTitleIds = cource.AccessRoles.Select(n=>n.Id).ToList();
             ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
@@ -420,8 +448,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             if (!ModelState.IsValid)
             {
                 Log.Warning($"request  is no valid, edit course request{request}");
-                return View(request);
+                Courses cource =await  _courseService.GetCoursesById(request.Id);
+                if(request.AccessRoles==null)
+                {
+                    ViewBag.ChooseJobTitleIds = new List<int>();
+                        }
+                else
+                {
+                    ViewBag.ChooseJobTitleIds = request.AccessRoles.ToList();
+                }
+               
+                ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
+                return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
             }
+          
 
             Courses course = await _courseService.GetCoursesById(request.Id);
             if (course == null)
@@ -488,7 +528,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            ViewBag.Cources = allCourses;
+            ViewBag.Courses = allCourses;
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 

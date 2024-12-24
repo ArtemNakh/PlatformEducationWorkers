@@ -9,7 +9,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
-using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Core.Results;
 using Serilog;
 using System.Text.Json.Serialization;

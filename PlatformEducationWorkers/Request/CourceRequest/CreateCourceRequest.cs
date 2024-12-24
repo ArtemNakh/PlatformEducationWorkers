@@ -1,4 +1,6 @@
-﻿using PlatformEducationWorkers.Core.Questions;
+﻿using PlatformEducationWorkers.Attributes;
+using PlatformEducationWorkers.Models.Questions;
+using PlatformEducationWorkers.Models.Questions;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlatformEducationWorkers.Request.CourceRequest
@@ -16,7 +18,7 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         [Required(ErrorMessage = "Course content is required.")]
         public string ContentCourse { get; set; } // JSON format for course content
 
-        [Required(ErrorMessage = "At least one question is required.")]
+        [ValidateQuestions]
         public List<QuestionContext> Questions { get; set; } = new List<QuestionContext>();
 
         [Required(ErrorMessage = "At least one access role must be selected.")]

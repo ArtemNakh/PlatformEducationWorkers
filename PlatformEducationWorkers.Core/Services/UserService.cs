@@ -317,6 +317,13 @@ namespace PlatformEducationWorkers.Core.Services
                     olduser.Birthday = user.Birthday;
                 }
 
+                bool isDuplicate = _repository.GetAll<User>().ToList().Any(e =>
+                   HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
+                   HashHelper.ComputeHash(user.Password, e.Salt) == e.Password);
+
+                if (isDuplicate)
+                    throw new Exception("Error adding user, please choose another password or login.");
+
 
                 var salt = HashHelper.GenerateSalt();
                 olduser.Salt = salt;

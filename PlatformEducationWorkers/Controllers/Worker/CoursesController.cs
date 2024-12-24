@@ -9,10 +9,11 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
-using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Core.Results;
 using PlatformEducationWorkers.Request.PassageCource;
 using Serilog;
+using PlatformEducationWorkers.Models.Questions;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {

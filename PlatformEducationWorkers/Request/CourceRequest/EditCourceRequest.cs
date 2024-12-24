@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Core.Questions;
+using PlatformEducationWorkers.Models.Questions;
+using PlatformEducationWorkers.Models.Questions;
 namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class EditCourceRequest
@@ -24,8 +26,7 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         [Required(ErrorMessage = "Access Roles must be required.")]
         public List<int> AccessRoles { get; set; }
 
-        [Required(ErrorMessage = "Questions are required.")]
-        [MinLength(1, ErrorMessage = "At least one question is required.")]
+        [ValidateQuestions]
         public List<QuestionContext> Questions { get; set; } = new List<QuestionContext>();
     }
 }
