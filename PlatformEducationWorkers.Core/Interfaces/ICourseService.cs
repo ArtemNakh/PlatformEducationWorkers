@@ -1,5 +1,4 @@
-﻿
-using PlatformEducationWorkers.Core.Models;
+﻿using PlatformEducationWorkers.Core.Models;
 
 namespace PlatformEducationWorkers.Core.Interfaces
 {
@@ -13,6 +12,6 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<Courses> GetCoursesById(int courseId);
         Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId);
         Task<IEnumerable<Courses>> GetUncompletedCoursesForUser(int userId, int enterpriseId);
-        Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId);
+        Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId, int numberNewsCourses);
     }
 }

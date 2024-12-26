@@ -3,45 +3,70 @@ using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Azure;
-using System.Net.Http.Json;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace PlatformEducationWorkers.Core.Services
 {
+    /// <summary>
+    /// Service responsible for managing courses. Provides methods for creating, updating, deleting, 
+    /// and retrieving courses as well as handling course-specific business logic.
+    /// </summary>
     public class CourseService : ICourseService
     {
         private readonly IRepository _repository;
         private readonly IUserService _userService;
-        //private readonly IJobTitleService _jobTitleService;
         private readonly IUserResultService _userResultService;
-
         private readonly AzureBlobCourseOperation AzureCourseOperation;
-        public CourseService(IRepository repository, AzureBlobCourseOperation azureCourseOperation, IUserService userService,  IUserResultService userResultService)
+
+        /// <summary>
+        /// Fetches photos from Azure Blob storage for the list of courses.
+        /// </summary>
+        /// <param name="coursesEnterprise">List of courses to process.</param>
+        private async Task GettingListsPhotosAzure(IEnumerable<Courses> coursesEnterprise)
+        {
+            foreach (Courses course in coursesEnterprise)
+            {
+                List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                course.Questions = JsonConvert.SerializeObject(questionContexts);
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CourseService"/> class.
+        /// </summary>
+        /// <param name="repository">Repository for accessing and managing data.</param>
+        /// <param name="azureCourseOperation">Service for Azure Blob operations related to courses.</param>
+        /// <param name="userService">Service for managing user-related operations.</param>
+        /// <param name="userResultService">Service for managing user course results.</param>
+        public CourseService(IRepository repository, AzureBlobCourseOperation azureCourseOperation, IUserService userService, IUserResultService userResultService)
         {
             _repository = repository;
             AzureCourseOperation = azureCourseOperation;
             _userService = userService;
-            //_jobTitleService = jobTitleService;
             _userResultService = userResultService;
         }
 
+        /// <summary>
+        /// Adds a new course to the system.
+        /// </summary>
+        /// <param name="courses">The course to be added.</param>
+        /// <returns>The added course.</returns>
+        /// <exception cref="Exception">Thrown when the course is null or an error occurs.</exception>
         public async Task<Courses> AddCourse(Courses courses)
         {
-            
+
             try
             {
                 //додати валідацію
                 if (courses == null)
                     throw new Exception("Cource is null");
+
+                //getting photos from the cloud
                 List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(courses.Questions);
-
-
-                questionContexts =await  AzureCourseOperation.UploadFileToBlobAsync(questionContexts);
-
+                questionContexts = await AzureCourseOperation.UploadFileToBlobAsync(questionContexts);
                 courses.Questions = JsonConvert.SerializeObject(questionContexts);
-                
+
                 return await _repository.Add(courses);
             }
             catch (Exception ex)
@@ -51,6 +76,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Deletes a course by its identifier and removes associated files from Azure Blob.
+        /// </summary>
+        /// <param name="courseId">The identifier of the course to delete.</param>
+        /// <exception cref="Exception">Thrown when the course is not found or an error occurs.</exception>
         public async Task DeleteCourse(int courseId)
         {
             try
@@ -59,9 +89,10 @@ namespace PlatformEducationWorkers.Core.Services
                 if (courseId == null)
                     throw new Exception("Cource is null");
 
-                Courses course= _repository.GetById<Courses>(courseId).Result;
-                List<QuestionContext> questionContexts= JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-             
+                Courses course = _repository.GetById<Courses>(courseId).Result;
+
+                //deleting photos from the cloud
+                List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                 await AzureCourseOperation.DeleteFilesFromBlobAsync(questionContexts);
 
                 await _repository.Delete<Courses>(courseId);
@@ -73,6 +104,12 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all courses associated with a specific enterprise.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise.</param>
+        /// <returns>List of courses for the enterprise.</returns>
+        /// <exception cref="Exception">Thrown if the enterprise ID is invalid or an error occurs.</exception>
         public async Task<IEnumerable<Courses>> GetAllCoursesEnterprise(int enterpriseId)
         {
             try
@@ -80,13 +117,11 @@ namespace PlatformEducationWorkers.Core.Services
                 //додати валідацію
                 if (enterpriseId == null)
                     throw new Exception("enterprice is null");
-                List<Courses> coursesEnterprise=(await _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
-                foreach (Courses course in coursesEnterprise)
-                {
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts=await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
-                }
+
+                //getting photos from the cloud
+                List <Courses> coursesEnterprise = (await _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
+                await GettingListsPhotosAzure(coursesEnterprise);
+
                 return coursesEnterprise;
             }
             catch (Exception ex)
@@ -96,6 +131,12 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all courses accessible to a specific user based on their job title.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>List of accessible courses for the user.</returns>
+        /// <exception cref="Exception">Thrown if the user ID is invalid or an error occurs.</exception>
         public async Task<IEnumerable<Courses>> GetAllCoursesUser(int userId)
         {
             try
@@ -107,16 +148,10 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user == null)
                     throw new Exception("User not found");
 
-
-                // Змінити запит, щоб враховувати, що AccessRoles — це колекція, а JobTitle — одиночний елемент
+                //getting photos from the cloud
                 IEnumerable<Courses> courcesUser = (await _repository.GetQuery<Courses>(c => c.AccessRoles.Any(ar => ar.Id == user.JobTitle.Id)));
+                await GettingListsPhotosAzure(courcesUser);
 
-                foreach (Courses course in courcesUser)
-                {
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
-                }
 
                 return courcesUser.ToList();
             }
@@ -127,6 +162,12 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a course by its ID, including its associated photo data from Azure Blob storage.
+        /// </summary>
+        /// <param name="courseId">The ID of the course to retrieve.</param>
+        /// <returns>The course with the specified ID.</returns>
+        /// <exception cref="Exception">Thrown if the course ID is invalid or the course is not found.</exception>
         public async Task<Courses> GetCoursesById(int courseId)
         {
             try
@@ -135,7 +176,9 @@ namespace PlatformEducationWorkers.Core.Services
                 if (courseId == null)
                     throw new Exception("cource is null");
 
-                Courses course= await _repository.GetByIdAsync<Courses>(courseId);
+                Courses course = await _repository.GetByIdAsync<Courses>(courseId);
+
+                //getting photos from the cloud
                 List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                 questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
                 course.Questions = JsonConvert.SerializeObject(questionContexts);
@@ -149,6 +192,18 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all courses accessible to a specific job title.
+        /// </summary>
+        /// <param name="jobTitleId">The ID of the job title.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. 
+        /// The task result contains a collection of courses associated with the specified job title.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown if <paramref name="jobTitleId"/> is null or invalid, 
+        /// or if an error occurs during the retrieval process.
+        /// </exception>
         public async Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId)
         {
             try
@@ -156,15 +211,11 @@ namespace PlatformEducationWorkers.Core.Services
                 if (jobTitleId == null)
                     throw new Exception("jobTitleId is null");
 
-                JobTitle jobTitle = await _repository.GetByIdAsync<JobTitle>(jobTitleId); 
-                IEnumerable<Courses> courcesJobTitle =await  _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobTitle) );
+                JobTitle jobTitle = await _repository.GetByIdAsync<JobTitle>(jobTitleId);
 
-                foreach (Courses course in courcesJobTitle)
-                {
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
-                }
+                //getting photos from the cloud
+                IEnumerable<Courses> courcesJobTitle = await _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobTitle));
+                await GettingListsPhotosAzure(courcesJobTitle);
 
                 return courcesJobTitle;
 
@@ -176,63 +227,62 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        
 
 
+        /// <summary>
+        /// Updates an existing course, including its Azure Blob data and associated roles.
+        /// </summary>
+        /// <param name="course">The course to update.</param>
+        /// <returns>The updated course.</returns>
+        /// <exception cref="Exception">Thrown if the course is invalid or an error occurs during the update.</exception>
         public async Task<Courses> UpdateCourse(Courses course)
         {
             try
             {
-                //додати валідацію
+               
                 if (course == null)
                     throw new Exception("cource is null");
 
 
-                
+                Courses oldCourse = await _repository.GetById<Courses>(course.Id);
 
-               
-    //            var existingRelation = _dbContext.CoursesJobTitle
-    //.FirstOrDefault(c => c.CourseId == courseId && c.JobTitleId == jobTitleId);
-
-    //            if (existingRelation == null)
-    //            {
-    //                // Додати новий зв'язок
-    //                _dbContext.CoursesJobTitle.Add(new CoursesJobTitle { CourseId = courseId, JobTitleId = jobTitleId });
-    //                await _dbContext.SaveChangesAsync();
-    //            }
-
-
-
-
-
-                Courses oldCourse =await  _repository.GetById<Courses>(course.Id);
-
+                //getting current JobTitle
                 IEnumerable<JobTitle> currentJobTitles = oldCourse.AccessRoles;
 
-                // Знаходимо JobTitle для видалення (якщо вони більше не в списку)
+                //find JobTitle for deleting (якщо вони більше не в списку)
                 var jobTitlesToRemove = currentJobTitles
                     .Where(cjt => !course.AccessRoles.Any(jt => jt.Id == cjt.Id))
                     .ToList();
 
-                // Видаляємо зайві зв'язки
+                // Remove redundant connections and remove traversals
                 if (jobTitlesToRemove.Any())
                 {
+
+                    List<UserResults> userssResults = (await _userResultService.GetAllResultCourses(oldCourse.Id)).ToList();
                     foreach (var jobTitle in jobTitlesToRemove)
                     {
                         var relationToRemove = oldCourse.AccessRoles.FirstOrDefault(ar => ar.Id == jobTitle.Id);
                         if (relationToRemove != null)
                         {
+
+                            //removing all results for that role in the course
+                            List<UserResults> userssResult = userssResults.Where(n => n.Course.AccessRoles.Any(g => g.Id == jobTitle.Id)).ToList();
+                            foreach (var result in userssResult)
+                            {
+                                await _userResultService.DeleteResult(result.Id);
+                            }
+
+
                             oldCourse.AccessRoles.Remove(relationToRemove);
                         }
                     }
                 }
 
-                // Додаємо нові JobTitle, яких ще немає в AccessRoles
+                // Add new JobTitles that are not yet in AccessRoles
                 var jobTitlesToAdd = course.AccessRoles
                     .Where(jt => !currentJobTitles.Any(cjt => cjt.Id == jt.Id))
                     .ToList();
 
-                // Додаємо нові зв'язки
                 if (jobTitlesToAdd.Any())
                 {
                     foreach (var jobTitle in jobTitlesToAdd)
@@ -242,18 +292,14 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
 
-
-                //Видалення фото з ажур(стара версія курса
+                //Removing photo from openwork (old version of the course
                 List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
                 await AzureCourseOperation.DeleteFilesFromBlobAsync(OldquestionContexts);
-               
-                //додавання фото до курса(оновлення)
+
+                //adding a photo to the course (update)
                 List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
                 questionContexts = await AzureCourseOperation.UploadFileToBlobAsync(questionContexts);
                 course.Questions = JsonConvert.SerializeObject(questionContexts);
-
-
-
 
                 oldCourse.TitleCource = course.TitleCource;
                 oldCourse.AccessRoles = course.AccessRoles;
@@ -261,7 +307,7 @@ namespace PlatformEducationWorkers.Core.Services
                 oldCourse.ContentCourse = course.ContentCourse;
                 oldCourse.Description = course.Description;
 
-                return await  _repository.Update(course);
+                return await _repository.Update(course);
             }
             catch (Exception ex)
             {
@@ -271,49 +317,53 @@ namespace PlatformEducationWorkers.Core.Services
         }
 
 
-
+        /// <summary>
+        /// Retrieves a list of uncompleted courses for a specific user based on their job title and the enterprise ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user for whom to retrieve uncompleted courses.</param>
+        /// <param name="enterpriceId">The ID of the enterprise to which the courses belong.</param>
+        /// <returns>An asynchronous task that returns an enumerable collection of uncompleted courses.</returns>
+        /// <exception cref="Exception">Thrown when userId or enterpriceId is null or when an error occurs during retrieval.</exception>
         public async Task<IEnumerable<Courses>> GetUncompletedCoursesForUser(int userId, int enterpriceId)
         {
             try
             {
+                // Validate input parameters
                 if (userId == null)
                     throw new Exception("UserId is null");
                 if (enterpriceId == null)
                     throw new Exception("enterprice is null");
 
-                // Асинхронно отримуємо результати користувача
+                // Asynchronously retrieve the user's results
                 var userCourses = await _userResultService.GetAllUserResult(userId);
 
-                // Асинхронно отримуємо всі курси для підприємства
+                // Asynchronously retrieve all courses for the enterprise
                 var allCourses = await _repository.GetQueryAsync<Courses>(u => u.Enterprise.Id == enterpriceId);
 
-                // Асинхронно отримуємо користувача
+                // Asynchronously retrieve the user details
                 var user = await _userService.GetUser(userId);
 
-                // Список для зберігання непройдених курсів
+                // List to store uncompleted courses
                 List<Courses> uncompletedCourses = new List<Courses>();
 
+                // Iterate through all courses to find uncompleted ones
                 foreach (var course in allCourses)
                 {
-                    // Перевіряємо, чи курс був пройдений
+                    // Check if the course has been completed
                     bool courseCompleted = userCourses.Any(uc => uc.Course.Id == course.Id);
 
+                    // Check if the user's job title matches the course's access roles
                     bool isJobTitleMatch = course.AccessRoles.Any(c => c.Id == user.JobTitle.Id);
 
-                    // Якщо курс підходить по JobTitle і ще не пройдений
+                    // If the course is accessible by the user's job title and has not been completed
                     if (isJobTitleMatch && !courseCompleted)
                     {
                         uncompletedCourses.Add(course);
                     }
                 }
 
-
-                foreach (Courses course in uncompletedCourses)
-                {
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
-                }
+                // Retrieve photos for the uncompleted courses from Azure
+                await GettingListsPhotosAzure(uncompletedCourses);
 
                 // Повертаємо список непройдених курсів
                 return await Task.FromResult(uncompletedCourses.AsEnumerable());
@@ -324,22 +374,27 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public async Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId)
+        /// <summary>
+        /// Retrieves the N most recently created courses for a specific enterprise.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise for which to retrieve new courses.</param>
+        /// <param name="numberNewsCourses">The numbers of the new courses need getting </param>
+        /// <returns>An asynchronous task that returns an enumerable collection of the five most recent courses.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs during retrieval.</exception>
+        public async Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId,int numberNewsCourses)
         {
             try
             {
-                IEnumerable<Courses> cources = await _repository.GetQueryAsync<Courses>(
-                    c => c.Enterprise.Id == enterpriseId);
+                IEnumerable<Courses> cources = (await _repository.GetQueryAsync<Courses>(
+                    c => c.Enterprise.Id == enterpriseId)).Take(numberNewsCourses);
 
-                foreach (Courses course in cources)
-                {
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
-                }
+                // Retrieve photos for the courses from Azure
+                await GettingListsPhotosAzure(cources);
 
-                return cources.OrderByDescending(course => course.DateCreate).Take(5);
-               
+
+
+                return cources.OrderByDescending(course => course.DateCreate);
+
             }
             catch (Exception ex)
             {
@@ -348,6 +403,6 @@ namespace PlatformEducationWorkers.Core.Services
         }
 
 
-       
+
     }
 }

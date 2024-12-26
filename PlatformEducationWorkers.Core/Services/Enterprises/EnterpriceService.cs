@@ -1,63 +1,60 @@
-﻿using Amazon.S3.Model;
-using PlatformEducationWorkers.Core.Interfaces;
+﻿using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
-using System.ComponentModel.DataAnnotations;
+
 
 namespace PlatformEducationWorkers.Core.Services.Enterprises
 {
+    /// <summary>
+    /// Service class responsible for managing enterprise-related operations,
+    /// including retrieving, updating, and deleting enterprises and their associated entities.
+    /// </summary>
     public class EnterpriceService : IEnterpriseService
     {
         private readonly IRepository _repository;
         private readonly ICourseService _courseService;
         private readonly IUserService _userService;
-        public EnterpriceService(IRepository repository, ICourseService courseService, IUserService userService)
+        private readonly IJobTitleService _jobTitleService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnterpriceService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository interface for data operations.</param>
+        /// <param name="courseService">Service for managing courses.</param>
+        /// <param name="userService">Service for managing users.</param>
+        /// <param name="jobTitleService">Service for managing job titles.</param>
+        public EnterpriceService(IRepository repository, ICourseService courseService, IUserService userService, IJobTitleService jobTitleService)
         {
             _repository = repository;
             _courseService = courseService;
             _userService = userService;
-            }
-
-        public Task<Enterprise> AddingEnterprise(Enterprise enterprice)
-        {
-            try
-            {
-
-                if (enterprice == null)
-                    throw new Exception($"Error adding Enterprice,enterprice is null");
-
-                if (_repository.GetQuery<Enterprise>(e => e.Title == enterprice.Title).Result.Count() > 0)
-                    throw new Exception($"Error adding Enterprice, Choose other name");
-                if (_repository.GetQuery<Enterprise>(e => e.Email == enterprice.Email).Result.Count() > 0)
-                    throw new Exception($"Error adding Enterprice, Choose other Email");
-
-                return _repository.Add(enterprice);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw new Exception($"Error adding Enterprice, error:{ex}");
-            }
+            _jobTitleService = jobTitleService;
         }
 
+
+        /// <summary>
+        /// Deletes an enterprise and all its associated entities such as courses, users, and job titles.
+        /// </summary>
+        /// <param name="enterpriceId">The ID of the enterprise to delete.</param>
+        /// <exception cref="Exception">Throws if the enterprise or related entities cannot be deleted.</exception>
         public async Task DeleteingEnterprise(int enterpriceId)
         {
             try
             {
-                // Отримуємо фірму, яку потрібно видалити
+                // Retrieve the enterprise to delete
                 var enterprice = await _repository.GetById<Enterprise>(enterpriceId);
                 if (enterprice == null)
                     throw new Exception($"Enterprice with id {enterpriceId} not found");
 
-                var courses=(await _courseService.GetAllCoursesEnterprise(enterpriceId)).ToList();
-
+                // Delete associated courses
+                var courses = (await _courseService.GetAllCoursesEnterprise(enterpriceId)).ToList();
                 foreach (var course in courses)
                 {
                     await _courseService.DeleteCourse(course.Id);
                 }
-                
+
+                // Delete associated users
                 var users = (await _userService.GetAllUsersEnterprise(enterpriceId)).ToList();
                 foreach (var user in users)
                 {
@@ -69,15 +66,15 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
                     await _userService.DeleteUser(user.Id);
                 }
 
-               
-                var jobTitles = (await _repository.GetQueryAsync<JobTitle>(e=>e.Enterprise.Id== enterpriceId)).ToList();
-                foreach (var job in jobTitles)
+                // Delete associated job titles
+                IEnumerable<JobTitle> jobTitles = await _jobTitleService.GetAllJobTitles(enterpriceId);
+                foreach (var jobTitle in jobTitles)
                 {
-                    await _repository.Delete<JobTitle>(job.Id);
+                    _jobTitleService.DeleteJobTitle(jobTitle.Id);
                 }
 
 
-                // Видалення фірми
+                // Delete the enterprise
                 await _repository.Delete<Enterprise>(enterpriceId);
             }
             catch (Exception ex)
@@ -86,11 +83,18 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
+
+        /// <summary>
+        /// Retrieves an enterprise by its ID.
+        /// </summary>
+        /// <param name="enterpriceId">The ID of the enterprise.</param>
+        /// <returns>The enterprise entity.</returns>
+        /// <exception cref="Exception">Throws if the enterprise ID is invalid or not found.</exception>
         public Task<Enterprise> GetEnterprise(int enterpriceId)
         {
             try
             {
-                if(enterpriceId == null||enterpriceId == 0 )
+                if (enterpriceId == null || enterpriceId == 0)
                 {
                     throw new Exception("enterprise is null or less than 0");
                 }
@@ -104,11 +108,17 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
+        /// <summary>
+        /// Retrieves an enterprise by its title.
+        /// </summary>
+        /// <param name="title">The title of the enterprise.</param>
+        /// <returns>The enterprise entity.</returns>
+        /// <exception cref="Exception">Throws if the title is null or empty.</exception>
         public async Task<Enterprise> GetEnterprise(string title)
         {
             try
             {
-                if (title == null|| title=="")
+                if (title == null || title == "")
                 {
                     throw new Exception("title is null or empty");
                 }
@@ -123,16 +133,23 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public async  Task<Enterprise> GetEnterpriseByUser(int userId)
+        /// <summary>
+        /// Retrieves an enterprise by a user's ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user associated with the enterprise.</param>
+        /// <returns>The enterprise entity.</returns>
+        /// <exception cref="Exception">Throws if the user ID is invalid or the user has no associated enterprise.</exception>
+        public async Task<Enterprise> GetEnterpriseByUser(int userId)
         {
             try
             {
-                if(userId==null|| userId==0)
+                if (userId == null || userId == 0)
                 {
                     throw new Exception("user Id is null or less than 0");
                 }
+
                 User user = await _userService.GetUser(userId);
-                //додати валідацію
+
                 return (await _repository.GetQuery<Enterprise>(u => u.Id == user.Enterprise.Id)).FirstOrDefault();
             }
             catch (Exception ex)
@@ -142,6 +159,12 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
+        /// <summary>
+        /// Updates an enterprise entity.
+        /// </summary>
+        /// <param name="enterprice">The enterprise entity with updated values.</param>
+        /// <returns>The updated enterprise entity.</returns>
+        /// <exception cref="Exception">Throws if the enterprise is null or update operation fails.</exception>
         public Task<Enterprise> UpdateEnterprise(Enterprise enterprice)
         {
             try
@@ -161,22 +184,7 @@ namespace PlatformEducationWorkers.Core.Services.Enterprises
             }
         }
 
-        public async Task<bool> HasEnterprise(int enterpriseId)
-        {
-            try
-            {
-                if (enterpriseId == null || enterpriseId == 0) throw new Exception("enterpriseId is null or less than 0");
-
-
-                var enterprise = await _repository.GetByIdAsync<Enterprise>(enterpriseId);
-                return enterprise != null;
-            }
-            catch (Exception ex)
-            {
-
-                return false;
-            }
-        }
+        
 
     }
 }

@@ -1,31 +1,41 @@
-﻿using Amazon.S3.Model;
-using Newtonsoft.Json;
-using PlatformEducationWorkers.Core.Interfaces;
+﻿using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
-
 using PlatformEducationWorkers.Core.Azure;
-using Azure.Core;
-
 
 namespace PlatformEducationWorkers.Core.Services
 {
+    /// <summary>
+    /// Service for managing user-related operations.
+    /// </summary>
     public class UserService : IUserService
     {
         private readonly IRepository _repository;
         private readonly IUserResultService _userResultService;
         private readonly AzureBlobAvatarOperation AzureAvatarService;
         private readonly EmailService _emailService;
-        public UserService(IRepository repository, EmailService emailService, AzureBlobAvatarOperation azureAvatarService, IUserResultService userResultServuce)
+
+        /// <summary>
+        /// Constructor for UserService.
+        /// </summary>
+        /// <param name="repository">Repository for data access.</param>
+        /// <param name="emailService">Service for sending emails.</param>
+        /// <param name="azureAvatarService">Service for Azure Blob avatar operations.</param>
+        /// <param name="userResultService">Service for managing user results.</param>
+        public UserService(IRepository repository, EmailService emailService, AzureBlobAvatarOperation azureAvatarService, IUserResultService userResultService)
         {
             _repository = repository;
             _emailService = emailService;
             AzureAvatarService = azureAvatarService;
-            _userResultService = userResultServuce;
+            _userResultService = userResultService;
         }
 
 
-
+        /// <summary>
+        /// Adds a new user to the system.
+        /// </summary>
+        /// <param name="user">The user object to be added.</param>
+        /// <returns>The added user object.</returns>
         public async Task<User> AddUser(User user)
         {
             try
@@ -33,10 +43,12 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user == null)
                     throw new Exception($"Error adding user, user is null");
 
+                // Check for existing user with the same name, surname, and birthday
                 if (_repository.GetQuery<User>(e => e.Name == user.Name && e.Surname == user.Surname && e.Birthday == user.Birthday).Result.Any())
                     throw new Exception($"Error adding user, such user already exists");
-                //додати перевірку захешованого паролю
-                //Todo(hash only password)
+
+
+                // Check for duplicate login and password
                 var allusers = _repository.GetAll<User>().ToList();
                 bool isDuplicate = allusers.Any(e =>
                     HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
@@ -45,13 +57,13 @@ namespace PlatformEducationWorkers.Core.Services
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
 
-                //хешированія
+                // Hashing the password
                 var salt = HashHelper.GenerateSalt();
                 user.Salt = salt;
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
 
-                // Додавання аватарки у вигляді JSON-рядка
+                // Upload avatar if provided
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
 
@@ -63,6 +75,7 @@ namespace PlatformEducationWorkers.Core.Services
                     }
                 }
 
+                // Send welcome email to the enterprise
                 var enterpriseEmail = user.Enterprise.Email;
                 var subject = "Вітаємо вас було додано до на платформу навчання працівників";
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
@@ -79,23 +92,30 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-
+        /// <summary>
+        /// Deletes a user by their ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user to be deleted.</param>
         public async Task DeleteUser(int userId)
         {
             try
             {
                 User user = await _repository.GetById<User>(userId);
+
+                // Delete avatar from Azure Blob if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
                     await AzureAvatarService.DeleteAvatarFromBlobAsync(user.ProfileAvatar);
 
                 }
 
+                // Delete all results associated with the user
                 await _userResultService.DeleteAllResultsUser(userId);
 
+                // Delete the user from the repository
                 await _repository.Delete<User>(userId);
 
-
+                // Send account deletion email
                 var subject = "Видалення облікового запису";
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
                      $"<p>Ваш обліковий запис був видалений зі пратформи для навчання співробітників</p>" +
@@ -114,6 +134,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all users associated with a specific enterprise.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise.</param>
+        /// <returns>A list of users belonging to the enterprise.</returns>
         public async Task<IEnumerable<User>> GetAllUsersEnterprise(int enterpriseId)
         {
             try
@@ -124,6 +149,7 @@ namespace PlatformEducationWorkers.Core.Services
                 }
                 IEnumerable<User> usersEnterprise = await _repository.GetQuery<User>(u => u.Enterprise.Id == enterpriseId);
 
+                // Load avatars for each user
                 foreach (var user in usersEnterprise)
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
@@ -143,6 +169,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a user by their ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>The user object.</returns>
         public async Task<User> GetUser(int userId)
         {
             try
@@ -153,6 +184,8 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
                 User user = await _repository.GetById<User>(userId);
+
+                // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
                     byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
@@ -167,6 +200,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves users associated with a specific job title.
+        /// </summary>
+        /// <param name="jobTitleId">The ID of the job title.</param>
+        /// <returns>A list of users with the specified job title.</returns>
         public async Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId)
         {
             try
@@ -176,6 +214,8 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("jobTitleId is null or less than 0");
                 }
                 IEnumerable<User> users = await _repository.GetQuery<User>(r => r.JobTitle.Id == jobTitleId);
+
+                // Load avatars for each user
                 foreach (var user in users)
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
@@ -194,7 +234,12 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-
+        /// <summary>
+        /// Authenticates a user based on login credentials.
+        /// </summary>
+        /// <param name="login">The user's login.</param>
+        /// <param name="password">The user's password.</param>
+        /// <returns>The authenticated user object.</returns>
         public async Task<User> Login(string login, string password)
         {
             try
@@ -214,6 +259,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user.Password != hashedPassword)
                     throw new Exception("Invalid login or password");
 
+                // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
                     byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
@@ -227,6 +273,12 @@ namespace PlatformEducationWorkers.Core.Services
                 throw new Exception($"Error login user , error:{ex}");
             }
         }
+
+        /// <summary>
+        /// Registers a new user in the system.
+        /// </summary>
+        /// <param name="user">The user object to be registered.</param>
+        /// <returns>The registered user object.</returns>
         public async Task<User> Registration(User user)
         {
             try
@@ -234,8 +286,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user == null)
                     throw new ArgumentNullException(nameof(user), "User object is null");
 
-                //додати перевірку захешованого паролю
-                //Todo(hash only password)
+                // Check for duplicate login and password
                 var allusers = _repository.GetAll<User>().ToList();
                 bool isDuplicate = allusers.Any(e =>
                     HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
@@ -244,13 +295,13 @@ namespace PlatformEducationWorkers.Core.Services
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
 
-
+                // Hashing the password
                 var salt = HashHelper.GenerateSalt();
                 user.Salt = salt;
                 user.Password = HashHelper.ComputeHash(user.Password, salt);
                 user.Login = HashHelper.ComputeHash(user.Login, salt);
 
-                // Додавання аватарки у вигляді JSON-рядка
+                // Upload avatar if provided
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
                     byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
@@ -266,12 +317,20 @@ namespace PlatformEducationWorkers.Core.Services
         }
 
 
-
+        /// <summary>
+        /// Searches for a user by name, surname, and birthday.
+        /// </summary>
+        /// <param name="name">The user's name.</param>
+        /// <param name="surname">The user's surname.</param>
+        /// <param name="birthday">The user's birthday.</param>
+        /// <returns>The found user object.</returns>
         public async Task<User> SearchUser(string name, string surname, DateTime birthday)
         {
             try
             {
                User user=(await _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday)).FirstOrDefault();
+
+                // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
                     byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
@@ -287,6 +346,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Updates an existing user's information.
+        /// </summary>
+        /// <param name="user">The user object with updated information.</param>
+        /// <returns>The updated user object.</returns>
         public async Task<User> UpdateUser(User user)
         {
             try
@@ -317,6 +381,7 @@ namespace PlatformEducationWorkers.Core.Services
                     olduser.Birthday = user.Birthday;
                 }
 
+                // Check for duplicate login and password
                 bool isDuplicate = _repository.GetAll<User>().ToList().Any(e =>
                    HashHelper.ComputeHash(user.Login, e.Salt) == e.Login &&
                    HashHelper.ComputeHash(user.Password, e.Salt) == e.Password);
@@ -324,7 +389,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
 
-
+                // Hashing the new password
                 var salt = HashHelper.GenerateSalt();
                 olduser.Salt = salt;
                 olduser.Login = user.Login;
@@ -332,13 +397,13 @@ namespace PlatformEducationWorkers.Core.Services
                 olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
                 olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
 
-                //видалення старої фотографії
+                // Remove old avatar if it exists
                 if (olduser.ProfileAvatar != null)
                 {
                     await AzureAvatarService.DeleteAvatarFromBlobAsync(olduser.ProfileAvatar);
                 }
 
-                //додавання нової фотографії
+                // Upload new avatar if provided
                 if (user.ProfileAvatar != null)
                 {
                     byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
@@ -347,6 +412,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 user = await _repository.Update(olduser);
 
+                // Send email notification about account update
                 var enterpriseEmail = user.Enterprise.Email;
                 var subject = "Оновлення облікового запису";
                 var body = $"<p>Шановний {user.Name} {user.Surname},</p>" +
@@ -365,7 +431,11 @@ namespace PlatformEducationWorkers.Core.Services
         }
 
 
-
+        /// <summary>
+        /// Retrieves the most recent users for a specific enterprise.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise.</param>
+        /// <returns>A list of the most recent users.</returns>
         public async Task<IEnumerable<User>> GetNewUsers(int enterpriseId)
         {
             try
@@ -375,6 +445,8 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("enterpriseId is null or less than 0");
                 }
                 var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
+
+                // Load avatars for each user
                 foreach (var user in users)
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))

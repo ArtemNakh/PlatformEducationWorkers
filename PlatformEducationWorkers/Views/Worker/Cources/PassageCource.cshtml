@@ -124,6 +124,28 @@
     </div>
 </div>
 
+
+
+<!-- Модальне вікно -->
+<div class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unsavedChangesModalLabel">Попередження</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Результати проходження курсу не будуть збережені. Ви впевнені, що хочете залишити сторінку?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <a href="/" class="btn btn-danger">Покинути сторінку</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     function updateSelectedCheckboxes(questionIndex) {
         // Get all checkboxes for this question
@@ -157,5 +179,31 @@
             }
         }
     }
+
+
+
+
+    let isFormSubmitted = false;
+
+    // Відстежуємо надсилання форми
+    document.querySelector('form').addEventListener('submit', function () {
+        isFormSubmitted = true;
+    });
+
+    // Попередження про незбережені зміни при спробі закрити сторінку
+    window.addEventListener('beforeunload', function (e) {
+        if (!isFormSubmitted) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Відображення модального вікна при спробі закрити сторінку
+    window.addEventListener('unload', function (e) {
+        if (!isFormSubmitted) {
+            const modal = new bootstrap.Modal(document.getElementById('unsavedChangesModal'));
+            modal.show();
+        }
+    });
 
 </script>

@@ -9,11 +9,12 @@ namespace PlatformEducationWorkers.Attributes
         {
             var httpContext = context.HttpContext;
 
-            // Перевіряємо, чи присутні необхідні значення в сесії
+            //отримання значення з сесії
             var userId = httpContext.Session.GetString("UserId");
             var userRole = httpContext.Session.GetString("UserRole");
             var enterpriseId = httpContext.Session.GetString("EnterpriseId");
 
+            //перевірка на їх існування
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userRole) || string.IsNullOrEmpty(enterpriseId))
             {
                 // Якщо хоч одне значення відсутнє, перенаправляємо на сторінку логіну

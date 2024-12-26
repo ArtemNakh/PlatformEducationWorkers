@@ -295,14 +295,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-                // Видаляємо запис про проходження курсу
+
                  await _userResultService.DeleteResult(passageId); 
 
                
 
                 Log.Information($"Successfully deleted history passage with id {passageId}");
 
-                // Перенаправлення на сторінку історії проходжень
+
                 return RedirectToAction("HistoryPassage", new { area = "Administrator" });
             }
             catch (Exception ex)
@@ -554,7 +554,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     return NotFound();
                 }
 
-                // Обробка вмісту курсу
+
                 string content = "";
                 List<UserQuestionRequest> questions = new();
 

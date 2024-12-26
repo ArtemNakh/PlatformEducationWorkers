@@ -1,32 +1,44 @@
 ﻿using PlatformEducationWorkers.Core.Interfaces;
-using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 
 namespace PlatformEducationWorkers.Core.Services
 {
+    /// <summary>
+    /// Service for managing job titles.
+    /// </summary>
     public class JobTitleService : IJobTitleService
     {
         private readonly IRepository _repository;
-        private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
         private readonly IUserResultService _userResultService;
         private readonly ICourseService _courseService;
 
-
-        public JobTitleService(IRepository repository, IEnterpriseService enterpriseService, IUserService userService, IUserResultService userResultService, ICourseService courseService)
+        /// <summary>
+        /// Constructor for JobTitleService.
+        /// </summary>
+        /// <param name="repository">Repository for data access.</param>
+        /// <param name="userService">Service for user management.</param>
+        /// <param name="userResultService">Service for user results management.</param>
+        /// <param name="courseService">Service for course management.</param>
+        public JobTitleService(IRepository repository, IUserService userService, IUserResultService userResultService, ICourseService courseService)
         {
             _repository = repository;
-            _enterpriseService = enterpriseService;
             _userService = userService;
             _userResultService = userResultService;
             _courseService = courseService;
         }
 
+        /// <summary>
+        /// Adds a new job title.
+        /// </summary>
+        /// <param name="jobTitle">The JobTitle object to be added.</param>
+        /// <returns>The added job title.</returns>
         public Task<JobTitle> AddingRole(JobTitle jobTitle)
         {
             try
             {
+                // Check for the existence of the enterprise and the uniqueness of the job title
                 if (jobTitle.Enterprise == null
                     || _repository.GetQuery<JobTitle>(r => r.Name == jobTitle.Name
                     && r.Enterprise.Id == jobTitle.Enterprise.Id).Result.Count() > 0)
@@ -42,6 +54,10 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Deletes a job title by its ID.
+        /// </summary>
+        /// <param name="idJobTitle">The ID of the job title to be deleted.</param>
         public async Task DeleteJobTitle(int idJobTitle)
         {
             try
@@ -58,24 +74,21 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception($"JobTitle with id {idJobTitle} not found.");
                 }
 
-                //видалення усіх користувач 
+                // Delete all users associated with this job title
                 IEnumerable<User> users = await _userService.GetUsersByJobTitle(idJobTitle);
                 foreach (User user in users)
                 {
-                    //видаляємоо усі результати курсів користувача
+                    // Delete all course results for the user
                     IEnumerable<UserResults> userResults = await _userResultService.GetAllUserResult(user.Id);
-
-
                     foreach (var result in userResults)
                     {
                         await _userResultService.DeleteResult(result.Id);
                     }
 
-                   await _userService.DeleteUser(user.Id);
+                    await _userService.DeleteUser(user.Id);
                 }
 
-
-                // Видаляємо вибрану роль зі списку доступних ролей курса
+                // Remove the job title from the list of available roles in courses
                 IEnumerable<Courses> courses = await _courseService.GetCoursesByJobTitle(idJobTitle);
                 foreach (var course in courses)
                 {
@@ -92,11 +105,16 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-        public Task<IEnumerable<JobTitle>> GetAllJobTitles(int idEnterprice)
+        /// <summary>
+        /// Retrieves all job titles for a given enterprise.
+        /// </summary>
+        /// <param name="idEnterprise">The ID of the enterprise.</param>
+        /// <returns>A list of job titles.</returns>
+        public Task<IEnumerable<JobTitle>> GetAllJobTitles(int idEnterprise)
         {
             try
             {
-                return _repository.GetQuery<JobTitle>(j => j.Enterprise.Id == idEnterprice);
+                return _repository.GetQuery<JobTitle>(j => j.Enterprise.Id == idEnterprise);
             }
             catch (Exception ex)
             {
@@ -104,6 +122,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a job title by its ID.
+        /// </summary>
+        /// <param name="idJobTitle">The ID of the job title.</param>
+        /// <returns>The job title object.</returns>
         public Task<JobTitle> GetJobTitle(int idJobTitle)
         {
             try
@@ -116,6 +139,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Updates an existing job title.
+        /// </summary>
+        /// <param name="newJobTitle">The new job title object with updated information.</param>
+        /// <returns>The updated job title.</returns>
         public Task<JobTitle> UpdateJobTitle(JobTitle newJobTitle)
         {
             try
@@ -132,6 +160,11 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves available job roles for a given enterprise.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise.</param>
+        /// <returns>A list of available job titles.</returns>
         public async Task<IEnumerable<JobTitle>> GetAvaliableRoles(int enterpriseId)
         {
             try
@@ -140,13 +173,10 @@ namespace PlatformEducationWorkers.Core.Services
                 {
                     throw new Exception($"Error get avaliable job Title, error:enterpriseId null or less than 0");
                 }
-                if(!await _enterpriseService.HasEnterprise(enterpriseId))
-                {
-                    throw new Exception($"Enterprise with Id {enterpriseId} is not found");
-                }
 
 
-                return (await _repository.GetQueryAsync<JobTitle>(n=>n.Enterprise.Id == enterpriseId)).Skip(1);
+
+                return (await _repository.GetQueryAsync<JobTitle>(n => n.Enterprise.Id == enterpriseId)).Skip(1);
             }
             catch (Exception ex)
             {

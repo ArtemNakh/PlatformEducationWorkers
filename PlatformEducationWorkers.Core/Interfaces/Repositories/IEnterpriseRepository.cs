@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PlatformEducationWorkers.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PlatformEducationWorkers.Core.Models;
 
 namespace PlatformEducationWorkers.Core.Interfaces.Repositories
 {

@@ -121,7 +121,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             int numbersLastPassage = 5;
             var lastPassages = await _userResultService.GetLastPassages(enterpriseId, numbersLastPassage);
             var newUsers= await _userService.GetNewUsers(enterpriseId);
-            var newCources= await _courseService.GetNewCourses(enterpriseId);
+            var newCources= await _courseService.GetNewCourses(enterpriseId,5);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
            
