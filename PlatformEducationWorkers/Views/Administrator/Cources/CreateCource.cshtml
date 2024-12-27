@@ -4,13 +4,13 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewBag.Title = "Create Course";
+    ViewBag.Title = "Створення курса";
 }
 
 <div class="container mt-5">
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white text-center">
-            <h2>Create Course</h2>
+            <h2>Створення курса</h2>
         </div>
         <div class="card-body">
             <form asp-action="CreateCourse" method="post" enctype="multipart/form-data">
@@ -20,27 +20,27 @@
                 }
 
                 <div class="mb-3">
-                    <label asp-for="TitleCource" class="form-label"><strong>Title of Course</strong></label>
-                    <input asp-for="TitleCource" class="form-control border-primary" placeholder="Enter course title" />
+                    <label asp-for="TitleCource" class="form-label"><strong>Назва курса</strong></label>
+                    <input asp-for="TitleCource" class="form-control border-primary" placeholder="Введіть назву курса" />
                     <span asp-validation-for="TitleCource" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label"><strong>Description</strong></label>
-                    <textarea asp-for="Description" class="form-control border-primary" rows="3" placeholder="Enter course description"></textarea>
+                    <label asp-for="Description" class="form-label"><strong>Описання курса</strong></label>
+                    <textarea asp-for="Description" class="form-control border-primary" rows="3" placeholder="Введіть описання курса"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ContentCourse" class="form-label"><strong>Content (JSON format)</strong></label>
-                    <textarea asp-for="ContentCourse" class="form-control border-primary" rows="5" placeholder="Enter course content in JSON format"></textarea>
+                    <label asp-for="ContentCourse" class="form-label"><strong>Зміст курса</strong></label>
+                    <textarea asp-for="ContentCourse" class="form-control border-primary" rows="5" placeholder="Введіть вміст курса"></textarea>
                     <span asp-validation-for="ContentCourse" class="text-danger"></span>
                 </div>
 
 
 
                 <div class="mb-3">
-                    <label class="form-label"><strong>Access Roles</strong></label>
+                    <label class="form-label"><strong>Доступні должності</strong></label>
                     <div class="border p-3 rounded">
                         @if ((ViewBag.JobTitles as List<PlatformEducationWorkers.Core.Models.JobTitle>)?.Count > 0)
                         {
@@ -54,7 +54,7 @@
                         }
                         else
                         {
-                            <p class="text-muted">No access roles available.</p>
+                            <p class="text-muted">Нема доступних должностей.</p>
                         }
                         <span asp-validation-for="AccessRoleIds" class="text-danger"></span>
                     </div>
@@ -62,9 +62,9 @@
 
 
                 <div id="questions-container" class="mb-4">
-                    <h3 class="text-primary">Questions</h3>
+                    <h3 class="text-primary">Питання</h3>
                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="addQuestion()">
-                        <i class="bi bi-plus-circle"></i> Add Question
+                        <i class="bi bi-plus-circle"></i> Додати питання
                     </button>
                     <span asp-validation-for="Questions" class="text-danger"></span>
 
@@ -74,18 +74,18 @@
                         {
                             var question = Model.Questions[i];
                             <div class="border p-3 rounded mt-3">
-                                <h4 class="text-secondary">Question @(i + 1)</h4>
-                                <input type="text" name="Questions[@i].Text" value="@question.Text" class="form-control mb-2" placeholder="Enter question" />
+                                <h4 class="text-secondary">Питання @(i + 1)</h4>
+                                <input type="text" name="Questions[@i].Text" value="@question.Text" class="form-control mb-2" placeholder="Введіть питання" />
                                 <div class="mb-3">
-                                    <label><strong>Question Image</strong></label>
+                                    <label><strong>Фото до питання</strong></label>
                                     <input type="file" onchange="convertAlreadyFileToBase64(this, 'Questions[@i].PhotoQuestionBase64')" class="form-control" />
                                     <input type="hidden" name="Questions[@i].PhotoQuestionBase64" value="@question.PhotoQuestionBase64" />
                                 </div>
 
                                 <div class="answers-container">
-                                    <h5>Answers</h5>
+                                    <h5>Відповіді</h5>
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(@i)">
-                                        <i class="bi bi-plus-circle"></i> Add Answer
+                                        <i class="bi bi-plus-circle"></i> Додати відповідь
                                     </button>
 
                                     <div id="answers-@i" class="mt-2">
@@ -94,15 +94,15 @@
                                             var answer = question.Answers[j];
                                             <div class="border p-2 rounded mt-2">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <input type="text" name="Questions[@i].Answers[@j].Text" value="@answer.Text" class="form-control w-50" placeholder="Enter answer" />
+                                                    <input type="text" name="Questions[@i].Answers[@j].Text" value="@answer.Text" class="form-control w-50" placeholder="Введіть відповідь" />
                                                     <input type="checkbox" name="Questions[@i].Answers[@j].IsCorrect" value="true" @(answer.IsCorrect ? "checked" : "") class="form-check-input" />
                                                     <label>Correct</label>
                                                     <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
-                                                        <i class="bi bi-trash"></i> Remove Answer
+                                                        <i class="bi bi-trash"></i> Видалити відповідь
                                                     </button>
                                                 </div>
                                                 <div class="mt-2">
-                                                    <label><strong>Answer Image</strong></label>
+                                                    <label><strong>Фото до відповіді</strong></label>
                                                     <input type="file" onchange="convertFileToBase64(this, 'Questions[@i].Answers[@j].PhotoAnswerBase64')" class="form-control" />
                                                     <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@answer.PhotoAnswerBase64" />
                                                 </div>
@@ -112,7 +112,7 @@
                                 </div>
 
                                 <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
-                                    <i class="bi bi-trash"></i> Remove Question
+                                    <i class="bi bi-trash"></i> Видалити питання
                                 </button>
                             </div>
                         }
@@ -121,35 +121,35 @@
 
 
                 <div class="mb-3">
-                    <label asp-for="ShowCorrectAnswers" class="form-label"><strong>Show correct answers</strong></label>
+                    <label asp-for="ShowCorrectAnswers" class="form-label"><strong>Показувати вірні відповіді?</strong></label>
                     <select asp-for="ShowCorrectAnswers" class="form-select border-primary">
-                        <option value="true">True</option>
-                        <option value="false">False</option>
+                        <option value="true">Так</option>
+                        <option value="false">Ні</option>
                     </select>
                     <span asp-validation-for="ShowCorrectAnswers" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ShowUserAnswers" class="form-label"><strong>Show user answers?</strong></label>
+                    <label asp-for="ShowUserAnswers" class="form-label"><strong>Показувати відповіді користувачему?</strong></label>
                     <select asp-for="ShowUserAnswers" class="form-select border-primary">
-                        <option value="true">True</option>
-                        <option value="false">False</option>
+                        <option value="true">Так</option>
+                        <option value="false">Ні</option>
                     </select>
                     <span asp-validation-for="ShowUserAnswers" class="text-danger"></span>
                 </div>
 
 
                 <div class="mb-3">
-                    <label asp-for="ShowContextPassage" class="form-label"><strong>Show Context during the passage course?</strong></label>
+                    <label asp-for="ShowContextPassage" class="form-label"><strong>Показувати змість під час проходження курса?</strong></label>
                     <select asp-for="ShowContextPassage" class="form-select border-primary">
-                        <option value="true">True</option>
-                        <option value="false">False</option>
+                        <option value="true">Так</option>
+                        <option value="false">Ні</option>
                     </select>
                     <span asp-validation-for="ShowContextPassage" class="text-danger"></span>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-success btn-lg">
-                        <i class="bi bi-save"></i> Create Course
+                        <i class="bi bi-save"></i> Створити курс
                     </button>
 
                     <div class="text-center mt-4">
@@ -171,22 +171,22 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = "border p-3 rounded mt-3";
         questionDiv.innerHTML = `
-                                        <h4 class="text-secondary">Question ${questionIndex + 1}</h4>
-                                        <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Enter question" />
+                                        <h4 class="text-secondary">Питання ${questionIndex + 1}</h4>
+                                        <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Введіть питання" />
                                         <div class="mb-3">
-                                            <label><strong>Question Image</strong></label>
+                                            <label><strong>Фото до питання</strong></label>
                                                 <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
                                                 <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
                                         </div>
                                         <div class="answers-container">
-                                            <h5>Answers</h5>
+                                            <h5>Відповіді</h5>
                                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addAnswer(${questionIndex})">
-                                                <i class="bi bi-plus-circle"></i> Add Answer
+                                                <i class="bi bi-plus-circle"></i> Додати відповідь
                                             </button>
                                             <div id="answers-${questionIndex}" class="mt-2"></div>
                                         </div>
                                         <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeQuestion(this)">
-                                            <i class="bi bi-trash"></i> Remove Question
+                                            <i class="bi bi-trash"></i> Видалити питання
                                         </button>
                                     `;
         container.appendChild(questionDiv);
@@ -201,15 +201,15 @@
         answerDiv.className = "border p-2 rounded mt-2";
         answerDiv.innerHTML = `
                                         <div class="d-flex align-items-center gap-2">
-                                            <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-50" placeholder="Enter answer" />
+                                            <input type="text" name="Questions[${questionIndex}].Answers[${answerIndex}].Text" class="form-control w-50" placeholder="Введіть відповідь" />
                                             <input type="checkbox" name="Questions[${questionIndex}].Answers[${answerIndex}].IsCorrect" value="true" class="form-check-input" />
-                                            <label>Correct</label>
+                                            <label>Вірно</label>
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
-                                                <i class="bi bi-trash"></i> Remove Answer
+                                                <i class="bi bi-trash"></i> Видалення відповіді
                                             </button>
                                         </div>
                                         <div class="mt-2">
-                                            <label><strong>Answer Image</strong></label>
+                                            <label><strong>Фото до відповіді</strong></label>
                                                 <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
                                                 <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
                                         </div>

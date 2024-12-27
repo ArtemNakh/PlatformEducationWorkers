@@ -4,12 +4,11 @@ namespace PlatformEducationWorkers.Request.AccountRequest
 {
     public class UpdateUserCredentialsRequest
     {
-       
-        //[StringLength(20, MinimumLength = 0, ErrorMessage = "Login must be between 3 and 50 characters.")]
+
+        [MinLength(6, ErrorMessage = "Login must be at least 6 characters long.")]
         public string? NewLogin { get; set; }
 
-       
-        //[StringLength(20, MinimumLength = 0, ErrorMessage = "Password must be between 8 and 100 characters.")]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         public string? NewPassword { get; set; }
 
 

@@ -264,10 +264,15 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return NotFound();
                 }
 
-                int maxRating = userResultRequest.Questions.Select(a=>a.Answers.Where(an=>an.IsCorrectAnswer)).Count();
-                int userRating = userResultRequest.Questions.Select(n => n.Answers.Where(b => b.IsSelected == true && b.IsCorrectAnswer == true)).Count();
+                // Загальна кількість вірних відповідей
+                int totalCorrectAnswers = userResultRequest.Questions
+                    .SelectMany(q => q.Answers)
+                    .Count(a => a.IsCorrectAnswer);
 
-
+                // Кількість правильних відповідей, вибраних користувачем
+                int correctSelectedAnswers = userResultRequest.Questions
+                    .SelectMany(q => q.Answers)
+                    .Count(a => a.IsCorrectAnswer && a.IsSelected);
 
 
 
@@ -288,8 +293,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     User = user,
                     Course = course,
                     DateCompilation = DateTime.Now,
-                    Rating = userRating,
-                    MaxRating = maxRating,
+                    Rating = correctSelectedAnswers,
+                    MaxRating = totalCorrectAnswers,
                     answerJson = userAnswersJson,
 
                 };

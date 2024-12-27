@@ -101,7 +101,8 @@
         button.addEventListener('click', function () {
             var courseId = this.getAttribute('data-course-id');
             var deleteForm = document.getElementById('deleteCourseForm');
-            deleteForm.action = '/Administrator/Courses/DeleteCourse/' + courseId; // Заміна шляху для вашої дії
+            deleteForm.action = '@Url.Action("DeleteCourse", "Courses", new { area = "Administrator", id = "__courseId__" })'.replace('__courseId__', courseId); // Заміна шляху для вашої дії
+
         });
     });
 </script>

@@ -1,5 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    ViewData["Title"] = "Головна";
 }
 
 <div class="container mt-5">
@@ -8,7 +10,7 @@
         <div class="col-md-6">
             <div class="card shadow-lg mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Last Passages</h4>
+                    <h4 class="mb-0">Останні проходи</h4>
                 </div>
                 <div class="card-body">
                     @if (ViewBag.LastPassages != null && ((IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>)ViewBag.LastPassages).Any())
@@ -16,10 +18,10 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>User</th>
-                                    <th>Course</th>
-                                    <th>Date</th>
-                                    <th>Rating</th>
+                                    <th>Користувач</th>
+                                    <th>Курс</th>
+                                    <th>Дата</th>
+                                    <th>Рейтинг</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,14 +39,14 @@
                     }
                     else
                     {
-                        <p class="text-muted">No recent passages found.</p>
+                        <p class="text-muted">Останні проходження не знайдено.</p>
                     }
                 </div>
             </div>
 
             <div class="card shadow-lg mb-4">
                 <div class="card-header bg-secondary text-white">
-                    <h4 class="mb-0">New Courses</h4>
+                    <h4 class="mb-0">Нові курси</h4>
                 </div>
                 <div class="card-body">
                     @if (ViewBag.NewCourses != null && ((IEnumerable<PlatformEducationWorkers.Core.Models.Courses>)ViewBag.NewCourses).Any())
@@ -52,9 +54,9 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Description</th>
-                                    <th>Date</th>
+                                    <th>Назва</th>
+                                    <th>Опис</th>
+                                    <th>Дата</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,7 +73,7 @@
                     }
                     else
                     {
-                        <p class="text-muted">No new courses found.</p>
+                        <p class="text-muted">Нових курсів не знайдено.</p>
                     }
                 </div>
             </div>
@@ -81,7 +83,7 @@
         <div class="col-md-6">
             <div class="card shadow-lg mb-4">
                 <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">New Users</h4>
+                    <h4 class="mb-0">Нові користувачі</h4>
                 </div>
                 <div class="card-body">
                     @if (ViewBag.NewUsers != null && ((IEnumerable<PlatformEducationWorkers.Core.Models.User>)ViewBag.NewUsers).Any())
@@ -89,9 +91,9 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Registration Date</th>
+                                    <th>Ім'я</th>
+                                    <th>Електронна пошта</th>
+                                    <th>Дата реєстрації</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,14 +110,14 @@
                     }
                     else
                     {
-                        <p class="text-muted">No new users found.</p>
+                        <p class="text-muted">Нових користувачів не знайдено.</p>
                     }
                 </div>
             </div>
 
             <div class="card shadow-lg mb-4">
                 <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Average Rating all passaged cources</h4>
+                    <h4 class="mb-0">Середній рейтинг усіх пройдених курсів</h4>
                 </div>
                 <div class="card-body text-center">
                     @if (ViewBag.AverageRating != null)
@@ -124,7 +126,7 @@
                     }
                     else
                     {
-                        <p class="text-muted">No rating data available.</p>
+                        <p class="text-muted">Немає рейтингових даних.</p>
                     }
                 </div>
             </div>

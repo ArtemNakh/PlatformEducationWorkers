@@ -4,23 +4,24 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Створення працівника";
 }
 
 <div class="container mt-5">
 
     <div class="card shadow-lg mb-5">
         <div class="card-header bg-primary text-white">
-            <h3>Add New Job Title</h3>
+            <h3>Додавання нової посади</h3>
         </div>
         <div class="card-body">
             <form asp-action="CreateJobTitle" asp-controller="JobTitles" asp-area="Administrator" method="post">
                 <div class="form-group mb-3">
-                    <label asp-for="Name" class="form-label">Job Title Name</label>
-                    <input asp-for="Name" class="form-control" placeholder="Enter Job Title Name" />
+                    <label asp-for="Name" class="form-label">Назва посади</label>
+                    <input asp-for="Name" class="form-control" placeholder="Введіть назву посади" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg">Add Job Title</button>
+                <button type="submit" class="btn btn-primary btn-lg">Додати посаду</button>
             </form>
         </div>
     </div>
@@ -28,76 +29,76 @@
 
     <div class="card shadow-lg">
         <div class="card-header bg-success text-white">
-            <h3>Add New Worker</h3>
+            <h3>Додавання нового працівника</h3>
         </div>
         <div class="card-body">
             <form asp-action="CreateWorker" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Name" class="form-label">Name</label>
-                    <input asp-for="Name" class="form-control" placeholder="Enter Name" />
+                    <label asp-for="Name" class="form-label">Ім'я'</label>
+                    <input asp-for="Name" class="form-control" placeholder="Введіть ім'я" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Surname" class="form-label">Surname</label>
-                    <input asp-for="Surname" class="form-control" placeholder="Enter Surname" />
+                    <label asp-for="Surname" class="form-label">Фамілія</label>
+                    <input asp-for="Surname" class="form-control" placeholder="Введіть фамілію" />
                     <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Birthday" class="form-label">Birthday</label>
+                    <label asp-for="Birthday" class="form-label">День народження</label>
                     <input asp-for="Birthday" class="form-control" type="date" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control" type="email" placeholder="Enter Email" />
+                    <label asp-for="Email" class="form-label">Пошта</label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Введіть пошту" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter Password" />
+                    <label asp-for="Password" class="form-label">Пароль</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Введіть пароль" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Login" class="form-label">Login</label>
-                    <input asp-for="Login" class="form-control" placeholder="Enter Login" />
+                    <label asp-for="Login" class="form-label">Логін</label>
+                    <input asp-for="Login" class="form-control" placeholder="Введіть логін" />
                     <span asp-validation-for="Login" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label for="jobTitleSelect" class="form-label">Job Title</label>
+                    <label for="jobTitleSelect" class="form-label">Посада</label>
                     <select id="jobTitleSelect" class="form-control" asp-for="JobTitleId" asp-items="@(new SelectList(ViewBag.JobTitles, "Id", "Name"))">
-                        <option value="">-- Select Job Title --</option>
+                        <option value="">-- Виберіть посаду --</option>
                     </select>
                     <span asp-validation-for="JobTitleId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label class="form-label">Role</label>
+                    <label class="form-label">Роль</label>
                     <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles))">
-                        <option value="">-- Select Role --</option>
+                        <option value="">-- Виберіть роль --</option>
                     </select>
                     <span asp-validation-for="Role" class="text-danger"></span>
                 </div>
 
                 <!-- Поле для аватарки -->
                 <div class="form-group mb-3">
-                    <label asp-for="ProfileAvatar" class="form-label"><strong>Аватарка</strong></label>
+                    <label asp-for="ProfileAvatar" class="form-label"><strong>Фото профілю</strong></label>
                     <input type="file" asp-for="ProfileAvatar" class="form-control" />
                     <span asp-validation-for="ProfileAvatar" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-success btn-lg">Create User</button>
+                <button type="submit" class="btn btn-success btn-lg">Створити працівника</button>
                 
             </form>
             <div class="text-center mt-4">
-                <a asp-action="Main" asp-controller="Workers" class="btn btn-secondary">
+                <a asp-action="Workers" asp-controller="Workers" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Назад
                 </a>
             </div>
@@ -110,7 +111,7 @@
         async function createJobTitle() {
             const jobTitleName = document.getElementById('JobTitleName').value;
             if (!jobTitleName) {
-                alert('Please enter a job title.');
+                alert('Будь-ласка введіть назву посади.');
                 return;
             }
 
@@ -125,11 +126,11 @@
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`New Job Title Created: ${data.name}`);
+                alert(`Посада була створення: ${data.name}`);
                 location.reload(); 
             } else {
                 const error = await response.json();
-                alert(`Error: ${error}`);
+                alert(`Помилка: ${error}`);
             }
         }
     </script>

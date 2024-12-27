@@ -3,7 +3,8 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 
     ViewData["Title"] = "Історія проходжень курсу";
-    var historyPassages = ViewBag.HistoryPassages as IEnumerable<PlatformEducationWorkers.Core.Models.UserResults>;
+    var historyPassages = ViewBag.HistoryPassages as List<PlatformEducationWorkers.Core.Models.UserResults>;
+    var courses = ViewBag.Courses as List<Courses>;
 }
 
 <div class="container mt-5">
@@ -18,7 +19,7 @@
                     <div class="col-md-8">
                         <select id="courseId" name="courseId" class="form-control">
                             <option value="">Виберіть курс</option>
-                            @foreach (Courses course in ViewBag.Courses)
+                            @foreach (Courses course in courses)
                             {
                                 <option value="@course.Id">@course.TitleCource</option>
                             }
@@ -62,12 +63,13 @@
                                         </form>
 
                                         @*Видалення проходження курса*@
-                                        <form asp-action="DeleteHistoryPassage" asp-controller="Courses" asp-area="Administrator" method="post">
-                                            <input type="hidden" name="id" value="@passage.Id" />
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені, що хочете видалити це проходження?');">
-                                                Видалити
+                                        <form asp-action="DeleteHistoryPassage" asp-route-id="@passage.Id" method="post" style="display:inline;">
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-passage-id="@passage.Id">
+                                                <i class="bi bi-trash"></i> Видалити
                                             </button>
                                         </form>
+
+
                                     </td>
                                 </tr>
                             }
@@ -88,3 +90,46 @@
         </div>
     </div>
 </div>
+
+
+
+
+               
+
+<!-- Модальне вікно підтвердження видалення -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Підтвердження видалення проходження</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+            <div class="modal-body">
+                Ви дійсно бажаєте видалити це проходження курсу?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <form id="deletePassageForm" method="post">
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Скрипт для відкриття модального вікна та налаштування форми видалення -->
+<script>
+   
+
+    var deleteButtons = document.querySelectorAll('button[data-bs-toggle="modal"]');
+    deleteButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var passageId = this.getAttribute('data-passage-id');
+            var deleteForm = document.getElementById('deletePassageForm');
+            // Оновлюємо дію форми на правильний шлях до методу видалення проходження курсу
+            deleteForm.action = 'DeleteHistoryPassage/' + passageId;
+        });
+    });
+
+</script>

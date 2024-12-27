@@ -398,7 +398,7 @@ namespace PlatformEducationWorkers.Core.Services
                 olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
 
                 // Remove old avatar if it exists
-                if (olduser.ProfileAvatar != null)
+                if (olduser.ProfileAvatar != null && user.ProfileAvatar != null)
                 {
                     await AzureAvatarService.DeleteAvatarFromBlobAsync(olduser.ProfileAvatar);
                 }

@@ -3,10 +3,9 @@ using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Core.Services;
-using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Request.AccountRequest;
 using Serilog;
+using PlatformEducationWorkers.Core;
 
 namespace PlatformEducationWorkers.Controllers
 {
@@ -44,6 +43,10 @@ namespace PlatformEducationWorkers.Controllers
                 {
                     string base64Avatar = Convert.ToBase64String(avatarBytes);
                     ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
@@ -129,7 +132,27 @@ namespace PlatformEducationWorkers.Controllers
             if (!ModelState.IsValid)
             {
                 Log.Warning($"models is not valid, request:{request} ");
-                return RedirectToAction("Credentials");
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    string defaultAvatarPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Sourses", "DefaultAvatar.png");
+                    byte[] defaultAvatarBytes = System.IO.File.ReadAllBytes(defaultAvatarPath);
+                    string base64DefaultAvatar = Convert.ToBase64String(defaultAvatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/png;base64,{base64DefaultAvatar}";
+                }
+                var userRole = HttpContext.Session.GetString("UserRole");
+                ViewData["CompanyName"] = companyName;
+                ViewBag.UserRole = userRole;
+
+                return View(request);
             }
 
             try

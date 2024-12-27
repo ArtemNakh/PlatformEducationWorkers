@@ -1,0 +1,107 @@
+﻿/* Стилі для навігації */
+.navbar {
+    background-color: #007bff;
+    border-bottom: 2px solid #0056b3;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white !important;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #20154f !important; 
+    font-size: 1.3rem;
+}
+
+.navbar-nav .nav-item:hover .nav-link {
+    color: #20154f !important; 
+}
+
+.navbar-toggler-icon {
+    background-color: white;
+}
+
+.navbar-nav .nav-item:last-child {
+    margin-left: auto; 
+}
+
+.navbar-nav .nav-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-left: 10px;
+}
+
+.navbar-icon-exit {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.navbar .btn img.navbar-icon-exit {
+    padding: 0; 
+    background: transparent;
+    box-shadow: none; 
+}
+
+/* Стиль для кнопки аватарки */
+.btn-avatar {
+    padding: 0; 
+    border: none; 
+    background: transparent;
+    box-shadow: none; 
+}
+
+    /* Стиль для аватарки в кнопці */
+    .btn-avatar img {
+        width: 30px; 
+        height: 40px; 
+        border-radius: 50%; 
+       
+    }
+
+/* Стилі для кнопок */
+.btn-custom {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    .btn-custom:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+.btn-link.text-danger {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+/* Основний контент */
+.container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+main {
+    min-height: 400px;
+}
+
+/* Футер */
+footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    font-size: 1rem;
+}
+

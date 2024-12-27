@@ -6,106 +6,15 @@
     <title>@ViewData["Title"] - PlatformEducationWorkers</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PlatformEducationWorkers.styles.css" asp-append-version="true" />
-    <style>
-
-        .navbar {
-            background-color: #007bff;
-            border-bottom: 2px solid #0056b3;
-        }
-
-        .navbar-brand {
-            font-size: 1.8rem;
-            color: white !important;
-        }
-
-        .navbar-nav .nav-item .nav-link {
-            color: white !important;
-            font-size: 1.1rem;
-        }
-
-            .navbar-nav .nav-item .nav-link:hover {
-                color: #f1f1f1 !important;
-            }
-
-        .navbar-toggler-icon {
-            background-color: white;
-        }
-
-        .btn-custom {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 1rem;
-            padding: 10px 20px;
-            text-align: center;
-            border-radius: 5px;
-            transition: background-color 0.3s, transform 0.2s ease-in-out;
-        }
-
-            .btn-custom:hover {
-                background-color: #0056b3;
-                transform: scale(1.05); 
-            }
-
-        .btn-link.text-danger {
-            font-size: 1rem;
-            color: #dc3545;
-            text-decoration: none;
-        }
-
-        footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            font-size: 1rem;
-        }
-
-            footer a {
-                color: #007bff;
-            }
-
-                footer a:hover {
-                    text-decoration: none;
-                    color: #0056b3;
-                }
-
-            footer .container {
-                text-align: center;
-            }
-
-        .container {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        main {
-            min-height: 400px;
-        }
-
-        /* Вирівнювання аватарки в правому куті */
-        .navbar-nav .nav-item:last-child {
-            margin-left: auto; /* Це вирівнює елемент в праву частину */
-        }
-
-
-        /* Стили для аватарки */
-        .navbar-nav .nav-item img {
-            width: 40px; /* Ширина аватарки */
-            height: 40px; /* Висота аватарки */
-            object-fit: cover; /* Обтинання з пропорціями */
-            border-radius: 50%; /* Кругла форма аватарки */
-            margin-left: 10px; /* Відступ від правої навігаційної кнопки */
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/custom-admin-styles.css" asp-append-version="true" />
 </head>
 <body>
     <div class="main-content">
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light">
                 <div class="container-fluid">
-                    
                     <a class="navbar-brand" asp-area="Administrator" asp-controller="MainAdmin" asp-action="MainAdmin">
-                        @ViewData["CompanyName"] 
+                        @ViewData["CompanyName"]
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
@@ -114,34 +23,30 @@
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Administrator" asp-controller="MainAdmin" asp-action="MainAdmin">Main</a>
+                                <a class="nav-link btn btn-custom" asp-area="Administrator" asp-controller="MainAdmin" asp-action="MainAdmin">Головна</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Administrator" asp-controller="Courses" asp-action="Courses">Courses</a>
+                                <a class="nav-link btn btn-custom" asp-area="Administrator" asp-controller="Courses" asp-action="Courses">Курси</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Administrator" asp-controller="Workers" asp-action="Workers">Workers</a>
+                                <a class="nav-link btn btn-custom" asp-area="Administrator" asp-controller="Workers" asp-action="Workers">Працівники</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Administrator" asp-controller="Courses" asp-action="HistoryPassage">Passage</a>
+                                <a class="nav-link btn btn-custom" asp-area="Administrator" asp-controller="Courses" asp-action="HistoryPassage">Проходження</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Administrator"  asp-controller="JobTitles" asp-action="Jobtitles" class="btn btn-custom">Должності</a>
+                                <a class="nav-link btn btn-custom" asp-area="Administrator" asp-controller="JobTitles" asp-action="Jobtitles">Посади</a>
                             </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Credentials" class="btn btn-custom">Переглянути обліковий запис</a>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a  asp-controller="Login" asp-action="Logout" class="btn btn-danger text-white">Вихід</a>
-                            </li>
-                            <!--  аватарка -->
-                            <div class="navbar-nav nav-item ml-auto d-flex align-items-center">
-                                <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="rounded-circle">
-                            </div>
-
+                           
                         </ul>
+                        <div class="nav-item d-flex align-items-center justify-content-end">
+                            <a asp-controller="Login" asp-action="Logout" class="d-flex align-items-center">
+                                <img src="/Sourses/Exit.png" alt="Exit" class="navbar-icon-exit">
+                            </a>
+                            <a asp-controller="Account" asp-action="Credentials" class="d-flex align-items-center ms-2">
+                                <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="navbar-icon">
+                            </a>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -151,16 +56,14 @@
                 @RenderBody()
             </main>
         </div>
-
-
-        <footer class="bg-dark text-white py-4">
+        <footer class="footer bg-dark text-white py-4">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
                         &copy; 2024 PlatformEducationWorkers
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <a href="@Url.Action("Privacy", "Home")" class="text-white">Privacy</a>
+                        @* <a href="@Url.Action("Privacy", "Home")" class="text-white">Privacy</a> *@
                     </div>
                 </div>
             </div>

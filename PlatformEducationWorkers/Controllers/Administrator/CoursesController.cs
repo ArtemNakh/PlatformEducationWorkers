@@ -246,8 +246,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
             ViewData["CompanyName"] = companyName;
-            ViewBag.HistoryPassages = historyPassages;
-            ViewBag.Courses = courses;
+            ViewBag.HistoryPassages = historyPassages.ToList();
+            ViewBag.Courses = courses.ToList();
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
         }
 
@@ -268,6 +268,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+
+
             if (avatarBytes != null && avatarBytes.Length > 0)
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
@@ -285,7 +287,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [HttpPost]
-        [Route("DeleteHistoryPassage")]
+        [Route("DeleteHistoryPassage/{passageId}")]
         [UserExists]
         public async Task<IActionResult> DeleteHistoryPassage(int passageId)
         {
@@ -314,7 +316,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
         [HttpPost]
-        [Route("DeleteCource")]
+        [Route("DeleteCourse")]
         [UserExists]
         public async Task<IActionResult> DeleteCourse(int id)
         {
@@ -510,9 +512,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> SearchCourses(string searchTerm)
         {
             Log.Information($"find courses");
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             // Отримати всі курси
-            var allCourses = await _courseService.GetAllCoursesEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            var allCourses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
 
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             // Якщо пошуковий термін не порожній, виконати фільтрацію
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -530,7 +534,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
 
-
+            ViewData["CompanyName"] = companyName;
             ViewBag.Courses = allCourses;
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }

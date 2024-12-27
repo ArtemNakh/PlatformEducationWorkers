@@ -1,0 +1,100 @@
+﻿/* Navbar styles */
+.navbar {
+    background-color: #007bff;
+    border-bottom: 2px solid #0056b3;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white !important;
+    font-size: 1.1rem;
+}
+
+    .navbar-nav .nav-item .nav-link:hover {
+        color: #f1f1f1 !important;
+    }
+
+.navbar-toggler-icon {
+    background-color: white;
+}
+
+.navbar-icon {
+    height: 40px;
+    width: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.navbar-icon-exit {
+    height: 40px;
+    width: 40px;
+}
+
+/* Hover effect for avatar and logout buttons */
+.navbar-item:hover {
+    background-color: #0056b3;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+/* Navbar icon hover effect */
+.navbar-icon:hover,
+.navbar-icon-exit:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+
+/* Optional: Add transition for smoother effect */
+.navbar-item {
+    display: inline-block;
+    padding: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+
+/* Button styles */
+.btn-custom {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    padding: 10px 20px;
+    text-align: center;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s ease-in-out;
+}
+
+    .btn-custom:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+/* Footer styles */
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    font-size: 1rem;
+}
+
+    .footer a {
+        color: #007bff;
+    }
+
+        .footer a:hover {
+            text-decoration: none;
+            color: #0056b3;
+        }
+
+/* Page layout */
+.container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+main {
+    min-height: 400px;
+}

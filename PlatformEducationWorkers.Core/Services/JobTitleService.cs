@@ -90,12 +90,16 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Remove the job title from the list of available roles in courses
                 IEnumerable<Courses> courses = await _courseService.GetCoursesByJobTitle(idJobTitle);
-                foreach (var course in courses)
+                if (courses != null && courses.Any())
                 {
-                    course.AccessRoles.Remove(jobTitle);
-                    await _courseService.UpdateCourse(course);
+                    foreach (var course in courses)
+                    {
+                        List<JobTitle> jobTitles = course.AccessRoles.ToList();
+                        jobTitles.Remove(jobTitle);
+                        course.AccessRoles = jobTitles;
+                        await _courseService.UpdateCourse(course);
+                    }
                 }
-
                 await _repository.Delete<JobTitle>(idJobTitle);
                 return;
             }

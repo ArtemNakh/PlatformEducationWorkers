@@ -113,7 +113,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             Log.Information($"open the page job titles");
             var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-            var jobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+            var jobTitles = await _jobTitleService.GetAvaliableRoles(enterpriseId);
 
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -373,6 +373,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         }
 
         [HttpPost]
+        [Route("DeleteJobTitle/id")]
         [UserExists]
         public async Task<IActionResult> DeleteJobTitle(int id)
         {

@@ -7,93 +7,15 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PlatformEducationWorkers.styles.css" asp-append-version="true" />
-    <style>
-        .navbar-brand {
-            font-size: 1.8rem;
-            color: white !important;
-        }
-       
-
-
-
-
-
-        .navbar {
-            background-color: #007bff;
-            border-bottom: 2px solid #0056b3;
-        }
-
-        .navbar-nav .nav-item .nav-link {
-            color: white !important;
-            font-size: 1.1rem;
-        }
-
-           .navbar-nav .nav-item .nav-link:hover {
-                color: #f1f1f1 !important;
-            }
-
-        .navbar-toggler-icon {
-            background-color: white;
-        }
-
-        .btn-custom {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 1rem;
-            padding: 10px 20px;
-            text-align: center;
-            border-radius: 5px;
-            transition: background-color 0.3s, transform 0.2s ease-in-out;
-        }
-
-            .btn-custom:hover {
-                background-color: #0056b3;
-                transform: scale(1.05);
-            }
-
-        .btn-link.text-danger {
-            font-size: 1rem;
-            color: #dc3545;
-            text-decoration: none;
-        }
-
-        footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            font-size: 1rem;
-        }
-
-        .container {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        main {
-            min-height: 400px;
-        }
-
-        /* Вирівнювання аватарки в правому куті */
-        .navbar-nav .nav-item:last-child {
-            margin-left: auto; /* Це вирівнює елемент в праву частину */
-        }
-        /* Стили для аватарки */
-        .navbar-nav .nav-item img {
-            width: 40px; /* Ширина аватарки */
-            height: 40px; /* Висота аватарки */
-            object-fit: cover; /* Обтинання з пропорціями */
-            border-radius: 50%; /* Кругла форма аватарки */
-            margin-left: 10px; /* Відступ від правої навігаційної кнопки */
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/custom-worker-styles.css" asp-append-version="true" />
+   
 </head>
 <body>
     <div class="main-content">
         <header>
-            <nav class="navbar navbar-expand-lg navbar-light bg-primary shadow-sm">
+            <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
                 <div class="container">
-
-                    <a class="navbar-brand" asp-area="Worker" asp-controller="Main" asp-action="Main">
+                    <a class="navbar-brand" asp-area="Worker" asp-controller="MainWorker" asp-action="MainWorker">
                         @ViewData["CompanyName"]
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,25 +24,23 @@
                     <div class="navbar-collapse collapse d-lg-flex justify-content-lg-between">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="Worker" asp-controller="Main" asp-action="Main">Main</a>
+                                <a class="nav-link text-white" asp-area="Worker" asp-controller="MainWorker" asp-action="MainWorker">Головна</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="Worker" asp-controller="Courses" asp-action="UncompleteCourses">Worker Courses</a>
+                                <a class="nav-link text-white" asp-area="Worker" asp-controller="Courses" asp-action="UncompleteCourses">Не пройдені курси</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="Worker" asp-controller="Courses" asp-action="StatisticCourses">Statistic Courses</a>
+                                <a class="nav-link text-white" asp-area="Worker" asp-controller="Courses" asp-action="StatisticCourses">Результати</a>
                             </li>
-                            
-                            <li class="nav-item">
-                                <a asp-controller="Account" asp-action="Credentials" class="btn btn-outline-light">My Account</a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-controller="Login" asp-action="Logout" class="btn btn-danger text-white">Logout</a>
-                            </li>
+                            <div class="nav-item d-flex align-items-center">
+                                <a asp-controller="Login" asp-action="Logout" class="btn p-0">
+                                    <img src="/Sourses/Exit.png" alt="Exit" class="navbar-icon-exit">
+                                </a>
 
-                            <!--  аватарка -->
-                            <div class="navbar-nav nav-item ml-auto d-flex align-items-center">
-                                <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="rounded-circle">
+                                <a asp-controller="Account" asp-action="Credentials" class="btn-avatar btn p-1">
+                                    <img src="@ViewData["UserAvatar"]" alt="User Avatar" class="rounded-circle">
+                                </a>
+
                             </div>
                         </ul>
                     </div>
@@ -141,7 +61,7 @@
                         &copy; 2024 PlatformEducationWorkers
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <a href="@Url.Action("Privacy", "Home")" class="text-white">Privacy</a>
+                      @*   <a href="@Url.Action("Privacy", "Home")" class="text-white">Privacy</a> *@
                     </div>
                 </div>
             </div>
@@ -154,3 +74,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

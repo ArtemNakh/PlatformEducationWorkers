@@ -217,7 +217,7 @@ namespace PlatformEducationWorkers.Core.Services
                 IEnumerable<Courses> courcesJobTitle = await _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobTitle));
                 await GettingListsPhotosAzure(courcesJobTitle);
 
-                return courcesJobTitle;
+                return courcesJobTitle.ToList();
 
             }
             catch (Exception ex)
