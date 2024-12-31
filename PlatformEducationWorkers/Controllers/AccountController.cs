@@ -167,15 +167,14 @@ namespace PlatformEducationWorkers.Controllers
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
-                if (request.NewLogin != null)
-                {
-                    user.Login = request.NewLogin;
-                }
+              
 
-                if (request.NewPassword != null)
+                if (!string.IsNullOrEmpty(request.NewPassword) && !string.IsNullOrEmpty(request.NewLogin))
                 {
                     user.Password = request.NewPassword;
+                    user.Login = request.NewLogin;
                 }
+                
 
                 // Обробка аватарки
                 if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)

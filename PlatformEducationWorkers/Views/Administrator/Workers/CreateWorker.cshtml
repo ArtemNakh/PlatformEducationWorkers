@@ -32,6 +32,10 @@
             <h3>Додавання нового працівника</h3>
         </div>
         <div class="card-body">
+            <div class="alert alert-danger" role="alert" style="display:@(ViewBag.ErrorMessage != null ? "block" : "none")">
+                @ViewBag.ErrorMessage
+            </div>
+
             <form asp-action="CreateWorker" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
@@ -95,7 +99,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-success btn-lg">Створити працівника</button>
-                
+
             </form>
             <div class="text-center mt-4">
                 <a asp-action="Workers" asp-controller="Workers" class="btn btn-secondary">
@@ -119,7 +123,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val() 
+                    'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
                 },
                 body: JSON.stringify({ Name: jobTitleName })
             });
@@ -127,7 +131,7 @@
             if (response.ok) {
                 const data = await response.json();
                 alert(`Посада була створення: ${data.name}`);
-                location.reload(); 
+                location.reload();
             } else {
                 const error = await response.json();
                 alert(`Помилка: ${error}`);

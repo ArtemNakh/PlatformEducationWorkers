@@ -20,7 +20,7 @@ namespace PlatformEducationWorkers.Core.Services
         /// Helper method to retrieve and update photos from Azure Blob storage for a list of user results.
         /// </summary>
         /// <param name="resultsEnterprise">List of user results to process.</param>
-        private async Task GettingListPhotosAzure(IEnumerable<UserResults> resultsEnterprise)
+        private async Task GettingListPhotosAzure(List<UserResults> resultsEnterprise)
         {
             foreach (UserResults userResult in resultsEnterprise)
             {
@@ -124,7 +124,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("$Error  get all user results by entyerprice,enterpriceId is null");
 
                 // Retrieve results from the repository
-                IEnumerable<UserResults> resultsEnterprise = (await _repository.GetQuery<UserResults>(u => u.Course.Enterprise.Id == enterpriseId));
+                List<UserResults> resultsEnterprise = (await _repository.GetQuery<UserResults>(u => u.Course.Enterprise.Id == enterpriseId)).ToList();
 
                 // Receiving photos for the results
                 await GettingListPhotosAzure(resultsEnterprise);
@@ -149,10 +149,10 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("$Error  get  user  all results,userId is null");
 
                 // Retrieve user results
-                var results = await _repository.GetQueryAsync<UserResults>(u => u.User.Id == userId);
+                var results = (await _repository.GetQuery<UserResults>(u => u.User.Id == userId));
 
                 // Receiving photos for the results
-                await GettingListPhotosAzure(results);
+                await GettingListPhotosAzure(results.ToList());
 
                 return results;
             }
@@ -165,15 +165,15 @@ namespace PlatformEducationWorkers.Core.Services
         /// <summary>
         /// Retrieves a specific user result based on course ID.
         /// </summary>
-        public async Task<UserResults> SearchUserResult(int courceId)
+        public async Task<UserResults> GetUserResult(int passageCourceId)
         {
             try
             {
-                if (courceId == null)
+                if (passageCourceId == null)
                     throw new Exception("$Error  get user  results,courceId is null");
 
                 // Retrieve user result by course ID
-                UserResults userResult = (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == courceId)).FirstOrDefault();
+                UserResults userResult = (await _repository.GetQueryAsync<UserResults>(u => u.Id == passageCourceId )).FirstOrDefault();
 
                 // Retrieve photos for the result
                 List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
@@ -204,7 +204,7 @@ namespace PlatformEducationWorkers.Core.Services
                 // Retrieve results  and take need numbers
                 var results =( await _repository.GetQueryAsync<UserResults>(
                     u => u.Course.Enterprise.Id == enterpriceId
-                )).Take(numbersPassage);
+                )).Take(numbersPassage).ToList();
 
                 // Retrieve photos for the results
                 await GettingListPhotosAzure(results);
@@ -254,7 +254,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("$Error  get  user  all results,userId is null");
 
                 // Retrieve user results
-                var results = await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == CourseId);
+                var results = (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == CourseId)).ToList();
 
                 // Receiving photos for the results
                 await GettingListPhotosAzure(results);

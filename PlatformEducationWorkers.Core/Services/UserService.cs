@@ -143,7 +143,7 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-                if(enterpriseId==null||enterpriseId < 0)
+                if (enterpriseId == null || enterpriseId < 0)
                 {
                     throw new Exception("EnterpriseId is null or less than 0");
                 }
@@ -244,7 +244,7 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-                if (login == null || password ==null|| login==""||password=="")
+                if (login == null || password == null || login == "" || password == "")
                 {
                     throw new Exception("loginor password is null or empty");
                 }
@@ -328,7 +328,7 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-               User user=(await _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday)).FirstOrDefault();
+                User user = (await _repository.GetQuery<User>(u => u.Surname == surname && u.Name == name && u.Birthday == birthday)).FirstOrDefault();
 
                 // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
@@ -355,28 +355,28 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-                if(user==null)
+                if (user == null)
                 {
                     throw new Exception("User is null");
                 }
                 User olduser = await _repository.GetById<User>(user.Id);
-                if (user.Surname != user.Surname)
+                if (olduser.Surname != user.Surname)
                 {
                     olduser.Surname = user.Surname;
                 }
-                if (user.Name != user.Name)
+                if (olduser.Name != user.Name)
                 {
                     olduser.Name = user.Name;
                 }
-                if (user.Role != user.Role)
+                if (olduser.Role != user.Role)
                 {
                     olduser.Role = user.Role;
                 }
-                if (user.Email != user.Email)
+                if (olduser.Email != user.Email)
                 {
                     olduser.Email = user.Email;
                 }
-                if (user.Birthday != user.Birthday)
+                if (olduser.Birthday != user.Birthday)
                 {
                     olduser.Birthday = user.Birthday;
                 }
@@ -388,15 +388,18 @@ namespace PlatformEducationWorkers.Core.Services
 
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
-
-                // Hashing the new password
-                var salt = HashHelper.GenerateSalt();
-                olduser.Salt = salt;
-                olduser.Login = user.Login;
-                olduser.Password = user.Password;
-                olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
-                olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
-
+                
+                if(HashHelper.ComputeHash(user.Login, olduser.Salt)== olduser.Login 
+                    && HashHelper.ComputeHash(user.Password, olduser.Salt) == olduser.Password)
+                {
+                    // Hashing the new password
+                    var salt = HashHelper.GenerateSalt();
+                    olduser.Salt = salt;
+                    olduser.Login = user.Login;
+                    olduser.Password = user.Password;
+                    olduser.Login = HashHelper.ComputeHash(user.Login, olduser.Salt);
+                    olduser.Password = HashHelper.ComputeHash(user.Password, olduser.Salt);
+                }
                 // Remove old avatar if it exists
                 if (olduser.ProfileAvatar != null && user.ProfileAvatar != null)
                 {
@@ -436,15 +439,15 @@ namespace PlatformEducationWorkers.Core.Services
         /// </summary>
         /// <param name="enterpriseId">The ID of the enterprise.</param>
         /// <returns>A list of the most recent users.</returns>
-        public async Task<IEnumerable<User>> GetNewUsers(int enterpriseId)
+        public async Task<IEnumerable<User>> GetNewUsers(int enterpriseId, int numbersUser)
         {
             try
             {
-                if (enterpriseId == null|| enterpriseId<0)
+                if (enterpriseId == null || enterpriseId < 0 || numbersUser==null || numbersUser<0)
                 {
-                    throw new Exception("enterpriseId is null or less than 0");
+                    throw new Exception("enterpriseId or numbers user is null or less than 0 ");
                 }
-                var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId);
+                var users = (await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId)).Take(numbersUser);
 
                 // Load avatars for each user
                 foreach (var user in users)
@@ -456,8 +459,8 @@ namespace PlatformEducationWorkers.Core.Services
 
                     }
                 }
-               
-                return users.OrderByDescending(user => user.DateCreate).Take(5);
+
+                return users.OrderByDescending(user => user.DateCreate);
             }
             catch (Exception ex)
             {
@@ -465,6 +468,49 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
+
+        /// <summary>
+        /// Retrieves available users for a given enterprise, excluding those with the "Owner" job title.
+        /// Additionally, loads profile avatars from Azure Blob Storage.
+        /// </summary>
+        /// <param name="enterpriseId">The ID of the enterprise to filter users.</param>
+        /// <returns>A list of users matching the criteria with loaded avatars.</returns>
+        /// <exception cref="Exception">Thrown if enterpriseId is invalid or if an error occurs during retrieval.</exception>
+        public async Task<IEnumerable<User>> GetAvaliableUsers(int enterpriseId)
+        {
+            try
+            {
+                // Validate enterpriseId: must not be null and must be non-negative
+                if (enterpriseId == null || enterpriseId < 0)
+                {
+                    throw new Exception("enterpriseId is null or less than 0");
+                }
+
+                // Query users from the repository based on the enterprise ID
+                // Exclude users with the "Owner" job title
+                var users = await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId && u.JobTitle.Name != "Owner");
+
+                // Iterate through the retrieved users to process their avatars
+                foreach (var user in users)
+                {
+                    // Check if the user has a profile avatar
+                    if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
+                    {
+                        // Load avatar from Azure Blob Storage and convert it to a Base64 string
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+
+                    }
+                }
+
+                return users;
+            }
+            catch (Exception ex)
+            {
+                // Handle and rethrow exception with additional context
+                throw new Exception($"Error retrieving new users: {ex.Message}", ex);
+            }
+        }
     }
 }
 

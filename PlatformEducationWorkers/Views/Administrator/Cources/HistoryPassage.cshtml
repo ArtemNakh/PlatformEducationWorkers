@@ -58,7 +58,7 @@
                                     <td>
                                         @* Деталі проходження курса *@
                                         <form action="@Url.Action("DetailPassageCourse", "Courses", new { area = "Administrator" })" method="get">
-                                            <input type="hidden" name="id" value="@passage.Course.Id" />
+                                            <input type="hidden" name="passageId" value="@passage.Id" />
                                             <button type="submit" class="btn btn-primary btn-lg">Деталі проходження</button>
                                         </form>
 

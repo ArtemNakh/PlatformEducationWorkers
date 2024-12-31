@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using PlatformEducationWorkers.Core.Results;
+using PlatformEducationWorkers.Attributes;
+using PlatformEducationWorkers.Models.UserResults;
 
 namespace PlatformEducationWorkers.Request.PassageCource
 {
@@ -8,7 +9,7 @@ namespace PlatformEducationWorkers.Request.PassageCource
         [Required(ErrorMessage = " Course ID is required.")]
         public int CourseId { get; set; }
 
-        [Required(ErrorMessage = "At least one question is required.")]
+        [ValidateUserAnswersAttribute]
         public List<UserQuestionRequest> Questions { get; set; } = new List<UserQuestionRequest>();
 
     }

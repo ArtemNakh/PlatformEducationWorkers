@@ -10,6 +10,23 @@
 }
 
 <div class="container mt-5">
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+    @if (ViewBag.ValidationErrors != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            <ul>
+                @foreach (var error in ViewBag.ValidationErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white text-center py-4">
             <h2 class="mb-0">Проходження курсу</h2>
@@ -92,12 +109,21 @@
                                 <div class="form-check">
                                     <input class="form-check-input"
                                            type="radio"
+                                           name="Questions[@i].Answer"
+                                           value="@questions[i].Answers[j].Text"
+                                           id="answer-@i-@j"
+                                           onclick="setSelectedAnswer(@i, @j)" />
+
+                                    <!-- Додаємо приховане поле для збереження значення IsSelected -->
+                                    <input type="hidden"
                                            name="Questions[@i].Answers[@j].IsSelected"
-                                           value="true"
-                                           id="answer-@i-@j" />
+                                           id="hidden-answer-@i-@j"
+                                           value="false" />
+
                                     <label class="form-check-label" for="answer-@i-@j">
                                         @questions[i].Answers[j].Text
                                     </label>
+
                                     <input type="hidden" name="Questions[@i].Answers[@j].Text" value="@questions[i].Answers[@j].Text" />
                                     <input type="hidden" name="Questions[@i].Answers[@j].IsCorrectAnswer" value="@(questions[i].Answers[j].IsCorrect.ToString().ToLower())" />
                                     <input type="hidden" name="Questions[@i].Answers[@j].PhotoAnswerBase64" value="@(questions[i].Answers[j].PhotoAnswerBase64)" />
@@ -112,7 +138,6 @@
                                 </div>
                             }
                         }
-                       
                     </div>
                 }
 
@@ -147,6 +172,50 @@
 
 
 <script>
+
+    function setSelectedAnswer(questionIndex, answerIndex) {
+        // Спочатку скидаємо усі приховані поля для цього питання (робимо "false" для всіх)
+        const hiddenInputs = document.querySelectorAll(`input[name="Questions[${questionIndex}].Answers[${answerIndex}].IsSelected"]`);
+        hiddenInputs.forEach(input => {
+            input.value = "false";  // Скидаємо значення на false для всіх варіантів
+        });
+
+        // Оновлюємо значення IsSelected для усіх інших radio button (робимо їх false)
+        const radioButtons = document.querySelectorAll(`input[type="radio"][name="Questions[${questionIndex}].Answer"]`);
+        radioButtons.forEach((radio, idx) => {
+            const hiddenInput = document.getElementById(`hidden-answer-${questionIndex}-${idx}`);
+            if (hiddenInput) {
+                hiddenInput.value = "false";  // Скидаємо значення на false для всіх відповідей
+            }
+        });
+
+        // Знаходимо приховане поле для вибраної відповіді і встановлюємо значення "true"
+        const hiddenInputSelected = document.getElementById(`hidden-answer-${questionIndex}-${answerIndex}`);
+        if (hiddenInputSelected) {
+            hiddenInputSelected.value = "true";  // Встановлюємо "true" для вибраної відповіді
+        }
+    }
+
+
+
+
+    // Enable change of radio buttons (ensure one selection at a time)
+    function enableChange(questionIndex) {
+        const radios = document.querySelectorAll(`input[type="radio"][name="Questions[${questionIndex}].Answer"]`);
+
+        radios.forEach(radio => {
+            radio.disabled = false; // Enable all radio buttons for the same question group
+        });
+    }
+
+
+
+
+
+
+
+
+
     function updateSelectedCheckboxes(questionIndex) {
         // Get all checkboxes for this question
         const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-question-index="${questionIndex}"]`);

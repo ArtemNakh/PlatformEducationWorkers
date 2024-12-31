@@ -1,4 +1,4 @@
-﻿namespace PlatformEducationWorkers.Core.Results
+﻿namespace PlatformEducationWorkers.Models.UserResults
 {
     public class UserQuestionRequest
     {

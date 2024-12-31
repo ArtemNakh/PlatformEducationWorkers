@@ -15,6 +15,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
 
         Task<User> SearchUser(string name, string surname,DateTime birthday);
         Task<IEnumerable<User>> GetUsersByJobTitle(int jobTitleId);
-        Task<IEnumerable<User>> GetNewUsers(int enterpriseId);
+        Task<IEnumerable<User>> GetNewUsers(int enterpriseId,int numberUsers);
+        Task<IEnumerable<User>> GetAvaliableUsers(int enterpriseId);
     }
 }

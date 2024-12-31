@@ -9,7 +9,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<IEnumerable<UserResults>> GetAllUserResult(int userId);
         Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId);
         Task<IEnumerable<UserResults>> GetAllResultCourses(int CourseId);
-        Task<UserResults> SearchUserResult(int courceId);
+        Task<UserResults> GetUserResult(int passageCourceId);
 
         Task<IEnumerable<UserResults>> GetLastPassages(int enterpriseId,int numbersPassage);
 

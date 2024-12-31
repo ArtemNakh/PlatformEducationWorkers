@@ -18,11 +18,9 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         [EmailAddress(ErrorMessage = "Некоректний формат Email.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
         [StringLength(20, MinimumLength = 5, ErrorMessage = "Password must be between 8 and 100 characters.")]
         public string? Password { get; set; }
 
-        [Required(ErrorMessage = "Login is required.")]
         [StringLength(20, MinimumLength = 5, ErrorMessage = "Login must be between 5 and 50 characters.")]
         public string? Login { get; set; }
 

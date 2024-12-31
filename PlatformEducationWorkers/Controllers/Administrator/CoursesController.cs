@@ -12,7 +12,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
-using PlatformEducationWorkers.Core.Results;
+using PlatformEducationWorkers.Models.UserResults;
 using PlatformEducationWorkers.Request.CourceRequest;
 using Serilog;
 using System.Collections.Generic;
@@ -543,16 +543,16 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("DetailPassageCourse")]
         [UserExists]
-        public async Task<IActionResult> DetailPassageCourse(int id)
+        public async Task<IActionResult> DetailPassageCourse(int passageId)
         {
             Log.Information($"open the page detail passage course");
             try
             {
                
-                var courseResult = await _userResultService.SearchUserResult(id);
+                var courseResult = await _userResultService.GetUserResult(passageId);
                 if (courseResult == null)
                 {
-                    Log.Error($"course result  is null, detail passage course with id course{id}");
+                    Log.Error($"course result  is null, detail passage course with id{passageId}");
 
 
                     return NotFound();
@@ -570,7 +570,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     }
                     catch (JsonException ex)
                     {
-                        Log.Error($"error deserialize content course with id course{id}");
+                        Log.Error($"error deserialize content course with id course{passageId}");
 
                         return BadRequest(ex.Message);
                     }
@@ -586,7 +586,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     }
                     catch (JsonException ex)
                     {
-                        Log.Error($"error deserialize answer course with id course result{id}");
+                        Log.Error($"error deserialize answer course with id course result{passageId}");
 
                         return BadRequest(ex.Message);
                     }

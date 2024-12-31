@@ -1,7 +1,7 @@
 ﻿@using PlatformEducationWorkers.Core.Models
 @{
     Layout = "~/Views/Shared/_LayoutWorker.cshtml";
-    var coursesStatistics = ViewBag.CoursesStatistics as IEnumerable<UserResults>;
+    var coursesStatistics = ViewBag.CoursesStatistics as List<UserResults>;
 }
 
 <div class="container mt-5">
@@ -26,14 +26,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var course in coursesStatistics)
+                        @foreach (var passageCourse in coursesStatistics)
                         {
                             <tr>
-                                <td>@course.Course.TitleCource</td>
-                                <td>@course.Rating</td>
-                                <td>@course.MaxRating</td>
+                                <td>@passageCourse.Course.TitleCource</td>
+                                <td>@passageCourse.Rating</td>
+                                <td>@passageCourse.MaxRating</td>
                                 <td>
-                                    <a asp-action="ResultCourse" asp-route-id="@course.Course.Id" class="btn btn-primary">
+                                    <a asp-action="ResultCourse" asp-route-id="@passageCourse.Id" class="btn btn-primary">
                                         Результати
                                     </a>
                                 </td>

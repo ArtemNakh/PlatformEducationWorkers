@@ -75,11 +75,11 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
                 // Delete all users associated with this job title
-                IEnumerable<User> users = await _userService.GetUsersByJobTitle(idJobTitle);
+                List<User> users = (await _userService.GetUsersByJobTitle(idJobTitle)).ToList();
                 foreach (User user in users)
                 {
                     // Delete all course results for the user
-                    IEnumerable<UserResults> userResults = await _userResultService.GetAllUserResult(user.Id);
+                     List<UserResults> userResults = (await _userResultService.GetAllUserResult(user.Id)).ToList();
                     foreach (var result in userResults)
                     {
                         await _userResultService.DeleteResult(result.Id);

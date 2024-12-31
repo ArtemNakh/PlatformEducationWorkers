@@ -41,7 +41,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                
 
-                var users = await _userService.GetAllUsersEnterprise(enterpriseId);
+                var users = await _userService.GetAvaliableUsers(enterpriseId);
               var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
 
                 var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -81,9 +81,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                
                 // Отримуємо всіх користувачів для підприємства
-                var users = await _userService.GetAllUsersEnterprise(enterpriseId);
+                var users = await _userService.GetAvaliableUsers(enterpriseId);
 
-                var JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+                var JobTitles = await _jobTitleService.GetAvaliableRoles(enterpriseId);
 
                 // Якщо є фільтри, застосовуємо їх
                 if (!string.IsNullOrEmpty(name))
@@ -194,16 +194,22 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"create worker enterprise , error:{ex}");
-                    return BadRequest(ex.Message);
+                    Log.Error($"Error while creating worker: {ex}");
+
+
+                    ViewBag.ErrorMessage = "Сталася помилка при створенні працівника. Спробуйте ще раз або зминіть дані";
                 }
             }
-
+            else
+            {
+                Log.Warning($"Invalid request for creating worker: {request}");
+                ViewBag.ErrorMessage = "Дані форми є недійсними. Перевірте введені значення.";
+            }
 
             Log.Warning($"create worker  ,request is not valid ,request:{request}");
-
             ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
+
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
@@ -317,15 +323,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     user.Role = request.Role;
                     user.JobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
 
-                    if (!string.IsNullOrEmpty(request.Password))
+                    if (!string.IsNullOrEmpty(request.Password) && !string.IsNullOrEmpty(request.Login))
                     {
                         user.Password = request.Password;
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Login))
-                    {
                         user.Login = request.Login;
                     }
+
                     // Обробка аватарки
                     if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
                     {

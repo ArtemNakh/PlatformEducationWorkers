@@ -10,7 +10,7 @@ using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Core.Results;
+using PlatformEducationWorkers.Models.UserResults;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -120,7 +120,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             int numbersLastPassage = 5;
             var lastPassages = await _userResultService.GetLastPassages(enterpriseId, numbersLastPassage);
-            var newUsers= await _userService.GetNewUsers(enterpriseId);
+            var newUsers= await _userService.GetNewUsers(enterpriseId,5);
             var newCources= await _courseService.GetNewCourses(enterpriseId,5);
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;

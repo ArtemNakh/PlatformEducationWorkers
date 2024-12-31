@@ -10,7 +10,7 @@ using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Models.Questions;
-using PlatformEducationWorkers.Core.Results;
+using PlatformEducationWorkers.Models.UserResults;
 using PlatformEducationWorkers.Request.PassageCource;
 using Serilog;
 using PlatformEducationWorkers.Models.Questions;
@@ -83,7 +83,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
 
-                var coursesStatistics = await _userResultService.GetAllUserResult(userId);
+                var coursesStatistics = (await _userResultService.GetAllUserResult(userId)).ToList();
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -118,8 +118,9 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                
-                var courseResult = await _userResultService.SearchUserResult(id);
+                int userId = HttpContext.Session.GetInt32("UserId").Value;
+
+                var courseResult = await _userResultService.GetUserResult(id);
                 if (courseResult == null)
                 {
 
@@ -129,7 +130,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 // Обробка вмісту курсу
                 string content = "";
-                List<UserQuestionRequest> questions = new() ;/*= new List<UserQuestionRequest>();*/
+                List<UserQuestionRequest> questions = new() ;
+
 
                 if (!string.IsNullOrEmpty(courseResult.Course.ContentCourse))
                 {
@@ -195,7 +197,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             try
             {
 
-                
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
@@ -217,6 +218,8 @@ namespace PlatformEducationWorkers.Controllers.Worker
                         Log.Error($"Error json deserialize questions, error({ex}) ");
                     }
                 }
+
+               course.ContentCourse= JsonConvert.DeserializeObject<string>(course.ContentCourse);
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -251,10 +254,37 @@ namespace PlatformEducationWorkers.Controllers.Worker
             Log.Information($"post request page PassageCource");
             try
             {
+
                 if (!ModelState.IsValid)
                 {
                     Log.Warning($"models is not valid, models: {userResultRequest}");
-                    return BadRequest(ModelState);
+
+                    // Збираємо помилки валідації
+                    var validationErrors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    ViewBag.ValidationErrors = validationErrors;
+                    ViewBag.ErrorMessage = "Перевірте правильність заповнення форми.";
+
+                    var courserep = await _coursesService.GetCoursesById(userResultRequest.CourseId);
+                    ViewBag.Course = courserep;
+
+                    var questions  = JsonConvert.DeserializeObject<List<QuestionContext>>(courserep.Questions);
+                    
+                    ViewBag.Questions = questions;
+                    byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                    if (avatarBytes != null && avatarBytes.Length > 0)
+                    {
+                        string base64Avatar = Convert.ToBase64String(avatarBytes);
+                        ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                    }
+                    else
+                    {
+                        ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                    }
+                    return View("~/Views/Worker/Cources/PassageCource.cshtml");
                 }
 
                 var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
@@ -306,9 +336,10 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
             catch (Exception ex)
             {
-                Log.Error($"Error post request passage course");
+                Log.Error($"Error in post request PassageCourse: {ex.Message}");
 
-                return StatusCode(500, "Сталася помилка.");
+                ViewBag.ErrorMessage = "Сталася помилка при збереженні результатів. Спробуйте ще раз.";
+                return View("~/Views/Worker/Cources/PassageCource.cshtml");
             }
         }
 
@@ -324,6 +355,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
             {
 
                 var course = await _coursesService.GetCoursesById(courseId);
+                course.ContentCourse= JsonConvert.DeserializeObject<string>(course.ContentCourse);
                 if (course == null)
                 {
                     Log.Error($"Course is null, courseId({courseId})");
