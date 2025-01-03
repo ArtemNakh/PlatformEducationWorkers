@@ -98,12 +98,12 @@
                                     </div>
                                 }
 
-                                @if (result.Course.ShowCorrectAnswers && answer.IsCorrectAnswer)
+                                @if ( answer.IsCorrectAnswer)
                                 {
                                     <span class="badge bg-success ms-2">Вірна відповідь</span>
                                 }
 
-                                @if (result.Course.ShowSelectedAnswers && answer.IsSelected)
+                                @if ( answer.IsSelected)
                                 {
                                     <span class="badge bg-primary ms-2">Вибрана відповідь</span>
                                 }
