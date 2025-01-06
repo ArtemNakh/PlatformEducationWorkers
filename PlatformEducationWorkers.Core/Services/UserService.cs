@@ -359,7 +359,8 @@ namespace PlatformEducationWorkers.Core.Services
                 {
                     throw new Exception("User is null");
                 }
-                User olduser = await _repository.GetById<User>(user.Id);
+                int userId = user.Id;
+                User olduser = await _repository.GetById<User>(userId);
                 if (olduser.Surname != user.Surname)
                 {
                     olduser.Surname = user.Surname;
@@ -379,6 +380,12 @@ namespace PlatformEducationWorkers.Core.Services
                 if (olduser.Birthday != user.Birthday)
                 {
                     olduser.Birthday = user.Birthday;
+                }
+                if(olduser.JobTitle.Id != user.JobTitle.Id)
+                {
+                    JobTitle jobTitle = await _repository.GetById<JobTitle>(user.JobTitle.Id);
+
+                    olduser.JobTitle = jobTitle;
                 }
 
                 // Check for duplicate login and password
@@ -410,7 +417,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user.ProfileAvatar != null)
                 {
                     byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
-                    user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+                    olduser.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
                 }
 
                 user = await _repository.Update(olduser);

@@ -166,9 +166,10 @@ namespace PlatformEducationWorkers.Core.Services
         /// Retrieves a course by its ID, including its associated photo data from Azure Blob storage.
         /// </summary>
         /// <param name="courseId">The ID of the course to retrieve.</param>
+        /// <param name="original">Getting original entity or getting value for using.</param>
         /// <returns>The course with the specified ID.</returns>
         /// <exception cref="Exception">Thrown if the course ID is invalid or the course is not found.</exception>
-        public async Task<Courses> GetCoursesById(int courseId)
+        public async Task<Courses> GetCoursesById(int courseId,bool original=false)
         {
             try
             {
@@ -178,11 +179,13 @@ namespace PlatformEducationWorkers.Core.Services
 
                 Courses course = await _repository.GetByIdAsync<Courses>(courseId);
 
-                //getting photos from the cloud
-                List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                course.Questions = JsonConvert.SerializeObject(questionContexts);
-
+                if (original == false)
+                {
+                    //getting photos from the cloud
+                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                    course.Questions = JsonConvert.SerializeObject(questionContexts);
+                }
                 return course;
             }
             catch (Exception ex)
@@ -278,6 +281,8 @@ namespace PlatformEducationWorkers.Core.Services
                     }
                 }
 
+
+
                 // Add new JobTitles that are not yet in AccessRoles
                 var jobTitlesToAdd = course.AccessRoles
                     .Where(jt => !currentJobTitles.Any(cjt => cjt.Id == jt.Id))
@@ -291,6 +296,12 @@ namespace PlatformEducationWorkers.Core.Services
                     }
                 }
 
+                List<UserResults> usersResults = (await _userResultService.GetAllResultCourses(course.Id)).ToList();
+
+                foreach (var result in usersResults)
+                {
+                    await _userResultService.DeleteResult(result.Id);
+                }
 
                 //Removing photo from openwork (old version of the course
                 List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
@@ -306,6 +317,8 @@ namespace PlatformEducationWorkers.Core.Services
                 oldCourse.Questions = course.Questions;
                 oldCourse.ContentCourse = course.ContentCourse;
                 oldCourse.Description = course.Description;
+
+               
 
                 return await _repository.Update(course);
             }

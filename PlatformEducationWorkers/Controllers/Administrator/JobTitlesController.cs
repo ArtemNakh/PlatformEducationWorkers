@@ -33,76 +33,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
         }
 
-        [HttpPost]
-        [Route("CreateJobTitle")]
-        [UserExists]
-        public async Task<IActionResult> CreateJobTitle(CreateJobTitleRequest request)
-        {
-            Log.Information($"post Create jobtitle");
-            if (!ModelState.IsValid)
-            {
-                Log.Warning($"Create Job title. request is not valid");
 
-
-                ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
-                ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
-
-                return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
-            }
-
-            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-
-            if (enterpriseId == null)
-            {
-                Log.Error($"Create job title, enterprise  id is nill,request{request}");
-
-                return RedirectToAction("Login", "Login");
-            }
-
-            var enterprise = await _enterpriseService.GetEnterprise(enterpriseId);
-            if (enterprise == null)
-            {
-                Log.Error($"Create job title, enterprise  is nill,request{request}");
-
-                return RedirectToAction("Login", "Login");
-            }
-
-            // Перевірка на існування посади
-            if ((await _jobTitleService.GetAllJobTitles(enterpriseId))
-                .Any(n => n.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                ModelState.AddModelError("Name", "Посада з такою назвою вже існує.");
-                Log.Warning($"Create Job title. Job title with name '{request.Name}' already exists.");
-                SetViewData();
-                // Повертаємо модель з помилкою до сторінки
-                return View("~/Views/Administrator/Workers/CreateWorker.cshtml", request);
-            }
-
-
-            var jobTitle = new JobTitle
-            {
-                Name = request.Name,
-                Enterprise = enterprise
-            };
-
-            await _jobTitleService.AddingRole(jobTitle);
-
-            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
-            if (avatarBytes != null && avatarBytes.Length > 0)
-            {
-                string base64Avatar = Convert.ToBase64String(avatarBytes);
-                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
-            }
-
-            Log.Information($"jobTitle was succesfully created");
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
-            ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
-
-            return RedirectToAction("CreateWorker", "Workers");
-
-
-
-        }
 
         [UserExists]
         [Route("JobTitles")]
@@ -141,7 +72,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
 
             Log.Information($"find jobTitle for title");
-            IEnumerable<JobTitle> jobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);
+            IEnumerable<JobTitle> jobTitles = await _jobTitleService.GetAvaliableRoles(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
             if (!string.IsNullOrEmpty(searchTerm))
             {

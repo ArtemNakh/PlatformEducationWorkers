@@ -141,7 +141,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
             ViewData["CompanyName"] = companyName;
 
-            ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+            ViewBag.JobTitles = await _jobTitleService.GetAvaliableRoles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
@@ -271,7 +271,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewData["CompanyName"] = companyName;
 
             // Populate job titles and roles for dropdowns
-            ViewBag.JobTitles = (await _jobTitleService.GetAllJobTitles(enterpriseId)).ToList();
+            ViewBag.JobTitles = (await _jobTitleService.GetAvaliableRoles(enterpriseId)).ToList();
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             // Map the user data to the UpdateUserRequest model to populate the form
@@ -308,25 +308,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 try
                 {
-                    var user = await _userService.GetUser(id);
-                    if (user == null)
-                    {
-                        Log.Error($"detail worker  ,user is null,find for id :{id}");
+                    var updateUser=new User(); 
+                    
 
-                        return NotFound();
-                    }
-
-                    user.Name = request.Name;
-                    user.Surname = request.Surname;
-                    user.Email = request.Email;
-                    user.Birthday = request.Birthday;
-                    user.Role = request.Role;
-                    user.JobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
-
+                    updateUser.Name = request.Name;
+                    updateUser.Surname = request.Surname;
+                    updateUser.Email = request.Email;
+                    updateUser.Birthday = request.Birthday;
+                    updateUser.Role = request.Role;
+                    updateUser.JobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
+                    updateUser.Id = id;
                     if (!string.IsNullOrEmpty(request.Password) && !string.IsNullOrEmpty(request.Login))
                     {
-                        user.Password = request.Password;
-                        user.Login = request.Login;
+                        updateUser.Password = request.Password;
+                        updateUser.Login = request.Login;
                     }
 
                     // Обробка аватарки
@@ -340,11 +335,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                             string base64Image = Convert.ToBase64String(fileBytes);
 
                             // Збереження Base64 рядка в базу даних
-                            user.ProfileAvatar = base64Image;
+                            updateUser.ProfileAvatar = base64Image;
                         }
                     }
 
-                    await _userService.UpdateUser(user);
+                    await _userService.UpdateUser(updateUser);
 
 
 
@@ -354,8 +349,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 catch (Exception ex)
                 {
                     Log.Error($"edit worker  ,error:{ex}");
-
-                    return BadRequest(ex.Message);
+                    ViewBag.ErrorMessage = "Помилка під час зьереження";
+                    return View("~/Views/Administrator/Workers/EditWorker.cshtml",request);
                 }
             }
             Log.Warning($"edit worker  ,request is not valid, request{request}");

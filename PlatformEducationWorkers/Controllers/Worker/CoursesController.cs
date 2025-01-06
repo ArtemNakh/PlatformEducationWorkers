@@ -287,7 +287,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return View("~/Views/Worker/Cources/PassageCource.cshtml");
                 }
 
-                var course = await _coursesService.GetCoursesById(userResultRequest.CourseId);
+                var course = await _coursesService.GetCoursesById(userResultRequest.CourseId,true);
                 if (course == null)
                 {
                     Log.Error($"course is null, courseId:({userResultRequest.CourseId})");
@@ -321,7 +321,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 var userResult = new UserResults
                 {
                     User = user,
-                    Course = course,
+                    Course =course,
                     DateCompilation = DateTime.Now,
                     Rating = correctSelectedAnswers,
                     MaxRating = totalCorrectAnswers,

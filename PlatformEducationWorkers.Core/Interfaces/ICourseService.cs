@@ -9,7 +9,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task DeleteCourse(int courseId);
         Task<IEnumerable<Courses>> GetAllCoursesEnterprise(int enterpriseId);
         Task<IEnumerable<Courses>> GetAllCoursesUser(int userId);
-        Task<Courses> GetCoursesById(int courseId);
+        Task<Courses> GetCoursesById(int courseId, bool original = false);
         Task<IEnumerable<Courses>> GetCoursesByJobTitle(int jobTitleId);
         Task<IEnumerable<Courses>> GetUncompletedCoursesForUser(int userId, int enterpriseId);
         Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId, int numberNewsCourses);

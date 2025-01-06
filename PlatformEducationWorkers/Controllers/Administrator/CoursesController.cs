@@ -257,12 +257,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> FindHistoryPassage(int? courseId)
         {
             Log.Information($"find history passage on the page history passage");
-            if (courseId == null)
+            if (courseId == null ||     !courseId.HasValue)
             {
                 Log.Error($"Find history passages is null, history passage course with id{courseId}");
-
-                return NotFound();
+                ViewBag.ErrorMessage = "Будь ласка, виберіть курс для пошуку.";
+                return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
             }
+
             var historyPassages = await _userResultService.GetAllResultCourses(courseId.Value);
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);

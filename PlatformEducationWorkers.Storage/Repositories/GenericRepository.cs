@@ -20,6 +20,8 @@ namespace PlatformEducationWorkers.Storage.Repositories
             return obj.Entity;
         }
 
+
+
         public async Task Delete<T>(int id) where T : class
         {
             var entity = await GetById<T>(id);
@@ -33,9 +35,19 @@ namespace PlatformEducationWorkers.Storage.Repositories
             return _context.Set<T>();
         }
 
-        public async Task<T> GetById<T>(int id) where T : class
+        public async Task<T> GetById<T>(int id, bool trackChanges = true) where T : class
         {
-            return await _context.Set<T>().FindAsync(id);
+            if (trackChanges)
+            {
+                return await _context.Set<T>().FindAsync(id);
+            }
+            else
+            {
+                // Завантаження без відстеження
+                return await _context.Set<T>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+            }
         }
 
         public async Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class

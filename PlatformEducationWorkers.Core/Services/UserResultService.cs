@@ -4,6 +4,8 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Core.AddingModels.UserResults;
 using Newtonsoft.Json;
+using PlatformEducationWorkers.Core.Services.Enterprises;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -15,6 +17,7 @@ namespace PlatformEducationWorkers.Core.Services
         private readonly IRepository _repository;
         private readonly EmailService _emailService;
         private readonly AzureBlobCourseOperation AzureCourseOperation;
+
 
         // <summary>
         /// Helper method to retrieve and update photos from Azure Blob storage for a list of user results.
@@ -56,6 +59,7 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Update user results JSON
                 userResults.answerJson = JsonConvert.SerializeObject(userQuestions);
+
 
                 // Save user result to the repository
                 UserResults userResult = await _repository.Add(userResults);

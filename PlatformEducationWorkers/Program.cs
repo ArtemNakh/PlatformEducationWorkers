@@ -51,8 +51,8 @@ builder.Services.AddTransient<ICourseService, CourseService>();
 builder.Services.AddScoped<IRepository, GenericRepository>();
 builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 builder.Services.AddTransient<ICreateEnterpriseService, CreateEnterpriseService>();
-builder.Services.AddSingleton<AzureBlobCourseOperation>();
-builder.Services.AddSingleton<AzureBlobAvatarOperation>();
+builder.Services.AddTransient<AzureBlobCourseOperation>();
+builder.Services.AddTransient<AzureBlobAvatarOperation>();
 builder.Services.AddSingleton<EmailService>();
 
 var app = builder.Build();

@@ -69,6 +69,8 @@ namespace PlatformEducationWorkers.Core.Azure
         /// <returns>Byte array representing the downloaded image.</returns>
         public async Task<byte[]> UnloadAvatarFromBlobAsync(string photoUrl)
         {
+            
+
             Uri blobUri = new Uri(photoUrl);// Create a URI from the photo URL
             string blobName = Path.GetFileName(blobUri.LocalPath);// Extract the blob name from the URI
             var blobClient = _blobContainerProfileAvatar.GetBlobClient(blobName);// Get the blob client

@@ -72,18 +72,17 @@ namespace PlatformEducationWorkers.Controllers
                         try
                         {
                           
+                            //додати отримання аватарки
                             if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                             {
-                               
 
-                                // Декодуємо базу64 зображення в byte[]
                                 byte[] avatarBytes = Convert.FromBase64String(user.ProfileAvatar);
                                 HttpContext.Session.Set("UserAvatar", avatarBytes);
                             }
                         }
                         catch (Exception ex)
                         {
-                            // Якщо виникла помилка, можна поставити аватарку за замовчуванням
+                            // Якщо виникла помилка, поставити аватарку за замовчуванням
                             HttpContext.Session.Set("UserAvatar", new byte[0]);
                         }
                     }
@@ -179,7 +178,7 @@ namespace PlatformEducationWorkers.Controllers
                     {
                         await model.ProfileAvatar.CopyToAsync(memoryStream);
                         byte[] fileBytes = memoryStream.ToArray();
-                        avatar = Convert.ToBase64String(fileBytes); 
+                        photoAvatar = Convert.ToBase64String(fileBytes); 
                     }
                 }
                 var owner = new User

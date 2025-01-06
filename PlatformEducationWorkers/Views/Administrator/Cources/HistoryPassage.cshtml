@@ -14,14 +14,24 @@
         </div>
         <div class="card-body">
 
+            @* Відображення повідомлення про помилку *@
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+            {
+                <div class="alert alert-danger text-center">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
             <form asp-action="FindHistoryPassage" method="get" class="mb-3">
                 <div class="row">
                     <div class="col-md-8">
                         <select id="courseId" name="courseId" class="form-control">
                             <option value="">Виберіть курс</option>
-                            @foreach (Courses course in courses)
+                            @if (courses != null)
                             {
-                                <option value="@course.Id">@course.TitleCource</option>
+                                @foreach (Courses course in courses)
+                                {
+                                    <option value="@course.Id">@course.TitleCource</option>
+                                }
                             }
                         </select>
                     </div>
@@ -32,6 +42,9 @@
                     </div>
                 </div>
             </form>
+
+
+
             @if (historyPassages != null && historyPassages.Any())
             {
                 <div class="table-responsive">
@@ -94,7 +107,7 @@
 
 
 
-               
+
 
 <!-- Модальне вікно підтвердження видалення -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -120,7 +133,7 @@
 
 <!-- Скрипт для відкриття модального вікна та налаштування форми видалення -->
 <script>
-   
+
 
     var deleteButtons = document.querySelectorAll('button[data-bs-toggle="modal"]');
     deleteButtons.forEach(function (button) {
