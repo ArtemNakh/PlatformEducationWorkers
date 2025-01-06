@@ -175,8 +175,9 @@
                                         <input type="text" name="Questions[${questionIndex}].Text" class="form-control mb-2" placeholder="Введіть питання" />
                                         <div class="mb-3">
                                             <label><strong>Фото до питання</strong></label>
-                                                <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
-                                                <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
+                                            <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].PhotoQuestionBase64')" class="form-control" />
+                                            <input type="hidden" name="Questions[${questionIndex}].PhotoQuestionBase64" />
+                                            
                                         </div>
                                         <div class="answers-container">
                                             <h5>Відповіді</h5>
@@ -210,9 +211,9 @@
                                         </div>
                                         <div class="mt-2">
                                             <label><strong>Фото до відповіді</strong></label>
-                                                <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
-                                                <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
-                                        </div>
+                                            <input type="file" onchange="convertFileToBase64(this, 'Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64')" class="form-control" />
+                                            <input type="hidden" name="Questions[${questionIndex}].Answers[${answerIndex}].PhotoAnswerBase64" />
+                                             </div>
                                     `;
         answerContainer.appendChild(answerDiv);
     }
@@ -227,6 +228,9 @@
         answerDiv.remove();
     }
 
+  
+
+
     function convertFileToBase64(input, targetName) {
         const file = input.files[0];
         const reader = new FileReader();
@@ -235,6 +239,18 @@
             const base64String = e.target.result.split(',')[1]; // Отримуємо лише Base64 без "data:image/jpeg;base64,"
             const hiddenInput = input.nextElementSibling; // Знаходимо прихований input для Base64
             hiddenInput.value = base64String;
+            // Знаходимо або створюємо елемент img для попереднього перегляду
+            let previewImg = input.parentElement.querySelector('.preview-image');
+            if (!previewImg) {
+                previewImg = document.createElement('img');
+                previewImg.className = 'preview-image mt-2';
+                previewImg.style.maxWidth = '100px';
+                previewImg.style.maxHeight = '100px';
+                input.parentElement.appendChild(previewImg);
+            }
+
+            // Встановлюємо src для попереднього перегляду
+            previewImg.src = e.target.result;
         };
 
         if (file) {
@@ -252,6 +268,18 @@
             if (hiddenInput) {
                 hiddenInput.value = base64String;
             }
+            // Знаходимо або створюємо елемент img для попереднього перегляду
+            let previewImg = input.parentElement.querySelector('.preview-image');
+            if (!previewImg) {
+                previewImg = document.createElement('img');
+                previewImg.className = 'preview-image mt-2';
+                previewImg.style.maxWidth = '100px';
+                previewImg.style.maxHeight = '100px';
+                input.parentElement.appendChild(previewImg);
+            }
+
+            // Встановлюємо src для попереднього перегляду
+            previewImg.src = e.target.result;
         };
 
         if (file) {

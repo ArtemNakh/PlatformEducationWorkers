@@ -4,6 +4,7 @@ using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
+using System.Collections.Generic;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -119,7 +120,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("enterprice is null");
 
                 //getting photos from the cloud
-                List <Courses> coursesEnterprise = (await _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
+                List<Courses> coursesEnterprise = (await _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
                 await GettingListsPhotosAzure(coursesEnterprise);
 
                 return coursesEnterprise;
@@ -169,7 +170,7 @@ namespace PlatformEducationWorkers.Core.Services
         /// <param name="original">Getting original entity or getting value for using.</param>
         /// <returns>The course with the specified ID.</returns>
         /// <exception cref="Exception">Thrown if the course ID is invalid or the course is not found.</exception>
-        public async Task<Courses> GetCoursesById(int courseId,bool original=false)
+        public async Task<Courses> GetCoursesById(int courseId, bool original = false)
         {
             try
             {
@@ -242,7 +243,7 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-               
+
                 if (course == null)
                     throw new Exception("cource is null");
 
@@ -282,7 +283,6 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
 
-
                 // Add new JobTitles that are not yet in AccessRoles
                 var jobTitlesToAdd = course.AccessRoles
                     .Where(jt => !currentJobTitles.Any(cjt => cjt.Id == jt.Id))
@@ -296,12 +296,7 @@ namespace PlatformEducationWorkers.Core.Services
                     }
                 }
 
-                List<UserResults> usersResults = (await _userResultService.GetAllResultCourses(course.Id)).ToList();
-
-                foreach (var result in usersResults)
-                {
-                    await _userResultService.DeleteResult(result.Id);
-                }
+                
 
                 //Removing photo from openwork (old version of the course
                 List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
@@ -318,7 +313,7 @@ namespace PlatformEducationWorkers.Core.Services
                 oldCourse.ContentCourse = course.ContentCourse;
                 oldCourse.Description = course.Description;
 
-               
+
 
                 return await _repository.Update(course);
             }
@@ -394,7 +389,7 @@ namespace PlatformEducationWorkers.Core.Services
         /// <param name="numberNewsCourses">The numbers of the new courses need getting </param>
         /// <returns>An asynchronous task that returns an enumerable collection of the five most recent courses.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during retrieval.</exception>
-        public async Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId,int numberNewsCourses)
+        public async Task<IEnumerable<Courses>> GetNewCourses(int enterpriseId, int numberNewsCourses)
         {
             try
             {
