@@ -9,21 +9,21 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class EditCourceRequest
     {
-        [Required(ErrorMessage = "Course ID is required.")]
+        [Required(ErrorMessage = "Потрібен ідентифікатор курсу.")]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Course title is required.")]
-        [StringLength(100, MinimumLength = 5, ErrorMessage = "Course title must be between 5 and 100 characters.")]
+        [Required(ErrorMessage = "Необхідно вказати назву курсу.")]
+        [StringLength(100, MinimumLength = 5, ErrorMessage = "Назва курсу має містити від 5 до 100 символів.")]
         public string TitleCource { get; set; }
 
-        [Required(ErrorMessage = "Course description is required.")]
-        [StringLength(500, MinimumLength = 10, ErrorMessage = "Course description must be between 10 and 500 characters.")]
+        [Required(ErrorMessage = "Опис курсу обов'язковий.")]
+        [StringLength(500, MinimumLength = 10, ErrorMessage = "Опис курсу має містити від 10 до 500 символів.")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "Course content is required.")]
-        public string ContentCourse { get; set; } // JSON рядок із вмістом курсу
+        [Required(ErrorMessage = "Необхідний зміст курсу.")]
+        public string ContentCourse { get; set; } 
 
-        [Required(ErrorMessage = "Access Roles must be required.")]
+        [Required(ErrorMessage = "Повинні бути потрібні ролі доступу.")]
         public List<int> AccessRoles { get; set; }
 
         [ValidateQuestions]

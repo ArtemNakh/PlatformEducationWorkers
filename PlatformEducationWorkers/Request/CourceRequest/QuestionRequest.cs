@@ -4,10 +4,10 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class QuestionRequest
     {
-        [Required(ErrorMessage = "Question text is required.")]
+        [Required(ErrorMessage = "Необхідний текст запитання.")]
         public string Text { get; set; }
 
-        [Required(ErrorMessage = "At least one answer must be provided.")]
+        [Required(ErrorMessage = "Треба дати хоча б одну відповідь.")]
         public List<AnswerRequest> Answers { get; set; } = new List<AnswerRequest>();
 
        [CustomValidation(typeof(QuestionRequest), "ValidateAnswers")]
@@ -15,7 +15,7 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         {
             if (answers == null || !answers.Any())
             {
-                return new ValidationResult("At least one answer is required.");
+                return new ValidationResult("Потрібна принаймні одна відповідь.");
             }
 
             var hasCorrectAnswer = answers.Any(a => a.IsCorrect == true);
@@ -23,12 +23,12 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 
             if (!hasCorrectAnswer)
             {
-                return new ValidationResult("At least one correct answer is required.");
+                return new ValidationResult("Потрібна хоча б одна правильна відповідь.");
             }
 
             if (!hasIncorrectAnswer)
             {
-                return new ValidationResult("At least one incorrect answer is required.");
+                return new ValidationResult("Потрібна принаймні одна неправильна відповідь.");
             }
 
             return ValidationResult.Success;
@@ -36,9 +36,9 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 
         public class AnswerRequest
         {
-            [Required(ErrorMessage = "Answer text is required.")]
+            [Required(ErrorMessage = "Необхідно ввести текст відповіді.")]
             public string Text { get; set; }
-            [Required(ErrorMessage = "need be false or true")]
+            [Required(ErrorMessage = "повинно бути хибним або істинним")]
             public bool IsCorrect { get; set; } = false;
         }
     }

@@ -257,15 +257,34 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> FindHistoryPassage(int? courseId)
         {
             Log.Information($"find history passage on the page history passage");
+            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             if (courseId == null ||     !courseId.HasValue)
             {
                 Log.Error($"Find history passages is null, history passage course with id{courseId}");
                 ViewBag.ErrorMessage = "Будь ласка, виберіть курс для пошуку.";
+                
+                var coursesEnterpr = await _courseService.GetAllCoursesEnterprise(enterpriseId);
+                var companyNameEr = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                byte[] avatarsBytes = HttpContext.Session.Get("UserAvatar");
+
+
+                if (avatarsBytes != null && avatarsBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarsBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+                }
+                ViewBag.Courses = coursesEnterpr.ToList();
+                ViewData["CompanyName"] = companyNameEr;
+
                 return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
             }
 
             var historyPassages = await _userResultService.GetAllResultCourses(courseId.Value);
-            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            
             var courses = await _courseService.GetAllCoursesEnterprise(enterpriseId);
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");

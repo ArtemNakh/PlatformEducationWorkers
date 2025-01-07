@@ -7,30 +7,30 @@ namespace PlatformEducationWorkers.Request.CourceRequest
 {
     public class CreateCourceRequest
     {
-        [Required(ErrorMessage = "Title of the course is required.")]
-        [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
+        [Required(ErrorMessage = "Назва курсу обов’язкова.")]
+        [StringLength(100,MinimumLength =5, ErrorMessage = "Назва курсу має містити від 5 до 100 символів.")]
         public string TitleCource { get; set; }
 
-        [Required(ErrorMessage = "Description is required.")]
-        [StringLength(500, ErrorMessage = "Description cannot be longer than 500 characters.")]
+        [Required(ErrorMessage = "Потрібен опис.")]
+        [StringLength(500, MinimumLength = 10, ErrorMessage = "Опис курсу має містити від 10 до 500 символів.")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "Course content is required.")]
-        public string ContentCourse { get; set; } // JSON format for course content
+        [Required(ErrorMessage = "Необхідний зміст курсу.")]
+        public string ContentCourse { get; set; } 
 
         [ValidateQuestions]
         public List<QuestionContext> Questions { get; set; } = new List<QuestionContext>();
 
-        [Required(ErrorMessage = "At least one access role must be selected.")]
-        public List<int> AccessRoleIds { get; set; } // List of JobTitle IDs for access roles
+        [Required(ErrorMessage = "Потрібно вибрати принаймні одну роль доступу.")]
+        public List<int> AccessRoleIds { get; set; } 
 
-        [Required(ErrorMessage = "ShowQuestions must be true or false.")]
+        [Required(ErrorMessage = "Відображати запитання мають бути істинними або невірними.")]
         public bool ShowCorrectAnswers { get; set; }
 
-        [Required(ErrorMessage = "Show answers must be true or false.")]
+        [Required(ErrorMessage = "Покажіть відповіді, які мають бути істинними або хибними.")]
         public bool ShowUserAnswers { get; set; }
 
-        [Required(ErrorMessage = "Show Context in passage must be true or false.")]
+        [Required(ErrorMessage = "Показати контекст у уривку має бути істинним або хибним.")]
         public bool ShowContextPassage { get; set; }
     }
 

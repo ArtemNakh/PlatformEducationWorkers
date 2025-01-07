@@ -132,9 +132,9 @@ namespace PlatformEducationWorkers.Controllers
             if (!ModelState.IsValid)
             {
                 Log.Warning($"models is not valid, request:{request} ");
+                var userRole = HttpContext.Session.GetString("UserRole");
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
                 if (avatarBytes != null && avatarBytes.Length > 0)
                 {
@@ -148,27 +148,29 @@ namespace PlatformEducationWorkers.Controllers
                     string base64DefaultAvatar = Convert.ToBase64String(defaultAvatarBytes);
                     ViewData["UserAvatar"] = $"data:image/png;base64,{base64DefaultAvatar}";
                 }
-                var userRole = HttpContext.Session.GetString("UserRole");
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
-
-                return View(request);
+                ViewBag.ErrorMessage = "Помилка введення даних.Введіть інші дані";
+                return View();
             }
 
             try
             {
                
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
-                User user= await _userService.GetUser(userId);
-
-                if (userId == null)
+                Role userRole;
+                
+                if(Role.Admin.ToString()==HttpContext.Session.GetString("UserRole"))
                 {
-                    Log.Error($"userId is null ");
-                    TempData["Error"] = "Користувача не знайдено.";
-                    return RedirectToAction("Login", "Login");
+                    userRole=Role.Admin;
                 }
-              
-
+                else
+                {
+                    userRole=Role.Workers;
+                }
+                User user=new User();
+                user.Id= userId;
+                user.Role = userRole;
                 if (!string.IsNullOrEmpty(request.NewPassword) && !string.IsNullOrEmpty(request.NewLogin))
                 {
                     user.Password = request.NewPassword;
@@ -199,8 +201,27 @@ namespace PlatformEducationWorkers.Controllers
             catch (Exception ex)
             {
                 Log.Error($"post request the page Edit Credentials ");
-                ModelState.AddModelError(string.Empty, "Помилка оновлення даних.");
-                return RedirectToAction("Credentials");
+                var userRole = HttpContext.Session.GetString("UserRole");
+                int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+                if (avatarBytes != null && avatarBytes.Length > 0)
+                {
+                    string base64Avatar = Convert.ToBase64String(avatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+                }
+                else
+                {
+                    string defaultAvatarPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Sourses", "DefaultAvatar.png");
+                    byte[] defaultAvatarBytes = System.IO.File.ReadAllBytes(defaultAvatarPath);
+                    string base64DefaultAvatar = Convert.ToBase64String(defaultAvatarBytes);
+                    ViewData["UserAvatar"] = $"data:image/png;base64,{base64DefaultAvatar}";
+                }
+                ViewData["CompanyName"] = companyName;
+                ViewBag.UserRole = userRole;
+                ViewBag.ErrorMessage = "Помилка оновлення даних.Введіть інші дані";
+
+                return View();
             }
         }
     }

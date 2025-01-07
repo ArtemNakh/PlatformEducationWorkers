@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PlatformEducationWorkers.Request.AccountRequest
 {
-    public class UpdateUserRequest
+    public class UpdateUserRequest : IValidatableObject
     {
         [Required(ErrorMessage = "Ім'я є обов'язковим.")]
         public string Name { get; set; }
@@ -18,10 +18,10 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         [EmailAddress(ErrorMessage = "Некоректний формат Email.")]
         public string Email { get; set; }
 
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Password must be between 8 and 100 characters.")]
+        [StringLength(20, MinimumLength = 5, ErrorMessage = "Пароль повинен бути від 5 до 20 символів")]
         public string? Password { get; set; }
 
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Login must be between 5 and 50 characters.")]
+        [StringLength(20, MinimumLength = 5, ErrorMessage = "Логін повинен бути від 5 до 20 символів")]
         public string? Login { get; set; }
 
         [Required(ErrorMessage = "Посада є обов'язковою.")]
@@ -31,5 +31,24 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         public Role Role { get; set; }
 
         public IFormFile? ProfileAvatar { get; set; }
+
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (!string.IsNullOrEmpty(Login) && string.IsNullOrEmpty(Password))
+            {
+                yield return new ValidationResult(
+                    "Пароль є обов'язковим, якщо вказаний логін.",
+                    new[] { nameof(Password) }
+                );
+            }
+            else if(!string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(Login))
+            {
+                yield return new ValidationResult(
+                   "Логін є обов'язковим, якщо вказаний пароль.",
+                   new[] { nameof(Login) }
+               );
+            }
+        }
     }
 }

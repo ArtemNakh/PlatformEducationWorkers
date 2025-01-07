@@ -10,7 +10,16 @@
         <div class="card-header bg-primary text-white">
             <h3>User Details</h3>
         </div>
+
         <div class="card-body">
+            <div class="text-center mb-4">
+                @if (!string.IsNullOrEmpty(Model.ProfileAvatar))
+                {
+                    <img src="data:image/png;base64,@Model.ProfileAvatar" class="rounded-circle img-thumbnail" alt="User Avatar" style="width: 150px; height: 150px; object-fit: cover;">
+                }
+            </div>
+
+
             <h4 class="mb-3">@Model.Name @Model.Surname</h4>
 
             <div class="mb-3">

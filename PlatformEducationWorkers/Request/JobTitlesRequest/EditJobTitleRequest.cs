@@ -4,11 +4,11 @@ namespace PlatformEducationWorkers.Request.JobTitlesRequest
 {
     public class EditJobTitleRequest
     {
-        [Required(ErrorMessage = "Job title ID is required.")]
+        [Required(ErrorMessage = "Потрібно вказати ідентифікатор посади.")]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Job title name is required.")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "Job title name must be between 3 and 100 characters.")]
+        [Required(ErrorMessage = "Необхідно вказати назву посади.")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Назва посади має містити від 3 до 100 символів.")]
         public string Name { get; set; }
     }
 

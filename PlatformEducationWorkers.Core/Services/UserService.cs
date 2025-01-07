@@ -360,28 +360,28 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("User is null");
                 }
                 int userId = user.Id;
-                User olduser = await _repository.GetById<User>(userId);
-                if (olduser.Surname != user.Surname)
+                User olduser = await _repository.GetById<User>(userId,true);
+                if (olduser.Surname != user.Surname && user.Surname !=null)
                 {
                     olduser.Surname = user.Surname;
                 }
-                if (olduser.Name != user.Name)
+                if (olduser.Name != user.Name && user.Name != null)
                 {
                     olduser.Name = user.Name;
                 }
-                if (olduser.Role != user.Role)
+                if (user.Role != null && olduser.Role != user.Role )
                 {
                     olduser.Role = user.Role;
                 }
-                if (olduser.Email != user.Email)
+                if (user.Email != null && olduser.Email != user.Email )
                 {
                     olduser.Email = user.Email;
                 }
-                if (olduser.Birthday != user.Birthday)
+                if (user.Birthday != default(DateTime) && olduser.Birthday != user.Birthday)
                 {
                     olduser.Birthday = user.Birthday;
                 }
-                if(olduser.JobTitle.Id != user.JobTitle.Id)
+                if(user.JobTitle != null && olduser.JobTitle.Id != user.JobTitle.Id  )
                 {
                     JobTitle jobTitle = await _repository.GetById<JobTitle>(user.JobTitle.Id);
 
@@ -396,8 +396,9 @@ namespace PlatformEducationWorkers.Core.Services
                 if (isDuplicate)
                     throw new Exception("Error adding user, please choose another password or login.");
                 
-                if(HashHelper.ComputeHash(user.Login, olduser.Salt)== olduser.Login 
-                    && HashHelper.ComputeHash(user.Password, olduser.Salt) == olduser.Password)
+                if(!string.IsNullOrEmpty(user.Login) && !string.IsNullOrEmpty(user.Password)
+                    && (HashHelper.ComputeHash(user.Login, olduser.Salt)!= olduser.Login 
+                    || HashHelper.ComputeHash(user.Password, olduser.Salt) != olduser.Password))
                 {
                     // Hashing the new password
                     var salt = HashHelper.GenerateSalt();

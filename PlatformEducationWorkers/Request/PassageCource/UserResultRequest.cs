@@ -6,7 +6,7 @@ namespace PlatformEducationWorkers.Request.PassageCource
 {
     public class UserResultRequest
     {
-        [Required(ErrorMessage = " Course ID is required.")]
+        [Required(ErrorMessage = " Потрібен ідентифікатор курсу.")]
         public int CourseId { get; set; }
 
         [ValidateUserAnswersAttribute]
