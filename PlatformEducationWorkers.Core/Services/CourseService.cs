@@ -179,13 +179,18 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("cource is null");
 
                 Courses course = await _repository.GetByIdAsync<Courses>(courseId);
-
-                if (original == false)
+                if (course != null)
                 {
-                    //getting photos from the cloud
-                    List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                    questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
-                    course.Questions = JsonConvert.SerializeObject(questionContexts);
+                    if (original == false)
+                    {
+                        //getting photos from the cloud
+                        if (course.Questions != null)
+                        {
+                            List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
+                            questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
+                            course.Questions = JsonConvert.SerializeObject(questionContexts);
+                        }
+                    }
                 }
                 return course;
             }

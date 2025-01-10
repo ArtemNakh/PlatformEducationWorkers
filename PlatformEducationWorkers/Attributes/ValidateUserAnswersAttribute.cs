@@ -13,7 +13,7 @@ namespace PlatformEducationWorkers.Attributes
             {
                 if (!question.Answers.Any(a => a.IsSelected))
                 {
-                    return new ValidationResult("Each question must have at least one choose answer.");
+                    return new ValidationResult("Кожне питання повинно містити хоча б одну обрану відповідь.");
                 }
             }
 

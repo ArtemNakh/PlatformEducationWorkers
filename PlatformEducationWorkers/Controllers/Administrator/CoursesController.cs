@@ -112,6 +112,22 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> CreateCourse(CreateCourceRequest request)
         {
             Log.Information($" Page CreateCourse (Post)");
+
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
+
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
+
             if (!ModelState.IsValid)
             {
 
@@ -463,7 +479,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
 
 
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
 
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
 
 
 

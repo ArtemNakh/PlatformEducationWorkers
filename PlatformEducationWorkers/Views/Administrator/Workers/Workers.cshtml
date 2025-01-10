@@ -44,7 +44,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.Users != null)
+                    @if (ViewBag.Users != null&&((IEnumerable<dynamic>)ViewBag.Users).Any())
                     {
                         foreach (var user in ViewBag.Users)
                         {

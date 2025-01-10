@@ -88,6 +88,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/JobTitles/JobTitles.cshtml", jobTitles.ToList());
         }
 
@@ -174,10 +177,20 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 Log.Warning($"edit job title, request is not valid,request :{request}");
 
-                return View(request);
+                return View("~/Views/Administrator/JobTitles/EditJobTitle.cshtml", request);
+            }
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
+
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
             }
 
-            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+
             // Перевірка на існування посади
             if ((await _jobTitleService.GetAllJobTitles(enterpriseId))
                 .Any(n => n.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase)))
@@ -186,7 +199,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Log.Warning($"Create Job title. Job title with name '{request.Name}' already exists.");
                 SetViewData();
 
-                // Повертаємо модель з помилкою до сторінки
+
                 return View("~/Views/Administrator/JobTitles/EditJobTitle.cshtml", request);
             }
 
@@ -237,6 +250,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> AddJobTitle(CreateJobTitleRequest request)
         {
             Log.Information($"post Create jobtitle");
+
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
+
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+
+
             if (!ModelState.IsValid)
             {
                 Log.Warning($"Create Job title. request is not valid");
@@ -245,11 +271,13 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
                 ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-                return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
+                return View("~/Views/Administrator/JobTitles/AddJobTitle.cshtml", request);
             }
 
-            int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
+
+
+            
             if (enterpriseId == null)
             {
                 Log.Error($"Create job title, enterprise  id is nill,request{request}");
@@ -286,12 +314,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
             await _jobTitleService.AddingRole(jobTitle);
 
-            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
-            if (avatarBytes != null && avatarBytes.Length > 0)
-            {
-                string base64Avatar = Convert.ToBase64String(avatarBytes);
-                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
-            }
+            
 
             Log.Information($"jobTitle was succesfully created");
             ViewBag.JobTitles = await _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value);

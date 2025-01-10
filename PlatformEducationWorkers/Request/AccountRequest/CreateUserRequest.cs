@@ -20,10 +20,11 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Пароль є обов'язковим.")]
-        [StringLength(100, ErrorMessage = "Пароль повинен бути більше ніж 6 символів.", MinimumLength = 6)]
+        [StringLength(40, ErrorMessage = "Пароль повинен бути більше ніж 6 символів.", MinimumLength = 6)]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Логін є обов'язковим.")]
+        [StringLength(40, ErrorMessage = "Логін повинен бути більше ніж 6 символів.", MinimumLength = 6)]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Посада є обов'язковою.")]

@@ -155,6 +155,21 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         {
 
             Log.Information($"Post request Create Worker");
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
+
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
+
             if (ModelState.IsValid)
             {
                 try
@@ -304,6 +319,22 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         public async Task<IActionResult> EditWorker(int id, UpdateUserRequest request)
         {
             Log.Information($"post reqeust edit workers");
+
+            byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
+            if (avatarBytes != null && avatarBytes.Length > 0)
+            {
+                string base64Avatar = Convert.ToBase64String(avatarBytes);
+                ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
+            }
+            else
+            {
+                ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
+            }
+
+            var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            ViewData["CompanyName"] = companyName;
+
             if (ModelState.IsValid)
             {
                 try
@@ -349,26 +380,14 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 catch (Exception ex)
                 {
                     Log.Error($"edit worker  ,error:{ex}");
-                    int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                    var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-
-                    ViewData["CompanyName"] = companyName;
+                   
 
                     // Populate job titles and roles for dropdowns
                     ViewBag.JobTitles = (await _jobTitleService.GetAvaliableRoles(enterpriseId)).ToList();
                     ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
                   
-                    byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
-                    if (avatarBytes != null && avatarBytes.Length > 0)
-                    {
-                        string base64Avatar = Convert.ToBase64String(avatarBytes);
-                        ViewData["UserAvatar"] = $"data:image/jpeg;base64,{base64Avatar}";
-                    }
-                    else
-                    {
-                        ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
-                    }
+                    
                     ViewBag.ErrorMessage = "Помилка під час збереження. Спробуйте ввести інші дані";
                     return View("~/Views/Administrator/Workers/EditWorker.cshtml",request);
                 }

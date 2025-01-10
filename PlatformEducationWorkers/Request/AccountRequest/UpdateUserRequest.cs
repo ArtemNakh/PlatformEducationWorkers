@@ -18,10 +18,10 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         [EmailAddress(ErrorMessage = "Некоректний формат Email.")]
         public string Email { get; set; }
 
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Пароль повинен бути від 5 до 20 символів")]
+        [StringLength(40, MinimumLength = 6, ErrorMessage = "Пароль повинен бути від 6 до 40 символів")]
         public string? Password { get; set; }
 
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Логін повинен бути від 5 до 20 символів")]
+        [StringLength(40, MinimumLength = 6, ErrorMessage = "Логін повинен бути від 6 до 40 символів")]
         public string? Login { get; set; }
 
         [Required(ErrorMessage = "Посада є обов'язковою.")]

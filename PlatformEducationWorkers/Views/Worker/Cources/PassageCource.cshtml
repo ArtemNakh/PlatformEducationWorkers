@@ -56,7 +56,7 @@
                 @for (int i = 0; i < ViewBag.Questions.Count; i++)
                 {
                     <div class="mb-4">
-                        <h4 class="text-primary">Питання @i + 1: @ViewBag.Questions[i].Text</h4>
+                        <h4 class="text-primary">Питання @i : @ViewBag.Questions[i].Text</h4>
                         <input type="hidden" name="Questions[@i].Text" value="@ViewBag.Questions[i].Text" />
                         <input type="hidden" name="Questions[@i].PhotoQuestionBase64" value="@ViewBag.Questions[i].PhotoQuestionBase64" />
 
