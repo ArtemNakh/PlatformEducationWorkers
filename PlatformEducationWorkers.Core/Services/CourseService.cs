@@ -399,14 +399,14 @@ namespace PlatformEducationWorkers.Core.Services
             try
             {
                 IEnumerable<Courses> cources = (await _repository.GetQueryAsync<Courses>(
-                    c => c.Enterprise.Id == enterpriseId)).Take(numberNewsCourses);
+                    c => c.Enterprise.Id == enterpriseId)).OrderByDescending(course => course.DateCreate).Take(numberNewsCourses);
 
                 // Retrieve photos for the courses from Azure
                 await GettingListsPhotosAzure(cources);
 
 
 
-                return cources.OrderByDescending(course => course.DateCreate);
+                return cources;
 
             }
             catch (Exception ex)

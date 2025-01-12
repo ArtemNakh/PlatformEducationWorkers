@@ -37,6 +37,7 @@
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
+                        <th>Фото</th>
                         <th>Ім'я</th>
                         <th>Електронна пошта</th>
                         <th>Дата створення</th>
@@ -49,6 +50,9 @@
                         foreach (var user in ViewBag.Users)
                         {
                             <tr>
+                                <td>
+                                    <img src="data:image/jpeg;base64,@user.ProfileAvatar" alt="Фото користувача" style="width: 50px; height: 50px; object-fit: cover;" />
+                                </td>
                                 <td>@user.Name</td>
                                 <td>@user.Email</td>
                                 <td>@user.DateCreate.ToString("yyyy-MM-dd")</td>

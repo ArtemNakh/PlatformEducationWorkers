@@ -10,24 +10,24 @@ namespace PlatformEducationWorkers.Attributes
             var questions = value as List<QuestionContext>;
             if (questions == null || questions.Count == 0)
             {
-                return new ValidationResult("At least one question is required.");
+                return new ValidationResult("Повинно бути хоча б одне питання.");
             }
 
             foreach (var question in questions)
             {
                 if (string.IsNullOrWhiteSpace(question.Text))
                 {
-                    return new ValidationResult("Each question must have a text.");
+                    return new ValidationResult("Кожне питання повинно мати текст запитання.");
                 }
 
                 if (question.Answers == null || question.Answers.Count < 2)
                 {
-                    return new ValidationResult("Each question must have at least two answers.");
+                    return new ValidationResult("Кожне питання повинно мати хоча б 2 відповіді.");
                 }
 
                 if (!question.Answers.Any(a => a.IsCorrect))
                 {
-                    return new ValidationResult("Each question must have at least one correct answer.");
+                    return new ValidationResult("Кожне питання повинно мати хоча б одну вірну відповідь.");
                 }
             }
 

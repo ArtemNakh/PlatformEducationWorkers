@@ -19,7 +19,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IJobTitleService _jobTitleService;
         private readonly IUserService _userService;
-        private readonly IEnterpriseService  _enterpriseService;
+        private readonly IEnterpriseService _enterpriseService;
 
         public WorkersController(IUserService userService, IJobTitleService jobTitleService, IEnterpriseService enterpriceService)
         {
@@ -39,12 +39,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-               
 
-                var users = await _userService.GetAvaliableUsers(enterpriseId);
-              var JobTitles=await _jobTitleService.GetAllJobTitles(enterpriseId);
 
-                var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+                var users = (await _userService.GetAvaliableUsers(enterpriseId)).ToList();
+                var JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
+
+                var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
                 if (avatarBytes != null && avatarBytes.Length > 0)
                 {
@@ -64,7 +64,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 Log.Error($"workers enterprise ,error:{ex}");
                 TempData["ErrorMessage"] = "An error occurred while loading workers.";
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction( "MainAdmin", "MainAdminController");
             }
         }
 
@@ -79,7 +79,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
-               
+
                 // Отримуємо всіх користувачів для підприємства
                 var users = await _userService.GetAvaliableUsers(enterpriseId);
 
@@ -93,7 +93,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 if (!string.IsNullOrEmpty(jobTitle))
                 {
-                    users = users.Where(n => n.JobTitle.Name == jobTitle).AsQueryable(); 
+                    users = users.Where(n => n.JobTitle.Name == jobTitle).AsQueryable();
                 }
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
                 if (avatarBytes != null && avatarBytes.Length > 0)
@@ -123,12 +123,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [HttpGet]
         [Route("CreateWorker")]
         [UserExists]
-        public async  Task<IActionResult> CreateWorker()
+        public async Task<IActionResult> CreateWorker()
         {
 
             Log.Information($"open the page CreateWorkers");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
             if (avatarBytes != null && avatarBytes.Length > 0)
             {
@@ -175,7 +175,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 try
                 {
                     JobTitle jobTitle = await _jobTitleService.GetJobTitle(request.JobTitleId);
-                    Enterprise enterprice = await  _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
+                    Enterprise enterprice = await _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
                     var user = new User
                     {
                         Name = request.Name,
@@ -198,7 +198,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                         {
                             await request.ProfileAvatar.CopyToAsync(memoryStream);
                             byte[] fileBytes = memoryStream.ToArray();
-                            user.ProfileAvatar= Convert.ToBase64String(fileBytes);
+                            user.ProfileAvatar = Convert.ToBase64String(fileBytes);
                         }
                     }
                     await _userService.AddUser(user);
@@ -247,8 +247,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
-            
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
+
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
             if (avatarBytes != null && avatarBytes.Length > 0)
             {
@@ -281,7 +281,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-            var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
+            var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
 
             ViewData["CompanyName"] = companyName;
 
@@ -339,8 +339,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 try
                 {
-                    var updateUser=new User(); 
-                    
+                    var updateUser = new User();
+
 
                     updateUser.Name = request.Name;
                     updateUser.Surname = request.Surname;
@@ -380,16 +380,16 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 catch (Exception ex)
                 {
                     Log.Error($"edit worker  ,error:{ex}");
-                   
+
 
                     // Populate job titles and roles for dropdowns
                     ViewBag.JobTitles = (await _jobTitleService.GetAvaliableRoles(enterpriseId)).ToList();
                     ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-                  
-                    
+
+
                     ViewBag.ErrorMessage = "Помилка під час збереження. Спробуйте ввести інші дані";
-                    return View("~/Views/Administrator/Workers/EditWorker.cshtml",request);
+                    return View("~/Views/Administrator/Workers/EditWorker.cshtml", request);
                 }
             }
             Log.Warning($"edit worker  ,request is not valid, request{request}");
@@ -417,7 +417,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 User user = await _userService.GetUser(id);
                 int enterpriceId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-                Enterprise enterprice = await  _enterpriseService.GetEnterprise(enterpriceId);
+                Enterprise enterprice = await _enterpriseService.GetEnterprise(enterpriceId);
 
                 if (user == null)
                 {

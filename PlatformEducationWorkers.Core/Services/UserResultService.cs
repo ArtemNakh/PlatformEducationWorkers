@@ -6,6 +6,7 @@ using PlatformEducationWorkers.Core.AddingModels.UserResults;
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Core.Services.Enterprises;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -17,30 +18,38 @@ namespace PlatformEducationWorkers.Core.Services
         private readonly IRepository _repository;
         private readonly EmailService _emailService;
         private readonly AzureBlobCourseOperation AzureCourseOperation;
+        private readonly AzureBlobAvatarOperation AzureAvatarService;
 
 
-        // <summary>
-        /// Helper method to retrieve and update photos from Azure Blob storage for a list of user results.
-        /// </summary>
-        /// <param name="resultsEnterprise">List of user results to process.</param>
-        private async Task GettingListPhotosAzure(List<UserResults> resultsEnterprise)
+
+       
+
+
+    // <summary>
+    /// Helper method to retrieve and update photos from Azure Blob storage for a list of user results.
+    /// </summary>
+    /// <param name="resultsEnterprise">List of user results to process.</param>
+    private async Task GettingListPhotosCoursesAzure(List<UserResults> resultsEnterprise)
         {
             foreach (UserResults userResult in resultsEnterprise)
             {
                 List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
                 questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
                 userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
+
+               
             }
         }
 
         /// <summary>
         /// Constructor to initialize dependencies.
         /// </summary>
-        public UserResultService(IRepository repository, EmailService emailService, AzureBlobCourseOperation azureCourseOperation)
+        public UserResultService(IRepository repository, EmailService emailService, AzureBlobCourseOperation azureCourseOperation, AzureBlobAvatarOperation azureAvatarService)
         {
             _repository = repository;
             _emailService = emailService;
             AzureCourseOperation = azureCourseOperation;
+            AzureAvatarService = azureAvatarService;
         }
 
         /// <summary>
@@ -130,8 +139,24 @@ namespace PlatformEducationWorkers.Core.Services
                 // Retrieve results from the repository
                 List<UserResults> resultsEnterprise = (await _repository.GetQuery<UserResults>(u => u.Course.Enterprise.Id == enterpriseId)).ToList();
 
+                foreach (var result in resultsEnterprise)
+                {
+                    if (result.User.ProfileAvatar != null && !string.IsNullOrEmpty(result.User.ProfileAvatar))
+                    {
+                        // Перевіряємо, чи ProfileAvatar вже є валідним base64-зображенням
+                        if (!Base64ImageValidator.IsBase64Image(result.User.ProfileAvatar))
+                        {
+                            // Якщо це не фото у форматі base64, виконуємо завантаження з Azure Blob Storage
+                            byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(result.User.ProfileAvatar);
+                            result.User.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                        }
+                        // Якщо це фото у форматі base64, нічого не робимо
+                    }
+
+                }
+
                 // Receiving photos for the results
-                await GettingListPhotosAzure(resultsEnterprise);
+                await GettingListPhotosCoursesAzure(resultsEnterprise);
              
                 return resultsEnterprise;
             }
@@ -156,7 +181,7 @@ namespace PlatformEducationWorkers.Core.Services
                 var results = (await _repository.GetQuery<UserResults>(u => u.User.Id == userId));
 
                 // Receiving photos for the results
-                await GettingListPhotosAzure(results.ToList());
+                await GettingListPhotosCoursesAzure(results.ToList());
 
                 return results;
             }
@@ -208,15 +233,15 @@ namespace PlatformEducationWorkers.Core.Services
                 // Retrieve results  and take need numbers
                 var results =( await _repository.GetQueryAsync<UserResults>(
                     u => u.Course.Enterprise.Id == enterpriceId
-                )).Take(numbersPassage).ToList();
+                )).OrderByDescending(u => u.DateCompilation).Take(numbersPassage).ToList();
 
                 // Retrieve photos for the results
-                await GettingListPhotosAzure(results);
+                await GettingListPhotosCoursesAzure(results);
 
 
 
                 // sort by completion date
-                return results.OrderByDescending(u => u.DateCompilation);
+                return results;
             }
             catch (Exception ex)
             {
@@ -261,7 +286,7 @@ namespace PlatformEducationWorkers.Core.Services
                 var results = (await _repository.GetQueryAsync<UserResults>(u => u.Course.Id == CourseId)).ToList();
 
                 // Receiving photos for the results
-                await GettingListPhotosAzure(results);
+                await GettingListPhotosCoursesAzure(results);
 
                 
                 return results;

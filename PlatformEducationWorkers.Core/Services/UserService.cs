@@ -67,11 +67,12 @@ namespace PlatformEducationWorkers.Core.Services
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
 
-                    // Конвертуємо аватарку у Base64
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
-                        user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+                        // Конвертуємо аватарку у Base64
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
+                            user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+                        
                     }
                 }
 
@@ -105,8 +106,10 @@ namespace PlatformEducationWorkers.Core.Services
                 // Delete avatar from Azure Blob if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    await AzureAvatarService.DeleteAvatarFromBlobAsync(user.ProfileAvatar);
-
+                    if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                    {
+                        await AzureAvatarService.DeleteAvatarFromBlobAsync(user.ProfileAvatar);
+                    }
                 }
 
                 // Delete all results associated with the user
@@ -154,9 +157,11 @@ namespace PlatformEducationWorkers.Core.Services
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                     {
-                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                        if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                        {
+                            byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                            user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                        }
                     }
                 }
 
@@ -188,9 +193,11 @@ namespace PlatformEducationWorkers.Core.Services
                 // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                    if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                    }
                 }
                 return user;
             }
@@ -220,9 +227,11 @@ namespace PlatformEducationWorkers.Core.Services
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                     {
-                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                        if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                        {
+                            byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                            user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                        }
                     }
                 }
 
@@ -262,9 +271,11 @@ namespace PlatformEducationWorkers.Core.Services
                 // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                    if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                    }
                 }
                 return user;
             }
@@ -304,9 +315,11 @@ namespace PlatformEducationWorkers.Core.Services
                 // Upload avatar if provided
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
-                    user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
 
+                        byte[] fileBytes = Convert.FromBase64String(user.ProfileAvatar);
+                        user.ProfileAvatar = await AzureAvatarService.UploadAvatarToBlobAsync(fileBytes);
+
+                    
                 }
                 return await _repository.Add(user);
             }
@@ -333,9 +346,11 @@ namespace PlatformEducationWorkers.Core.Services
                 // Load avatar if it exists
                 if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                 {
-                    byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                    user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                    if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                    {
+                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                    }
                 }
 
                 return user;
@@ -455,20 +470,23 @@ namespace PlatformEducationWorkers.Core.Services
                 {
                     throw new Exception("enterpriseId or numbers user is null or less than 0 ");
                 }
-                var users = (await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId)).Take(numbersUser);
+                var users = (await _repository.GetQueryAsync<User>(u => u.Enterprise.Id == enterpriseId)).OrderByDescending(user => user.DateCreate).Take(numbersUser);
 
                 // Load avatars for each user
                 foreach (var user in users)
                 {
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                     {
-                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                        if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                        {
+                            byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                            user.ProfileAvatar = Convert.ToBase64String(fileBytes);
 
+                        }
                     }
                 }
 
-                return users.OrderByDescending(user => user.DateCreate);
+                return users;
             }
             catch (Exception ex)
             {
@@ -504,10 +522,12 @@ namespace PlatformEducationWorkers.Core.Services
                     // Check if the user has a profile avatar
                     if (user.ProfileAvatar != null && !string.IsNullOrEmpty(user.ProfileAvatar))
                     {
-                        // Load avatar from Azure Blob Storage and convert it to a Base64 string
-                        byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
-                        user.ProfileAvatar = Convert.ToBase64String(fileBytes);
-
+                        if (!Base64ImageValidator.IsBase64Image(user.ProfileAvatar))
+                        {
+                            // Load avatar from Azure Blob Storage and convert it to a Base64 string
+                            byte[] fileBytes = await AzureAvatarService.UnloadAvatarFromBlobAsync(user.ProfileAvatar);
+                            user.ProfileAvatar = Convert.ToBase64String(fileBytes);
+                        }
                     }
                 }
 
