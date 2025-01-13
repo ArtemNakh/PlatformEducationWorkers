@@ -4,7 +4,7 @@
 }
 
 <div class="container mt-5">
-    @if (ViewData["UnfinishedCourses"] != null)
+    @if (ViewData["UnfinishedCourses"] != null && (ViewData["UnfinishedCourses"] as IEnumerable<Courses>)?.Any() == true)
     {
         var unfinishedCourses = ViewData["UnfinishedCourses"] as IEnumerable<Courses>;
 

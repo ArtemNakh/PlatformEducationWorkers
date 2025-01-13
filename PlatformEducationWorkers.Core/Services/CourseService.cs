@@ -19,6 +19,36 @@ namespace PlatformEducationWorkers.Core.Services
         private readonly IUserResultService _userResultService;
         private readonly AzureBlobCourseOperation AzureCourseOperation;
 
+        private bool AreQuestionsEqual(List<QuestionContext> oldQuestions, List<QuestionContext> newQuestions)
+        {
+            if (oldQuestions.Count != newQuestions.Count)
+                return false;
+
+            for (int i = 0; i < oldQuestions.Count; i++)
+            {
+                var oldQuestion = oldQuestions[i];
+                var newQuestion = newQuestions[i];
+
+                if (oldQuestion.Text != newQuestion.Text ||
+                    oldQuestion.PhotoQuestionBase64 != newQuestion.PhotoQuestionBase64 ||
+                    oldQuestion.Answers.Count != newQuestion.Answers.Count)
+                    return false;
+
+                for (int j = 0; j < oldQuestion.Answers.Count; j++)
+                {
+                    var oldAnswer = oldQuestion.Answers[j];
+                    var newAnswer = newQuestion.Answers[j];
+
+                    if (oldAnswer.Text != newAnswer.Text ||
+                        oldAnswer.IsCorrect != newAnswer.IsCorrect ||
+                        oldAnswer.PhotoAnswerBase64 != newAnswer.PhotoAnswerBase64)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Fetches photos from Azure Blob storage for the list of courses.
         /// </summary>
@@ -236,7 +266,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-
+       
 
         /// <summary>
         /// Updates an existing course, including its Azure Blob data and associated roles.
@@ -253,7 +283,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("cource is null");
 
 
-                Courses oldCourse = await _repository.GetById<Courses>(course.Id);
+                Courses oldCourse = await _repository.GetById<Courses>(course.Id,false);
 
                 //getting current JobTitle
                 IEnumerable<JobTitle> currentJobTitles = oldCourse.AccessRoles;
@@ -263,7 +293,7 @@ namespace PlatformEducationWorkers.Core.Services
                     .Where(cjt => !course.AccessRoles.Any(jt => jt.Id == cjt.Id))
                     .ToList();
 
-                // Remove redundant connections and remove traversals
+                // Remove redundant connections
                 if (jobTitlesToRemove.Any())
                 {
 
@@ -274,12 +304,7 @@ namespace PlatformEducationWorkers.Core.Services
                         if (relationToRemove != null)
                         {
 
-                            //removing all results for that role in the course
-                            List<UserResults> userssResult = userssResults.Where(n => n.Course.AccessRoles.Any(g => g.Id == jobTitle.Id)).ToList();
-                            foreach (var result in userssResult)
-                            {
-                                await _userResultService.DeleteResult(result.Id);
-                            }
+                            
 
 
                             oldCourse.AccessRoles.Remove(relationToRemove);
@@ -301,16 +326,31 @@ namespace PlatformEducationWorkers.Core.Services
                     }
                 }
 
-                
+                // Перевіряємо зміни в питаннях
+                List<QuestionContext> oldQuestions = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
+                await AzureCourseOperation.UnloadFileFromBlobAsync(oldQuestions);
+                List<QuestionContext> newQuestions = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
 
-                //Removing photo from openwork (old version of the course
-                List<QuestionContext> OldquestionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
-                await AzureCourseOperation.DeleteFilesFromBlobAsync(OldquestionContexts);
+                bool questionsChanged = !AreQuestionsEqual(oldQuestions, newQuestions);
 
-                //adding a photo to the course (update)
-                List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(course.Questions);
-                questionContexts = await AzureCourseOperation.UploadFileToBlobAsync(questionContexts);
-                course.Questions = JsonConvert.SerializeObject(questionContexts);
+                if (questionsChanged)
+                {
+                    // Оновлюємо статус IsRelevant на false для результатів цього курсу
+                    List<UserResults> usersResults = (await _userResultService.GetAllResultCourses(oldCourse.Id)).ToList();
+                    foreach (var userResult in usersResults)
+                    {
+
+                        await _userResultService.UpdateIsRelevantStatus(userResult.Id, false); // Оновлення статусу в базі даних
+                    }
+
+                    // Очищення старих зображень з Blob
+                    await AzureCourseOperation.DeleteFilesFromBlobAsync(oldQuestions);
+
+                    // Завантаження нових зображень у Blob
+                    newQuestions = await AzureCourseOperation.UploadFileToBlobAsync(newQuestions);
+                    course.Questions = JsonConvert.SerializeObject(newQuestions);
+                }
+
 
                 oldCourse.TitleCource = course.TitleCource;
                 oldCourse.AccessRoles = course.AccessRoles;

@@ -57,11 +57,27 @@ namespace PlatformEducationWorkers.Storage.Repositories
 
         public async Task<T> Update<T>(T entity) where T : class
         {
-            var newEntity = _context.Update(entity);
-            await _context.SaveChangesAsync();
-            return newEntity.Entity;
+            if (IsTracked(entity))
+            {
+                // Якщо сутність вже відстежується, просто зберігаємо зміни
+                await _context.SaveChangesAsync();
+                return entity;
+            }
+            else
+            {
+                var newEntity = _context.Update(entity);
+                await _context.SaveChangesAsync();
+                return newEntity.Entity;
+            }
+            
         }
 
+       
+        public bool IsTracked<T>(T entity) where T : class
+        {
+            var entry = _context.Entry(entity);
+            return entry.State != EntityState.Detached;
+        }
         // Асинхронний метод для отримання сутності за id
         public async Task<T> GetByIdAsync<T>(int id) where T : class
         {
@@ -74,5 +90,7 @@ namespace PlatformEducationWorkers.Storage.Repositories
             var query = _context.Set<T>().Where(func); // Створюємо запит
             return await query.ToListAsync(); // Виконуємо асинхронний запит
         }
+
+        
     }
 }

@@ -10,35 +10,44 @@
             <h2>Непройдені Курси</h2>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Назва Курсу</th>
-                        <th>Опис</th>
-                        <th>Теорія</th>
-                        <th>Проходження</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Courses>)
-                    {
+            @if ((ViewBag.UncompletedCources as IEnumerable<Courses>)?.Any() == true)
+            {
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
                         <tr>
-                            <td>@course.TitleCource</td>
-                            <td>@course.Description</td>
-                            <td>
-                                <a href="@Url.Action("TheoryCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
-                                    Теорія
-                                </a>
-                            </td>
-                            <td>
-                                <a href="@Url.Action("PassageCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
-                                    Пройти курс
-                                </a>
-                            </td>
+                            <th>Назва Курсу</th>
+                            <th>Опис</th>
+                            <th>Теорія</th>
+                            <th>Проходження</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in ViewBag.UncompletedCources as IEnumerable<Courses>)
+                        {
+                            <tr>
+                                <td>@course.TitleCource</td>
+                                <td>@course.Description</td>
+                                <td>
+                                    <a href="@Url.Action("TheoryCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
+                                        Теорія
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("PassageCourse", "Courses", new { area = "Worker", courseId = course.Id })" class="btn btn-success">
+                                        Пройти курс
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    Ви пройшли усі курси.
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -13,6 +13,7 @@ namespace PlatformEducationWorkers.Core.Models
         public virtual ICollection<JobTitle> AccessRoles { get; set; }
         public string Questions { get; set; }
         public string ContentCourse { get; set; }//вміст курсу записується у json
+       
 
         public bool ShowCorrectAnswers { get; set; }
         public bool ShowSelectedAnswers { get; set; }

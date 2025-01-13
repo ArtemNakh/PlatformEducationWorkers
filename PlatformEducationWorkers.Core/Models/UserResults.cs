@@ -11,5 +11,6 @@ namespace PlatformEducationWorkers.Core.Models
         public int MaxRating { get; set; }
         public string answerJson { get; set; }
 
+        public bool IsRelevant { get; set; } = true;
     }
 }

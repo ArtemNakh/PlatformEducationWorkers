@@ -15,5 +15,6 @@ namespace PlatformEducationWorkers.Core.Interfaces
 
         Task<double> GetAverageRating(int enterpriseId);
         Task DeleteAllResultsUser(int userId);
+        Task UpdateIsRelevantStatus(int id, bool isRelevant);
     }
 }

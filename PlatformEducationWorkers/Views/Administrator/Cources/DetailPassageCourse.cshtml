@@ -35,6 +35,15 @@
         <p class="fs-5 text-muted">@result.Course.DateCreate.ToString("dd.MM.yyyy")</p>
     </div>
 
+    @if (result.IsRelevant)
+    {
+        <span class="badge bg-success">Проходження курса актуальне</span>
+    }
+    else
+    {
+        <span class="badge bg-danger">Проходження курса неактуальне</span>
+    }
+
     <div class="mt-4">
         <h4 class="text-secondary">Дата проходження курсу:</h4>
         <p class="fs-5 text-muted">@result.DateCompilation.ToString("dd.MM.yyyy")</p>
