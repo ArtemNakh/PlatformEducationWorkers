@@ -514,13 +514,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
           
 
-            Courses course = await _courseService.GetCoursesById(request.Id);
-            if (course == null)
-            {
-                Log.Error($"course  is null, edit course request{course}");
-
-                return NotFound();
-            }
+            
 
            
             List<JobTitle> jobTitles = new List<JobTitle>();
@@ -531,18 +525,18 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
 
 
-            
 
 
+            Courses course = new Courses();
             // Оновлюємо дані курсу
+            course.Id = request.Id;
             course.TitleCource = request.TitleCource;
             course.Description = request.Description;
-            course.AccessRoles.Clear();
             course.AccessRoles = jobTitles;
             course.ContentCourse = JsonConvert.SerializeObject(request.ContentCourse);
             course.Questions = JsonConvert.SerializeObject(request.Questions);
 
-            //додати видалення проходжень курсів(так як курс був змінено
+          
 
             await _courseService.UpdateCourse(course);
 

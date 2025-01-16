@@ -5,6 +5,7 @@ using PlatformEducationWorkers.Core.Models;
 using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -266,7 +267,7 @@ namespace PlatformEducationWorkers.Core.Services
             }
         }
 
-       
+
 
         /// <summary>
         /// Updates an existing course, including its Azure Blob data and associated roles.
@@ -283,48 +284,9 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("cource is null");
 
 
-                Courses oldCourse = await _repository.GetById<Courses>(course.Id,false);
-
-                //getting current JobTitle
-                IEnumerable<JobTitle> currentJobTitles = oldCourse.AccessRoles;
-
-                //find JobTitle for deleting (якщо вони більше не в списку)
-                var jobTitlesToRemove = currentJobTitles
-                    .Where(cjt => !course.AccessRoles.Any(jt => jt.Id == cjt.Id))
-                    .ToList();
-
-                // Remove redundant connections
-                if (jobTitlesToRemove.Any())
-                {
-
-                    List<UserResults> userssResults = (await _userResultService.GetAllResultCourses(oldCourse.Id)).ToList();
-                    foreach (var jobTitle in jobTitlesToRemove)
-                    {
-                        var relationToRemove = oldCourse.AccessRoles.FirstOrDefault(ar => ar.Id == jobTitle.Id);
-                        if (relationToRemove != null)
-                        {
-
-                            
+                Courses oldCourse = await _repository.GetById<Courses>(course.Id, false);
 
 
-                            oldCourse.AccessRoles.Remove(relationToRemove);
-                        }
-                    }
-                }
-
-
-                // Add new JobTitles that are not yet in AccessRoles
-                var jobTitlesToAdd = course.AccessRoles
-                    .Where(jt => !currentJobTitles.Any(cjt => cjt.Id == jt.Id))
-                    .ToList();
-
-                if (jobTitlesToAdd.Any())
-                {
-                    foreach (var jobTitle in jobTitlesToAdd)
-                    {
-                        oldCourse.AccessRoles.Add(jobTitle);
-                    }
-                }
 
                 // Перевіряємо зміни в питаннях
                 List<QuestionContext> oldQuestions = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
@@ -352,15 +314,75 @@ namespace PlatformEducationWorkers.Core.Services
                 }
 
 
-                oldCourse.TitleCource = course.TitleCource;
-                oldCourse.AccessRoles = course.AccessRoles;
-                oldCourse.Questions = course.Questions;
-                oldCourse.ContentCourse = course.ContentCourse;
-                oldCourse.Description = course.Description;
+                Courses updatingCourse = await _repository.GetById<Courses>(course.Id);
+
+                if (updatingCourse.TitleCource != course.TitleCource)
+                {
+                    updatingCourse.TitleCource = course.TitleCource;
+                }
+
+                ///доробити
+                /////find JobTitle for deleting (якщо вони більше не в списку)
+                var jobTitlesToRemove = updatingCourse.AccessRoles
+     .Where(cjt => !course.AccessRoles.Any(jt => jt.Id == cjt.Id))
+     .ToList();
+
+                // Remove redundant connections
+                if (jobTitlesToRemove.Any())
+                {
+                    // Remove JobTitles from AccessRoles
+                    foreach (var jobTitle in jobTitlesToRemove)
+                    {
+                        updatingCourse.AccessRoles.Remove(jobTitle);
+                    }
+
+                    // Get all user results for the course
+                    var usersResults = (await _userResultService.GetAllResultCourses(course.Id)).ToList();
+
+                    // Find and remove results related to the removed JobTitles
+                    foreach (var result in usersResults)
+                    {
+                        if (jobTitlesToRemove.Any(jt => result.User.JobTitle.Id == jt.Id))
+                        {
+                           await _userResultService.DeleteResult(result.Id);
+                        }
+                    }
+                }
+
+                // Додаємо нові ролі, які ще не є в AccessRoles курсу
+                var jobTitlesToAdd = course.AccessRoles
+                    .Where(jt => !updatingCourse.AccessRoles.Any(cjt => cjt.Id == jt.Id))
+                    .ToList();
+
+                if (jobTitlesToAdd.Any())
+                {
+                    foreach (var jobTitle in jobTitlesToAdd)
+                    {
+                        updatingCourse.AccessRoles.Add(jobTitle);
+                    }
+                }
 
 
 
-                return await _repository.Update(course);
+                if (updatingCourse.ContentCourse != course.ContentCourse)
+                {
+                    updatingCourse.ContentCourse = course.ContentCourse;
+
+                }
+
+                if (updatingCourse.Description != course.Description)
+                {
+                    updatingCourse.Description = course.Description;
+                }
+
+                if (questionsChanged)
+                {
+                    updatingCourse.Questions = course.Questions;
+                }
+
+
+
+                return await _repository.Update(updatingCourse);
             }
             catch (Exception ex)
             {

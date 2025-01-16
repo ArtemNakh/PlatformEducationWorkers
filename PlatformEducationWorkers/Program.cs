@@ -76,7 +76,7 @@ app.Use(async (context, next) =>
     if (string.IsNullOrEmpty(context.Request.Path.Value) || context.Request.Path == "/")
     {
         context.Response.Redirect("/Login");
-        return;
+        return; 
     }
     await next();
 });
