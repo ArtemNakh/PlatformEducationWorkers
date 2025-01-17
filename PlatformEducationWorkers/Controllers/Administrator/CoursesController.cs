@@ -127,8 +127,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
+            bool isCopyName = (await _courseService.GetAllCoursesEnterprise(enterpriseId))
+   .Any(item => item.TitleCource == request.TitleCource);
 
-            if (!ModelState.IsValid)
+
+            if (!ModelState.IsValid || isCopyName)
             {
 
                var jobTitleslist = await _jobTitleService.GetAvaliableRoles(HttpContext.Session.GetInt32("EnterpriseId").Value);
@@ -140,6 +143,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 else
                 {
                     ViewBag.JobTitles = jobTitleslist.ToList();
+                }
+
+                if (isCopyName)
+                {
+                    ViewBag.ErrorMessage = "Оберіть інше ім'я курсу";
                 }
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
@@ -494,9 +502,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             ViewData["CompanyName"] = companyName;
 
+            var copynameCourses = (await _courseService.GetAllCoursesEnterprise(enterpriseId))
+    .Where(item => item.TitleCource ==  request.TitleCource);
 
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid ||  copynameCourses.Count()>0)
             {
                 Log.Warning($"request  is no valid, edit course request{request}");
                 Courses cource =await  _courseService.GetCoursesById(request.Id);
@@ -508,7 +518,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     ViewBag.ChooseJobTitleIds = request.AccessRoles.ToList();
                 }
-               
+               if(copynameCourses.Count() > 0)
+                {
+                    ViewBag.ErrorMessage = "Оберіть інше ім'я курсу";
+                }
                 ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
                 return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
             }

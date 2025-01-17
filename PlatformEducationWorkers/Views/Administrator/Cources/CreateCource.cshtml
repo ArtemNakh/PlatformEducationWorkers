@@ -18,6 +18,9 @@
                 {
                     <div asp-validation-summary="All" class="alert alert-danger"></div>
                 }
+                <div class="alert alert-danger" role="alert" style="display:@(ViewBag.ErrorMessage != null ? "block" : "none")">
+                    @ViewBag.ErrorMessage
+                </div>
 
                 <div class="mb-3">
                     <label asp-for="TitleCource" class="form-label"><strong>Назва курса</strong></label>

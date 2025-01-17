@@ -25,6 +25,9 @@
                         <div asp-validation-summary="All" class="text-danger"></div>
                     </div>
                 }
+                <div class="alert alert-danger" role="alert" style="display:@(ViewBag.ErrorMessage != null ? "block" : "none")">
+                    @ViewBag.ErrorMessage
+                </div>
 
                 <!-- Поля курсу -->
                 <div class="mb-4">
