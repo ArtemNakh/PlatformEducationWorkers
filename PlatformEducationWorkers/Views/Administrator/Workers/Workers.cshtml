@@ -45,13 +45,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.Users != null&&((IEnumerable<dynamic>)ViewBag.Users).Any())
+                    @if (ViewBag.Users != null && ((IEnumerable<dynamic>)ViewBag.Users).Any())
                     {
                         foreach (var user in ViewBag.Users)
                         {
                             <tr>
                                 <td>
-                                    <img src="data:image/jpeg;base64,@user.ProfileAvatar" alt="Фото користувача" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    @if (!string.IsNullOrEmpty(user.ProfileAvatar))
+                                    {
+                                        <img src="data:image/jpeg;base64,@user.ProfileAvatar"
+                                             alt="User Avatar"
+                                             style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/Sourses/DefaultAvatar.png"
+                                             alt="Default Avatar"
+                                             style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
                                 </td>
                                 <td>@user.Name</td>
                                 <td>@user.Email</td>

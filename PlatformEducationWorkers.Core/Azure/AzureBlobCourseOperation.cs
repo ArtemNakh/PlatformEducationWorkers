@@ -1,7 +1,15 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
 using PlatformEducationWorkers.Core.AddingModels.UserResults;
+using PlatformEducationWorkers.Core.Interfaces.Repositories;
+using PlatformEducationWorkers.Core.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
+using System.Net.Http;
+using System.Runtime.InteropServices;
 
 namespace PlatformEducationWorkers.Core.Azure
 {
@@ -46,50 +54,71 @@ namespace PlatformEducationWorkers.Core.Azure
         /// <returns>List of questions with updated image URLs.</returns>
         public async Task<List<QuestionContext>> UploadFileToBlobAsync(List<QuestionContext> questions)
         {
+            // Створюємо копію початкових питань, щоб зберегти існуючі дані
+            var updatedQuestions = new List<QuestionContext>();
+
             foreach (var question in questions)
             {
-                // Check if the question has an image
-                if (question.PhotoQuestionBase64 != null)
+                // Копіюємо оригінальне питання
+                var updatedQuestion = new QuestionContext
                 {
-                    string blobName = $"{Guid.NewGuid()}.jpg";// Generate a unique blob name
+                    
+                    Text = question.Text,
+                    PhotoQuestionBase64 = question.PhotoQuestionBase64,
+                    Answers = question.Answers.Select(answer => new AnswerContext
+                    {
+                        
+                        Text = answer.Text,
+                        IsCorrect = answer.IsCorrect,
+                        PhotoAnswerBase64 = answer.PhotoAnswerBase64
+                    }).ToList()
+                };
 
-                    byte[] fileBytes = Convert.FromBase64String(question.PhotoQuestionBase64);// Convert base64 string to byte array
-                    var blobClient = _blobContainerQuestions.GetBlobClient(blobName);// Get the blob client
+                // Перевіряємо, чи потрібно оновлювати PhotoQuestionBase64
+                if (!string.IsNullOrEmpty(question.PhotoQuestionBase64))
+                {
+                    string blobName = $"{Guid.NewGuid()}.jpg"; // Унікальне ім'я блобу
+                    byte[] fileBytes = Convert.FromBase64String(question.PhotoQuestionBase64); // Конвертуємо base64 у масив байтів
+                    var blobClient = _blobContainerQuestions.GetBlobClient(blobName); // Отримуємо клієнт блобу
 
-                    // Upload the file to the blob
+                    // Завантажуємо файл у блоб
                     using (var stream = new MemoryStream(fileBytes))
                     {
                         await blobClient.UploadAsync(stream, true);
                     }
 
-                    // Update the question's image URL
-                    question.PhotoQuestionBase64 = blobClient.Uri.ToString();
-
+                    // Оновлюємо лише URL, залишаючи існуючі дані
+                    updatedQuestion.PhotoQuestionBase64 = blobClient.Uri.ToString();
                 }
 
-                // Upload images for each answer
-                foreach (var answer in question.Answers)
+                // Оновлюємо зображення відповідей
+                foreach (var answer in updatedQuestion.Answers)
                 {
-                    if (answer.PhotoAnswerBase64 != null)
+                    if (!string.IsNullOrEmpty(answer.PhotoAnswerBase64))
                     {
-                        string blobNameAnswer = $"{Guid.NewGuid()}.jpg";// Generate a unique blob name for the answer
-                        byte[] fileBytesAnqwer = Convert.FromBase64String(answer.PhotoAnswerBase64);// Convert base64 string to byte array
-                        var blobClientAnswer = _blobContainerAnswers.GetBlobClient(blobNameAnswer);// Get the blob client for the answer
+                        string blobNameAnswer = $"{Guid.NewGuid()}.jpg"; // Унікальне ім'я блобу
+                        byte[] fileBytesAnswer = Convert.FromBase64String(answer.PhotoAnswerBase64); // Конвертуємо base64 у масив байтів
+                        var blobClientAnswer = _blobContainerAnswers.GetBlobClient(blobNameAnswer); // Отримуємо клієнт блобу для відповіді
 
-                        // Upload the file to the blob
-                        using (var stream = new MemoryStream(fileBytesAnqwer))
+                        // Завантажуємо файл у блоб
+                        using (var stream = new MemoryStream(fileBytesAnswer))
                         {
                             await blobClientAnswer.UploadAsync(stream, true);
                         }
 
-                        // Update the answer's image URL
+                        // Оновлюємо лише URL, залишаючи існуючі дані
                         answer.PhotoAnswerBase64 = blobClientAnswer.Uri.ToString();
                     }
                 }
+
+                // Додаємо оновлене питання до списку
+                updatedQuestions.Add(updatedQuestion);
             }
 
-            return questions.ToList();
+            return updatedQuestions;
         }
+
+
 
         /// <summary>
         /// Downloads question images from Azure Blob Storage.
@@ -396,3 +425,7 @@ namespace PlatformEducationWorkers.Core.Azure
 
     }
 }
+
+
+
+

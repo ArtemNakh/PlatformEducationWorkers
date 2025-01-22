@@ -71,7 +71,7 @@ namespace PlatformEducationWorkers.Core.Services
 
 
                 // Save user result to the repository
-                UserResults userResult = await _repository.Add(userResults);
+                UserResults userResult = await _repository.AddAll(userResults);
 
                 // Send email notification
                 var enterpriseEmail = userResults.User.Enterprise.Email;

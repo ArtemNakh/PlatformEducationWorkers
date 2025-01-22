@@ -94,7 +94,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (courses == null)
                     throw new Exception("Cource is null");
 
-                //getting photos from the cloud
+                ////getting photos from the cloud
                 List<QuestionContext> questionContexts = JsonConvert.DeserializeObject<List<QuestionContext>>(courses.Questions);
                 questionContexts = await AzureCourseOperation.UploadFileToBlobAsync(questionContexts);
                 courses.Questions = JsonConvert.SerializeObject(questionContexts);
@@ -151,7 +151,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("enterprice is null");
 
                 //getting photos from the cloud
-                List<Courses> coursesEnterprise = (await _repository.GetQuery<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
+                List<Courses> coursesEnterprise = (await _repository.GetQueryAsync<Courses>(u => u.Enterprise.Id == enterpriseId)).ToList();
                 await GettingListsPhotosAzure(coursesEnterprise);
 
                 return coursesEnterprise;
@@ -181,7 +181,7 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception("User not found");
 
                 //getting photos from the cloud
-                IEnumerable<Courses> courcesUser = (await _repository.GetQuery<Courses>(c => c.AccessRoles.Any(ar => ar.Id == user.JobTitle.Id)));
+                IEnumerable<Courses> courcesUser = (await _repository.GetQueryAsync<Courses>(c => c.AccessRoles.Any(ar => ar.Id == user.JobTitle.Id)));
                 await GettingListsPhotosAzure(courcesUser);
 
 
@@ -254,7 +254,7 @@ namespace PlatformEducationWorkers.Core.Services
                 JobTitle jobTitle = await _repository.GetByIdAsync<JobTitle>(jobTitleId);
 
                 //getting photos from the cloud
-                IEnumerable<Courses> courcesJobTitle = await _repository.GetQuery<Courses>(n => n.AccessRoles.Contains(jobTitle));
+                IEnumerable<Courses> courcesJobTitle = await _repository.GetQueryAsync<Courses>(n => n.AccessRoles.Contains(jobTitle));
                 await GettingListsPhotosAzure(courcesJobTitle);
 
                 return courcesJobTitle.ToList();

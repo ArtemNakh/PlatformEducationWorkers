@@ -15,11 +15,28 @@ namespace PlatformEducationWorkers.Storage.Repositories
 
         public async Task<T> Add<T>(T entity) where T : class
         {
+            
+            // Від'єднати всі відстежувані об'єкти
+            foreach (var entry in _context.ChangeTracker.Entries())
+            {
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Detached;
+                }
+            }
+
+            // Додати новий об'єкт
             var obj = _context.Add(entity);
             await _context.SaveChangesAsync();
             return obj.Entity;
         }
-
+        public async Task<T> AddAll<T>(T entity) where T : class
+        {
+            // Додати новий об'єкт
+            var obj = _context.Add(entity);
+            await _context.SaveChangesAsync();
+            return obj.Entity;
+        }
 
 
         public async Task Delete<T>(int id) where T : class
@@ -52,7 +69,7 @@ namespace PlatformEducationWorkers.Storage.Repositories
 
         public async Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class
         {
-            return _context.Set<T>().Where(func);
+            return  _context.Set<T>().Where(func);
         }
 
         public async Task<T> Update<T>(T entity) where T : class

@@ -12,7 +12,7 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         public string TitleCource { get; set; }
 
         [Required(ErrorMessage = "Потрібен опис.")]
-        [StringLength(500, MinimumLength = 10, ErrorMessage = "Опис курсу має містити від 10 до 500 символів.")]
+        [StringLength(500, MinimumLength = 5, ErrorMessage = "Опис курсу має містити від 5 до 500 символів.")]
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Необхідний зміст курсу.")]
