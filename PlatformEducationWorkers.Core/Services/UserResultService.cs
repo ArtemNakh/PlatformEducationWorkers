@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using PlatformEducationWorkers.Core.Services.Enterprises;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using System.Linq.Expressions;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -332,12 +333,15 @@ namespace PlatformEducationWorkers.Core.Services
                 if (existingResult == null)
                     throw new Exception($"UserResult with Id {id} not found");
 
+                var updatedFields = new List<Expression<Func<UserResults, object>>>();
 
                 // Оновлюємо лише поле IsRelevant
                 existingResult.IsRelevant = isRelevant;
                 existingResult.answerJson = answers;
-                // Зберігаємо зміни
-                await _repository.Update(existingResult);
+                updatedFields.Add(c => c.IsRelevant);
+                updatedFields.Add(c => c.answerJson);
+
+                await _repository.UpdateOnlySelected(existingResult, updatedFields.ToArray());
             }
             catch (Exception ex)
             {

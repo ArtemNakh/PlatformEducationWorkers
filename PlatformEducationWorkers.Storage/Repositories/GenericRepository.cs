@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PlatformEducationWorkers.Core.Interfaces.Repositories;
 using PlatformEducationWorkers.Core.Models;
 using System.Linq.Expressions;
@@ -8,7 +9,6 @@ namespace PlatformEducationWorkers.Storage.Repositories
     public class GenericRepository : IRepository
     {
         private readonly PlatformEducationContex _context;
-
         public GenericRepository(PlatformEducationContex context)
         {
             _context = context;
@@ -92,38 +92,27 @@ namespace PlatformEducationWorkers.Storage.Repositories
 
         public async Task<T> UpdateOnlySelected<T>(T entity, params Expression<Func<T, object>>[] updatedProperties) where T : class
         {
+            var optionsBuilder = new DbContextOptionsBuilder<PlatformEducationContex>();
+            optionsBuilder.UseSqlServer(_context.Database.GetConnectionString()); 
 
-            // Перевіряємо, чи в ChangeTracker вже є ця сутність
-            var existingEntry = _context.ChangeTracker.Entries<T>().FirstOrDefault(e => e.Entity.Equals(entity));
+            using (var newContext = new PlatformEducationContex(optionsBuilder.Options))
+           {
+                var entry = newContext.Entry(entity);
 
-            if (existingEntry != null)
-            {
-                _context.Entry(existingEntry.Entity).State = EntityState.Detached;
+                // Додаємо об'єкт, але робимо його незмінним
+                newContext.Set<T>().Attach(entity);
+                entry.State = EntityState.Unchanged;
+
+                // Позначаємо лише вибрані поля як змінені
+                foreach (var property in updatedProperties)
+                {
+                    entry.Property(property).IsModified = true;
+                }
+
+                await newContext.SaveChangesAsync();
             }
-
-            // Додаємо сутність в контекст, якщо вона ще не відстежується
-            var entry = _context.Entry(entity);
-
-            if (entry.State == EntityState.Detached)
-            {
-                _context.Set<T>().Attach(entity);
-            }
-
-            // Робимо весь об'єкт незмінним
-            entry.State = EntityState.Unchanged;
-
-            // Позначаємо лише вибрані поля як змінені
-            foreach (var property in updatedProperties)
-            {
-                entry.Property(property).IsModified = true;
-            }
-
-            await _context.SaveChangesAsync();
             return entity;
         }
-
-
-
 
         public bool IsTracked<T>(T entity) where T : class
         {
@@ -140,8 +129,8 @@ namespace PlatformEducationWorkers.Storage.Repositories
         // Асинхронний метод для виконання запиту з фільтром
         public async Task<IEnumerable<T>> GetQueryAsync<T>(Expression<Func<T, bool>> func) where T : class
         {
-            var query = _context.Set<T>().Where(func); // Створюємо запит
-            return await query.ToListAsync(); // Виконуємо асинхронний запит
+            var query = _context.Set<T>().Where(func); 
+            return await query.ToListAsync(); 
         }
 
 
