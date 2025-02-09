@@ -13,7 +13,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
         private readonly IEnterpriseService _enterpriseService;
         private readonly ICourseService _courseService;
 
-
         public MainWorkerController( IEnterpriseService enterpriseService, ICourseService courceService)
         {
             _enterpriseService = enterpriseService;

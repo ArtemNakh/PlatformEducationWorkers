@@ -33,13 +33,10 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> Workers()
         {
-
             Log.Information($"open the page Workers");
             try
             {
                 var enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-
-
 
                 var users = (await _userService.GetAvaliableUsers(enterpriseId)).ToList();
                 var JobTitles = await _jobTitleService.GetAllJobTitles(enterpriseId);
@@ -55,6 +52,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
+
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users?.ToList();
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -73,7 +71,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> SearchWorkers(string name, string jobTitle)
         {
-
             Log.Information($"Find workers for name and/or jobTitle");
             try
             {
@@ -105,6 +102,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
+
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Users = users;
                 ViewBag.JobTitles = JobTitles.ToList();
@@ -119,13 +117,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             }
         }
 
-
         [HttpGet]
         [Route("CreateWorker")]
         [UserExists]
         public async Task<IActionResult> CreateWorker()
         {
-
             Log.Information($"open the page CreateWorkers");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -139,21 +135,19 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
-            ViewData["CompanyName"] = companyName;
 
+            ViewData["CompanyName"] = companyName;
             ViewBag.JobTitles = await _jobTitleService.GetAvaliableRoles(enterpriseId);
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
-
         [HttpPost]
         [UserExists]
         [Route("CreateWorker")]
         public async Task<IActionResult> CreateWorker(CreateUserRequest request)
         {
-
             Log.Information($"Post request Create Worker");
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
             if (avatarBytes != null && avatarBytes.Length > 0)
@@ -225,7 +219,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.JobTitles = _jobTitleService.GetAllJobTitles(HttpContext.Session.GetInt32("EnterpriseId").Value).Result;
             ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
 
-
             return View("~/Views/Administrator/Workers/CreateWorker.cshtml");
         }
 
@@ -235,7 +228,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DetailWorker(int id)
         {
-
             Log.Information($"open the page DetailWorker");
 
             var user = await _userService.GetUser(id);
@@ -270,7 +262,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> EditWorker(int id)
         {
-
             Log.Information($"open the page editWorker");
             var user = await _userService.GetUser(id);
             if (user == null)
@@ -310,6 +301,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
+
             return View("~/Views/Administrator/Workers/EditWorker.cshtml", updateUserRequest);
         }
 
@@ -372,8 +364,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                     await _userService.UpdateUser(updateUser);
 
-
-
                     Log.Information($"workers was successfully update");
                     return RedirectToAction("Workers");
                 }
@@ -385,8 +375,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     // Populate job titles and roles for dropdowns
                     ViewBag.JobTitles = (await _jobTitleService.GetAvaliableRoles(enterpriseId)).ToList();
                     ViewBag.Roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
-
-
 
                     ViewBag.ErrorMessage = "Помилка під час збереження. Спробуйте ввести інші дані";
                     return View("~/Views/Administrator/Workers/EditWorker.cshtml", request);

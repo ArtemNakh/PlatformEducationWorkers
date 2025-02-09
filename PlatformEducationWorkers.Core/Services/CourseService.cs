@@ -6,6 +6,7 @@ using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Core.AddingModels.Questions;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace PlatformEducationWorkers.Core.Services
 {
@@ -87,7 +88,6 @@ namespace PlatformEducationWorkers.Core.Services
         /// <exception cref="Exception">Thrown when the course is null or an error occurs.</exception>
         public async Task<Courses> AddCourse(Courses courses)
         {
-
             try
             {
                 //додати валідацію
@@ -279,14 +279,12 @@ namespace PlatformEducationWorkers.Core.Services
         {
             try
             {
-
                 if (course == null)
                     throw new Exception("cource is null");
 
-
                 Courses oldCourse = await _repository.GetById<Courses>(course.Id, false);
 
-
+                var updatedFields = new List<Expression<Func<Courses, object>>>();
 
                 // Перевіряємо зміни в питаннях
                 List<QuestionContext> oldQuestions = JsonConvert.DeserializeObject<List<QuestionContext>>(oldCourse.Questions);
@@ -301,7 +299,6 @@ namespace PlatformEducationWorkers.Core.Services
                     List<UserResults> usersResults = (await _userResultService.GetAllResultCourses(oldCourse.Id)).ToList();
                     foreach (var userResult in usersResults)
                     {
-
                         await _userResultService.UpdateIsRelevantStatus(userResult.Id, false); // Оновлення статусу в базі даних
                     }
 
@@ -319,6 +316,7 @@ namespace PlatformEducationWorkers.Core.Services
                 if (updatingCourse.TitleCource != course.TitleCource)
                 {
                     updatingCourse.TitleCource = course.TitleCource;
+                    updatedFields.Add(c => c.TitleCource);
                 }
 
                 ///доробити
@@ -344,7 +342,7 @@ namespace PlatformEducationWorkers.Core.Services
                     {
                         if (jobTitlesToRemove.Any(jt => result.User.JobTitle.Id == jt.Id))
                         {
-                           await _userResultService.DeleteResult(result.Id);
+                            await _userResultService.DeleteResult(result.Id);
                         }
                     }
                 }
@@ -360,29 +358,27 @@ namespace PlatformEducationWorkers.Core.Services
                     {
                         updatingCourse.AccessRoles.Add(jobTitle);
                     }
+                    updatedFields.Add(c => c.AccessRoles);
                 }
-
-
 
                 if (updatingCourse.ContentCourse != course.ContentCourse)
                 {
                     updatingCourse.ContentCourse = course.ContentCourse;
-
+                    updatedFields.Add(c => c.ContentCourse);
                 }
 
                 if (updatingCourse.Description != course.Description)
                 {
                     updatingCourse.Description = course.Description;
+                    updatedFields.Add(c => c.Description);
                 }
 
                 if (questionsChanged)
                 {
                     updatingCourse.Questions = course.Questions;
+                    updatedFields.Add(c => c.Questions);
                 }
-
-
-
-                return await _repository.Update(updatingCourse);
+                return await _repository.UpdateOnlySelected(updatingCourse, updatedFields.ToArray());
             }
             catch (Exception ex)
             {
@@ -466,8 +462,6 @@ namespace PlatformEducationWorkers.Core.Services
                 // Retrieve photos for the courses from Azure
                 await GettingListsPhotosAzure(cources);
 
-
-
                 return cources;
 
             }
@@ -476,8 +470,5 @@ namespace PlatformEducationWorkers.Core.Services
                 throw new Exception($"Error retrieving new courses: {ex.Message}", ex);
             }
         }
-
-
-
     }
 }

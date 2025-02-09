@@ -13,7 +13,6 @@ namespace PlatformEducationWorkers.Controllers
     {
         private readonly IUserService _userService;
         private readonly IEnterpriseService _enterpriseService;
-
         public AccountController(IUserService userService,  IEnterpriseService enterpriceService)
         {
             _userService = userService;
@@ -30,7 +29,6 @@ namespace PlatformEducationWorkers.Controllers
 
             try
             {
-                
                 var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
                 var userRole = HttpContext.Session.GetString("UserRole");
@@ -51,7 +49,6 @@ namespace PlatformEducationWorkers.Controllers
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
-               
 
                 return View(user);
             }
@@ -74,9 +71,6 @@ namespace PlatformEducationWorkers.Controllers
 
             try
             {
-                
-
-
                 var userId = HttpContext.Session.GetInt32("UserId").Value;
                 var user = await _userService.GetUser(userId);
 
@@ -88,8 +82,6 @@ namespace PlatformEducationWorkers.Controllers
                     TempData["Error"] = "Користувача не знайдено.";
                     return RedirectToAction("Login", "Login");
                 }
-
-               
 
                 var userRole = HttpContext.Session.GetString("UserRole");
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
@@ -110,14 +102,11 @@ namespace PlatformEducationWorkers.Controllers
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UserRole = userRole;
 
-
                 return View();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error open the page Edit Credentials ");
-
-
                 TempData["Error"] = "Помилка завантаження форми редагування.";
                 return RedirectToAction("Credentials");
             }
@@ -168,6 +157,7 @@ namespace PlatformEducationWorkers.Controllers
                 {
                     userRole=Role.Workers;
                 }
+
                 User user=new User();
                 user.Id= userId;
                 user.Role = userRole;
@@ -177,7 +167,6 @@ namespace PlatformEducationWorkers.Controllers
                     user.Login = request.NewLogin;
                 }
                 
-
                 // Обробка аватарки
                 if (request.ProfileAvatar != null && request.ProfileAvatar.Length > 0)
                 {
@@ -190,7 +179,6 @@ namespace PlatformEducationWorkers.Controllers
                     }
                    
                 }
-
 
                 await _userService.UpdateUser(user);
                 Log.Information($"Edit credentials was succesffuly ");

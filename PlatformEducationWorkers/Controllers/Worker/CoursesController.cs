@@ -1,19 +1,14 @@
-﻿using Amazon.Runtime.Internal;
-using Azure.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
-using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Models.Questions;
 using PlatformEducationWorkers.Models.UserResults;
 using PlatformEducationWorkers.Request.PassageCource;
 using Serilog;
-using PlatformEducationWorkers.Models.Questions;
 
 namespace PlatformEducationWorkers.Controllers.Worker
 {
@@ -25,13 +20,11 @@ namespace PlatformEducationWorkers.Controllers.Worker
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
 
-
         public CoursesController(ICourseService courcesService, IUserResultService userResultService, IUserService userService, IEnterpriseService enterpriseService)
         {
             _coursesService = courcesService;
             _userResultService = userResultService;
             _userService = userService;
-
             _enterpriseService = enterpriseService;
         }
 
@@ -49,7 +42,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                 IEnumerable<Courses> uncompletedCourses = await _coursesService.GetUncompletedCoursesForUser(userId, enterpriseId);
                 
-
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
                 byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
                 if (avatarBytes != null && avatarBytes.Length > 0)
@@ -63,6 +55,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 }
                 ViewData["CompanyName"] = companyName;
                 ViewBag.UncompletedCources = uncompletedCourses;
+
                 return View("~/Views/Worker/Cources/UncompleteCourses.cshtml");
             }
             catch (Exception ex)
@@ -80,7 +73,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             Log.Information($"open the page StatisticCourses");
             try
             {
-
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
 
                 var coursesStatistics = (await _userResultService.GetAllUserResult(userId)).ToList();
@@ -108,7 +100,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             }
         }
 
-
         [HttpGet]
         [Route("ResultCourse")]
         [UserExists]
@@ -117,7 +108,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             Log.Information($"open the page result course");
             try
             {
-
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
 
                 var courseResult = await _userResultService.GetUserResult(id);
@@ -187,7 +177,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
         }
 
-        
         [HttpGet]
         [Route("PassageCource")]
         [UserExists]
@@ -196,7 +185,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             Log.Information($"open the page PassageCource");
             try
             {
-
                 var course = await _coursesService.GetCoursesById(courseId);
                 if (course == null)
                 {
@@ -232,6 +220,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                 {
                     ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
                 }
+
                 ViewData["CompanyName"] = companyName;
                 ViewBag.Course = course;
                 ViewBag.Questions = questions;
@@ -254,7 +243,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
             Log.Information($"post request page PassageCource");
             try
             {
-
                 if (!ModelState.IsValid)
                 {
                     Log.Warning($"models is not valid, models: {userResultRequest}");
@@ -304,8 +292,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     .SelectMany(q => q.Answers)
                     .Count(a => a.IsCorrectAnswer && a.IsSelected);
 
-
-
                 User user = await _userService.GetUser(HttpContext.Session.GetInt32("UserId").Value);
                 if (user == null)
                 {
@@ -314,9 +300,7 @@ namespace PlatformEducationWorkers.Controllers.Worker
                     return RedirectToAction("Login", "Login");
                 }
 
-
                 string userAnswersJson = JsonConvert.SerializeObject(userResultRequest.Questions);
-
 
                 var userResult = new UserResults
                 {
@@ -353,7 +337,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
             try
             {
-
                 var course = await _coursesService.GetCoursesById(courseId);
                 course.ContentCourse= JsonConvert.DeserializeObject<string>(course.ContentCourse);
                 if (course == null)
@@ -362,7 +345,6 @@ namespace PlatformEducationWorkers.Controllers.Worker
 
                     return NotFound();
                 }
-
 
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
                 var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;

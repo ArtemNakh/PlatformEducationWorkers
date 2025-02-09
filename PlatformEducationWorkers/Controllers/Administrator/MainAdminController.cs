@@ -21,19 +21,15 @@ namespace PlatformEducationWorkers.Controllers.Administrator
     {
         private readonly IEnterpriseService  _enterpriseService;
         private readonly IUserService _userService;
-
         private readonly IUserResultService _userResultService;
         private readonly ICourseService _courseService;
-
 
         public MainAdminController(IEnterpriseService enterpriceService, IUserService userService, IUserResultService userResultService, ICourseService courceService)
         {
             _enterpriseService = enterpriceService;
             _userService = userService;
-
             _userResultService = userResultService;
             _courseService = courceService;
-
         }
 
         [HttpPost]
@@ -41,18 +37,12 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteEnterprice()
         {
-
             Log.Information($"post deleting enterprise");
             try
             {
-
-                
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
-               
-
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
                 
-
                 Enterprise enterprice =await _enterpriseService.GetEnterprise(enterpriseId);
                 enterprice.Owner = null;
                 await _enterpriseService.UpdateEnterprise(enterprice);
@@ -64,43 +54,25 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 {
                     string errorMessage = $"Enterprise with ID {enterpriseId} not found.";
                     Log.Error($"delete enterprise ,enterprise is null,enterprise id:{enterpriseId}, error:{errorMessage}");
-
                     throw new Exception(errorMessage);
-
                 }
 
                 if (user == null)
                 {
                     string errorMessage = $"User with ID {userId} not found.";
                     Log.Error($"delete enterprise ,user is null,user id:{userId}, error:{errorMessage}");
-
                     throw new Exception(errorMessage);
                 }
-
 
                 if (enterprice.Owner != null && enterprice.Owner.Id != user.Id)
                 {
                     string errorMessage = $"User with ID {userId} cannot delete enterprise because they are not the owner.";
                     Log.Error($"delete enterprise ,enterprise owner is not null and owner is not current user, error:{errorMessage}");
-
-
                     throw new Exception(errorMessage);
                 }
 
-               
-
-
-               
-
-
-               
-
-               
-
                 await  _enterpriseService.DeleteingEnterprise(enterpriseId);
-
                 Log.Information($"deleting enerprise with id({enterpriseId}) was succesfully");
-
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)
@@ -115,7 +87,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> MainAdmin()
         {
-
             Log.Information($"open the  Main administration page");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             int numbersLastPassage = 5;
@@ -125,7 +96,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var AverageRating = await _userResultService.GetAverageRating(enterpriseId);
             var companyName = (await  _enterpriseService.GetEnterprise(enterpriseId)).Title;
            
-
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
 
             ViewData["CompanyName"] = companyName; 
@@ -143,7 +113,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 ViewData["UserAvatar"] = AvatarHelper.GetDefaultAvatar();
             }
-
 
             return View("~/Views/Administrator/Main/Main.cshtml");
         }

@@ -15,9 +15,6 @@ using PlatformEducationWorkers.Core.Azure;
 using PlatformEducationWorkers.Models.UserResults;
 using PlatformEducationWorkers.Request.CourceRequest;
 using Serilog;
-using System.Collections.Generic;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 using PlatformEducationWorkers.Models.Questions;
 
 namespace PlatformEducationWorkers.Controllers.Administrator
@@ -30,8 +27,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         private readonly IJobTitleService _jobTitleService;
         private readonly IEnterpriseService _enterpriseService;
         private readonly IUserService _userService;
-
-
 
         public CoursesController(ICourseService courceService, IJobTitleService jobTitleService, IUserResultService userResultService, IEnterpriseService enterpriceService, IUserService userService, IConfiguration configuration)
         {
@@ -69,7 +64,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 
-
         [HttpGet]
         [Route("Create")]
         [UserExists]
@@ -103,8 +97,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/CreateCource.cshtml");
         }
-
-       
 
         [HttpPost]
         [Route("Create")]
@@ -152,10 +144,8 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 return View("~/Views/Administrator/Cources/CreateCource.cshtml", request);
             }
 
-
             Enterprise enterprice = await _enterpriseService.GetEnterprise(HttpContext.Session.GetInt32("EnterpriseId").Value);
 
-            
             string questions = JsonConvert.SerializeObject(request.Questions);
             string context = JsonConvert.SerializeObject(request.ContentCourse);
             var jobTitles = new List<JobTitle>();
@@ -168,7 +158,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                     jobTitles.Add(jobTitle);
                 }
             }
-
 
             var newCourse = new Courses
             {
@@ -190,13 +179,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             return RedirectToAction("Courses");
         }
 
-
         [HttpGet]
         [Route("Detail/{id}")]
         [UserExists]
         public async Task<IActionResult> DetailCourse(int id)
         {
-
             Log.Information($"open the page detail Course");
             var cource = await _courseService.GetCoursesById(id);
             if (cource == null)
@@ -218,7 +205,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 contentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse);
             }
-
 
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -245,7 +231,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> HistoryPassage(int id)
         {
-
             Log.Information($"open the page historyPassage");
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var historyPassages = await _userResultService.GetAllResultEnterprice(enterpriseId);
@@ -256,7 +241,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 return NotFound();
             }
-
 
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
@@ -313,7 +297,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
 
-
             if (avatarBytes != null && avatarBytes.Length > 0)
             {
                 string base64Avatar = Convert.ToBase64String(avatarBytes);
@@ -327,7 +310,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.Courses = courses.ToList();
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/HistoryPassage.cshtml");
-
         }
 
         [HttpPost]
@@ -341,14 +323,9 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
 
-
                  await _userResultService.DeleteResult(passageId); 
 
-               
-
                 Log.Information($"Successfully deleted history passage with id {passageId}");
-
-
                 return RedirectToAction("HistoryPassage", new { area = "Administrator" });
             }
             catch (Exception ex)
@@ -364,7 +341,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
         [UserExists]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-
             Log.Information($"post request on delete course with id:({id})");
 
             var cource = await _courseService.GetCoursesById(id);
@@ -373,7 +349,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 Log.Error($"id course  is null, detail  course with id{id}");
                 return NotFound();
             }
-
 
             var courcePassages = await _userResultService.GetAllResultCourses(cource.Id);
             foreach (var courcePassage in courcePassages)
@@ -385,20 +360,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
             }
             
-
             await _courseService.DeleteCourse(cource.Id);
-
 
             Log.Information($"course with id:({id}) was succesfull deleted");
             return RedirectToAction("Courses");
-
         }
-
-
-
-
-
-
 
         [HttpGet]
         [Route("EditCource")]
@@ -422,9 +388,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ContentCourse = JsonConvert.DeserializeObject<string>(cource.ContentCourse),
                 Questions = JsonConvert.DeserializeObject<List<QuestionContext>>(cource.Questions)
             };
-
-           
-
             
             int enterpriseId = HttpContext.Session.GetInt32("EnterpriseId").Value;
             var companyName = (await _enterpriseService.GetEnterprise(enterpriseId)).Title;
@@ -443,7 +406,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
             ViewData["CompanyName"] = companyName;
             return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
-
         }
 
         [HttpPost]
@@ -469,7 +431,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                     foreach (var answer in question.Answers)
                     {
-                       
                         if(answer.Text!=null)
                         {
                             AnswerContext answerCurrent = new AnswerContext();
@@ -484,8 +445,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 }
             }
             request.Questions = questionContext;
-
-
 
             byte[] avatarBytes = HttpContext.Session.Get("UserAvatar");
             if (avatarBytes != null && avatarBytes.Length > 0)
@@ -505,8 +464,7 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             var copynameCourses = (await _courseService.GetAllCoursesEnterprise(enterpriseId))
     .Where(item => item.TitleCource ==  request.TitleCource);
 
-
-            if (!ModelState.IsValid ||  copynameCourses.Count()>0)
+            if (!ModelState.IsValid ||  copynameCourses.Count()>1)
             {
                 Log.Warning($"request  is no valid, edit course request{request}");
                 Courses cource =await  _courseService.GetCoursesById(request.Id);
@@ -525,10 +483,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
                 ViewBag.AvaliableJobTitle = (await _jobTitleService.GetAvaliableRoles(cource.Enterprise.Id)).ToList();
                 return View("~/Views/Administrator/Cources/EditCource.cshtml", request);
             }
-          
-
-            
-
            
             List<JobTitle> jobTitles = new List<JobTitle>();
 
@@ -536,9 +490,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             {
                 jobTitles.Add(await _jobTitleService.GetJobTitle(IdJobTitle));
             }
-
-
-
 
             Courses course = new Courses();
             // Оновлюємо дані курсу
@@ -549,18 +500,11 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             course.ContentCourse = JsonConvert.SerializeObject(request.ContentCourse);
             course.Questions = JsonConvert.SerializeObject(request.Questions);
 
-          
-
             await _courseService.UpdateCourse(course);
-
-
 
             Log.Information($"course with id:({request.Id}) was succesfully update ");
             return RedirectToAction("DetailCourse", new { id = request.Id });
-
-
         }
-
 
         [HttpGet]
         [Route("SearchCourses")]
@@ -595,7 +539,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             return View("~/Views/Administrator/Cources/Courses.cshtml");
         }
 
-
         [HttpGet]
         [Route("DetailPassageCourse")]
         [UserExists]
@@ -604,7 +547,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
             Log.Information($"open the page detail passage course");
             try
             {
-               
                 var courseResult = await _userResultService.GetUserResult(passageId);
                 if (courseResult == null)
                 {
@@ -613,7 +555,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                     return NotFound();
                 }
-
 
                 string content = "";
                 List<UserQuestionRequest> questions = new();
@@ -676,8 +617,6 @@ namespace PlatformEducationWorkers.Controllers.Administrator
 
                 return StatusCode(500, "Сталася помилка.");
             }
-
         }
-
     }
 }

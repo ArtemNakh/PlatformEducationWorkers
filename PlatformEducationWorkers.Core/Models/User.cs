@@ -1,5 +1,4 @@
 ﻿
-
 namespace PlatformEducationWorkers.Core.Models
 {
     public class User
@@ -14,9 +13,7 @@ namespace PlatformEducationWorkers.Core.Models
         public string  Login { get; set; }
         public string Salt { get; set; } 
         public string? ProfileAvatar { get; set; }
-
         public virtual Enterprise Enterprise { get; set; }
-
         public virtual JobTitle JobTitle { get; set; }
         public Role Role { get; set; }
 

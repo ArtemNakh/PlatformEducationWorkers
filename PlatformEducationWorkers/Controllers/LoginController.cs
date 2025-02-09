@@ -1,20 +1,12 @@
-﻿using Amazon.Runtime.Internal;
-using Amazon.S3.Model;
-using Azure.Core;
+﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using PlatformEducationWorkers.Attributes;
 using PlatformEducationWorkers.Core.Interfaces;
 using PlatformEducationWorkers.Core.Interfaces.Enterprises;
 using PlatformEducationWorkers.Core.Models;
-using PlatformEducationWorkers.Core.Services;
 using PlatformEducationWorkers.Core;
 using PlatformEducationWorkers.Core.Azure;
-using PlatformEducationWorkers.Request.AccountRequest;
 using PlatformEducationWorkers.Request.Login_RegisterRequest;
 using Serilog;
-using System.IO;
 
 namespace PlatformEducationWorkers.Controllers
 {
@@ -58,7 +50,6 @@ namespace PlatformEducationWorkers.Controllers
 
             try
             {
-               
                 var user = await _userService.Login(request.Login, request.Password);
                 if (user != null)
                 {

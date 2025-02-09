@@ -24,8 +24,6 @@ namespace PlatformEducationWorkers.Request.CourceRequest
         [Required(ErrorMessage = "Потрібно вибрати принаймні одну роль доступу.")]
         public List<int> AccessRoleIds { get; set; }
 
-        
-
         [Required(ErrorMessage = "Відображати запитання мають бути істинними або невірними.")]
         public bool ShowCorrectAnswers { get; set; }
 

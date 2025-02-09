@@ -20,11 +20,6 @@ namespace PlatformEducationWorkers.Core.Services
         private readonly AzureBlobCourseOperation AzureCourseOperation;
         private readonly AzureBlobAvatarOperation AzureAvatarService;
 
-
-
-
-
-
         // <summary>
         /// Helper method to retrieve and update photos from Azure Blob storage for a list of user results.
         /// </summary>
@@ -36,7 +31,6 @@ namespace PlatformEducationWorkers.Core.Services
                 List<UserQuestionRequest> questionContexts = JsonConvert.DeserializeObject<List<UserQuestionRequest>>(userResult.answerJson);
                 questionContexts = await AzureCourseOperation.UnloadFileFromBlobAsync(questionContexts);
                 userResult.answerJson = JsonConvert.SerializeObject(questionContexts);
-
 
             }
         }
@@ -68,7 +62,6 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Update user results JSON
                 userResults.answerJson = JsonConvert.SerializeObject(userQuestions);
-
 
                 // Save user result to the repository
                 UserResults userResult = await _repository.AddAll(userResults);
@@ -222,7 +215,6 @@ namespace PlatformEducationWorkers.Core.Services
         /// </summary>
         public async Task<IEnumerable<UserResults>> GetLastPassages(int enterpriceId, int numbersPassage)
         {
-
             try
             {
                 if (enterpriceId == 0)
@@ -237,8 +229,6 @@ namespace PlatformEducationWorkers.Core.Services
 
                 // Retrieve photos for the results
                 await GettingListPhotosCoursesAzure(results);
-
-
 
                 // sort by completion date
                 return results;

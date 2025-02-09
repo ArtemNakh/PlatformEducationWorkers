@@ -12,9 +12,7 @@ namespace PlatformEducationWorkers.Request.AccountRequest
         [MinLength(6, ErrorMessage = "Пароль повинен містити як мінімум 6 літер.")]
         public string? NewPassword { get; set; }
 
-
         public IFormFile? ProfileAvatar { get; set; }
-
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

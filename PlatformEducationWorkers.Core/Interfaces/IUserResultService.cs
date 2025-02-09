@@ -10,9 +10,7 @@ namespace PlatformEducationWorkers.Core.Interfaces
         Task<IEnumerable<UserResults>> GetAllResultEnterprice(int enterpriceId);
         Task<IEnumerable<UserResults>> GetAllResultCourses(int CourseId);
         Task<UserResults> GetUserResult(int passageCourceId);
-
         Task<IEnumerable<UserResults>> GetLastPassages(int enterpriseId,int numbersPassage);
-
         Task<double> GetAverageRating(int enterpriseId);
         Task DeleteAllResultsUser(int userId);
         Task UpdateIsRelevantStatus(int id, bool isRelevant);

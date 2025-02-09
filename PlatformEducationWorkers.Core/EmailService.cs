@@ -22,9 +22,7 @@ namespace PlatformEducationWorkers.Core
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
-
             _smtpServer = _configuration["EmailSettings:SmtpServer"];
-            
             _port = Convert.ToInt32(_configuration["EmailSettings:Port"]);
 
         }

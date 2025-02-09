@@ -32,7 +32,6 @@ namespace PlatformEducationWorkers.Request.AccountRequest
 
         public IFormFile? ProfileAvatar { get; set; }
 
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (!string.IsNullOrEmpty(Login) && string.IsNullOrEmpty(Password))

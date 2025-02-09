@@ -27,9 +27,6 @@ namespace PlatformEducationWorkers.Storage
                 .OnDelete(DeleteBehavior.Restrict); // Або інший DeleteBehavior за необхідності
         }
 
-
-
-
         public DbSet<User> Users { get; set; }
         public DbSet<Enterprise> Enterprises { get; set; }
         public DbSet<Courses> Cources { get; set; }

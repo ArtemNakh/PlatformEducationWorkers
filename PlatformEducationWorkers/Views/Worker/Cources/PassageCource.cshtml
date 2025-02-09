@@ -197,8 +197,6 @@
     }
 
 
-
-
     // Enable change of radio buttons (ensure one selection at a time)
     function enableChange(questionIndex) {
         const radios = document.querySelectorAll(`input[type="radio"][name="Questions[${questionIndex}].Answer"]`);
@@ -207,13 +205,6 @@
             radio.disabled = false; // Enable all radio buttons for the same question group
         });
     }
-
-
-
-
-
-
-
 
 
     function updateSelectedCheckboxes(questionIndex) {

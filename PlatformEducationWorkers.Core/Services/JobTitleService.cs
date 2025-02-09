@@ -178,8 +178,6 @@ namespace PlatformEducationWorkers.Core.Services
                     throw new Exception($"Error get avaliable job Title, error:enterpriseId null or less than 0");
                 }
 
-
-
                 return (await _repository.GetQueryAsync<JobTitle>(n => n.Enterprise.Id == enterpriseId)).Skip(1);
             }
             catch (Exception ex)

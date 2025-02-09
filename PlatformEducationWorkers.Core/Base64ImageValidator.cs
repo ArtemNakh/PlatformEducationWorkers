@@ -22,7 +22,6 @@ namespace PlatformEducationWorkers.Core
                 // Пробуємо декодувати base64
                 byte[] imageBytes = Convert.FromBase64String(base64Data);
 
-               
                 return true;
             }
             catch
